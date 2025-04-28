@@ -1,12 +1,11 @@
 package com.emelmujiro.secreto.example_template.exception;
 
-import lombok.NoArgsConstructor;
+import com.emelmujiro.secreto.global.error.ErrorCode;
+import com.emelmujiro.secreto.global.exception.ApiException;
 
-@NoArgsConstructor
-public class TestException extends RuntimeException {
+public class TestException extends ApiException {
 
-    public TestException(String msg) {
-        super(msg);
+    public TestException(ErrorCode errorCode) {
+        super(errorCode);
     }
 }
-
