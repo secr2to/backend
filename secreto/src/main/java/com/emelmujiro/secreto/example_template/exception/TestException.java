@@ -9,4 +9,3 @@ public class TestException extends ApiException {
         super(errorCode);
     }
 }
-
