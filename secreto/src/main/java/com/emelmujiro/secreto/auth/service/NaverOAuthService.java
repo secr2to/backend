@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.emelmujiro.secreto.auth.dto.AuthResponse;
+import com.emelmujiro.secreto.auth.error.AuthErrorCode;
+import com.emelmujiro.secreto.auth.exception.AuthException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.RequiredArgsConstructor;
@@ -56,11 +58,15 @@ public class NaverOAuthService {
 			+ "&code=" + code
 			+ "&state=" + state;
 
-		return webClient.get()
+		JsonNode response = webClient.get()
 			.uri(tokenIssuanceEndpoint)
 			.retrieve()
 			.bodyToMono(JsonNode.class)
-			.map(AuthResponse::ofNaver)
 			.block();
+
+		if (response == null || response.has("error")) {
+			throw new AuthException(AuthErrorCode.SESSION_INVALID);
+		}
+		return AuthResponse.ofNaver(response);
 	}
 }
