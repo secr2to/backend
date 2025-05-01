@@ -79,7 +79,7 @@ public class ApiResponse<T> {
 
 		public ResponseEntity<ApiResponse<?>> error(ErrorCode errorCode) {
 			return new ResponseEntity<>(
-				new ApiResponse<>(null, errorCode.getMessage()),
+				new ApiResponse<>(data, errorCode.getMessage()),
 				headers,
 				errorCode.getHttpStatus()
 			);
