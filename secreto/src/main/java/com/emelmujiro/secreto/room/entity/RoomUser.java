@@ -34,15 +34,19 @@ public class RoomUser {
 
     private String selfIntroduction;
 
+    @Builder.Default
     @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
     private List<ChattingParticipate> chattingParticipateList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
     private List<ChattingMessage> chattingMessageList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
     private List<Matching> matchingList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
     private List<Reasoning> reasoningList = new ArrayList<>();
 
