@@ -30,6 +30,7 @@ public class FeedReply {
     @JoinColumn(name = "parent_reply_id")
     private FeedReply parent;
 
+    @Builder.Default
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<FeedReply> nestedReplyList = new ArrayList<>();
 
@@ -37,6 +38,7 @@ public class FeedReply {
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
+    @Builder.Default
     @OneToMany(mappedBy = "feedReply", fetch = FetchType.LAZY)
     private List<FeedReplyHeart> feedReplyHeartList = new ArrayList<>();
 

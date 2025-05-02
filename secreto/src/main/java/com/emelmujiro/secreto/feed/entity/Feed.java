@@ -39,9 +39,11 @@ public class Feed {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @Builder.Default
     @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
     private List<FeedHeart> feedHeartList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
     private List<FeedReply> feedReplyList = new ArrayList<>();
 

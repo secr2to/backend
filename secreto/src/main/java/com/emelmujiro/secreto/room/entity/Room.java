@@ -38,18 +38,23 @@ public class Room {
 
     private Integer missionPeriod;
 
+    @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<RoomUser> roomUserList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<RoomMissionHistory> roomMissionHistoryList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<RoomMission> roomMissionList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<Feed> feedList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<Notification> notificationList = new ArrayList<>();
 }
