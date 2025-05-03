@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.emelmujiro.secreto.auth.enums.OAuthProvider;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedHeart;
 import com.emelmujiro.secreto.feed.entity.FeedReply;
@@ -14,8 +13,6 @@ import com.emelmujiro.secreto.room.entity.RoomUser;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -54,9 +51,7 @@ public class User {
 
     private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "provider")
-    private OAuthProvider oAuthProvider;
+    private String oAuthProvider;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<FeedReplyHeart> feedReplyHeartList = new ArrayList<>();
@@ -80,7 +75,7 @@ public class User {
     private List<UserLog> userLogList = new ArrayList<>();
 
     @Builder(builderMethodName = "oauthUserBuilder")
-    public User(OAuthProvider oAuthProvider, String username, String nickname, String email, String profileUrl) {
+    public User(String oAuthProvider, String username, String nickname, String email, String profileUrl) {
         this.oAuthProvider = oAuthProvider;
         this.username = username;
         this.nickname = nickname;
