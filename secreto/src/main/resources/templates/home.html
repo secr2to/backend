@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+
+<div sec:authorize="isAuthenticated()">
+  <p>Provider: <span sec:authentication="principal.attributes['provider']"></span></p>
+  <p>Email: <span sec:authentication="principal.attributes['email']"></span></p>
+  <p>Authorities: <span sec:authentication="authorities"></span></p>
+  <p>Access Token: <span id="access-token"></span></p>
+  <p>Refresh Token: <span id="refresh-token"></span></p>
+  <form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+  </form>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    document.querySelector('#access-token').textContent = params.get('access_token');
+    document.querySelector('#refresh-token').textContent = params.get('refresh_token');
+  </script>
+</div>
+<div sec:authorize="isAnonymous()">
+  <p>You are not logged in.</p>
+  <a href="/oauth2/authorization/google">구글 로그인</a>
+  <a href="/oauth2/authorization/naver">네이버 로그인</a>
+  <a href="/oauth2/authorization/kakao">카카오 로그인</a>
+</div>
+
+</body>
+</html>
