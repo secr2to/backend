@@ -1,17 +1,15 @@
 package com.emelmujiro.secreto.auth.handler;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.emelmujiro.secreto.auth.dto.AuthToken;
 import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
-import com.emelmujiro.secreto.user.entity.User;
-import com.emelmujiro.secreto.user.repository.UserRepository;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,12 +28,21 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 		log.info("onAuthenticationSuccess");
 		OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+		boolean isNewUser = Boolean.TRUE.equals(oAuth2User.getAttribute("isNewUser"));
 
 		log.info("oAuth2User={}", oAuth2User);
 
 		AuthToken token = jwtTokenUtil.generateToken(oAuth2User);
 		log.info("accessToken={}", token.getAccessToken());
 		log.info("refreshToken={}", token.getRefreshToken());
-		getRedirectStrategy().sendRedirect(request, response, "/auth/redirect?accessToken=" + token.getAccessToken() + "&refreshToken=" + token.getRefreshToken());
+
+		String redirectUrl = UriComponentsBuilder.fromPath("/auth/redirect")
+			.queryParam("accessToken", token.getAccessToken())
+			.queryParam("refreshToken", token.getRefreshToken())
+			.queryParam("isNewUser", isNewUser)
+			.build()
+			.toUriString();
+
+		getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 	}
 }

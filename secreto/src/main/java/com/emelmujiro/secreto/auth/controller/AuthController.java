@@ -22,7 +22,8 @@ public class AuthController {
 	@GetMapping("/redirect")
 	public ResponseEntity<?> redirect(
 		@RequestParam String accessToken,
-		@RequestParam String refreshToken
+		@RequestParam String refreshToken,
+		@RequestParam boolean isNewUser
 	) {
 		/**
 		 * 임시 로직
@@ -30,6 +31,7 @@ public class AuthController {
 
 		log.info("accessToken={}", accessToken);
 		log.info("refreshToken={}", refreshToken);
+		log.info("isNewUser={}", isNewUser);
 
 		return ApiResponse.builder()
 			.success();

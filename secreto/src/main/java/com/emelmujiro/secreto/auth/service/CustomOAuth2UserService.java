@@ -3,7 +3,6 @@ package com.emelmujiro.secreto.auth.service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -13,6 +12,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
 import com.emelmujiro.secreto.auth.dto.OAuthUserAttributes;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
@@ -35,22 +35,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 		log.info("oAuthUser={}", oAuth2User);
 
-		String provider = request.getClientRegistration().getRegistrationId();
+		final String provider = request.getClientRegistration().getRegistrationId();
 
 		Map<String, Object> attributes = oAuth2User.getAttributes();
 		OAuthUserAttributes userAttributes = new OAuthUserAttributes(provider, attributes);
-		String email = userAttributes.getEmail();
+		final String email = userAttributes.getEmail();
 
-		Optional<User> optional = userRepository.findByEmail(email);
-		Long userId = null;
-		if (optional.isEmpty()) {
-			User user = userRepository.save(userAttributes.toEntity());
-			log.info("User already exists: {}", user.getEmail());
-			userId = user.getId();
+		boolean isNewUser = false;
+		User user = userRepository.findByEmail(email).orElse(null);
+		if (user == null) {
+			user = userRepository.save(userAttributes.toEntity());
+			isNewUser = true;
+			log.info("New user created: {}", user.getEmail());
 		}
 
 		Map<String, Object> attributeMap = new HashMap<>();
-		attributeMap.put("userId", userId);
+		attributeMap.put("userId", user.getId());
+		attributeMap.put("isNewUser", isNewUser);
 		attributeMap.put("email", userAttributes.getEmail());
 		attributeMap.put("provider", userAttributes.getProvider());
 
