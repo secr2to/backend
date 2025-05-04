@@ -1,7 +1,9 @@
 package com.emelmujiro.secreto.auth.service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -11,8 +13,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
 import com.emelmujiro.secreto.auth.dto.OAuthUserAttributes;
+import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -39,17 +41,18 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		OAuthUserAttributes userAttributes = new OAuthUserAttributes(provider, attributes);
 		String email = userAttributes.getEmail();
 
-		userRepository.findByEmail(email)
-			.ifPresentOrElse(
-				user -> log.info("User already exists: {}", user.getEmail()),
-				() -> userRepository.save(userAttributes.toEntity())
-			);
+		Optional<User> optional = userRepository.findByEmail(email);
+		Long userId = null;
+		if (optional.isEmpty()) {
+			User user = userRepository.save(userAttributes.toEntity());
+			log.info("User already exists: {}", user.getEmail());
+			userId = user.getId();
+		}
 
-		Map<String, Object> attributeMap = Map.of(
-			"email", userAttributes.getEmail(),
-			"provider", userAttributes.getProvider(),
-			"exist", true
-		);
+		Map<String, Object> attributeMap = new HashMap<>();
+		attributeMap.put("userId", userId);
+		attributeMap.put("email", userAttributes.getEmail());
+		attributeMap.put("provider", userAttributes.getProvider());
 
 		return new DefaultOAuth2User(
 			Collections.singleton(new SimpleGrantedAuthority(String.format("ROLE_%s", "USER"))),

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.global.error.CommonErrorCode;
 import com.emelmujiro.secreto.global.exception.ApiException;
@@ -26,7 +27,9 @@ import lombok.extern.slf4j.Slf4j;
 public class TestController {
 
 	@GetMapping
-	public ResponseEntity<?> api() {
+	public ResponseEntity<?> api(@LoginUser Long userId) {
+
+		log.info("userId={}", userId);
 		log.info("api call");
 		HttpHeaders headers = new HttpHeaders();
 		headers.put("test", Collections.singletonList("tttt"));
