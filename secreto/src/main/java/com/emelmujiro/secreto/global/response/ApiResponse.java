@@ -27,7 +27,7 @@ public class ApiResponse<T> {
 	private final long timestamp;
 	private final String message;
 
-	private ApiResponse(T data, String message) {
+	public ApiResponse(T data, String message) {
 		this.data = data;
 		this.timestamp = System.currentTimeMillis();
 		this.message = message;

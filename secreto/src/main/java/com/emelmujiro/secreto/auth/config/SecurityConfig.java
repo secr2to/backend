@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.emelmujiro.secreto.auth.filter.JwtAuthenticationFilter;
 import com.emelmujiro.secreto.auth.handler.MyAuthenticationFailureHandler;
 import com.emelmujiro.secreto.auth.handler.MyAuthenticationSuccessHandler;
+import com.emelmujiro.secreto.auth.handler.RestAuthenticationEntryPoint;
 import com.emelmujiro.secreto.auth.service.CustomOAuth2UserService;
 
 import jakarta.servlet.http.HttpSession;
@@ -46,7 +47,9 @@ public class SecurityConfig {
 				.loginPage("/")
 				.failureHandler(authenticationFailureHandler)
 				.successHandler(authenticationSuccessHandler)
-			);
+			)
+			.exceptionHandling(exception -> exception
+				.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
 
 		http.logout(logout -> logout
 			.logoutUrl("/logout")
