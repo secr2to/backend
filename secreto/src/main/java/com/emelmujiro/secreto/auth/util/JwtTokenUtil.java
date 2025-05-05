@@ -105,7 +105,7 @@ public class JwtTokenUtil {
 
 	public String resolveAuthorization(HttpServletRequest request) {
 		String authorization = request.getHeader(AUTHORIZATION);
-		return authorization != null ? authorization.replaceFirst("BEARER ".toLowerCase(), "") : null;
+		return authorization != null ? authorization.replaceFirst("Bearer ", "") : null;
 	}
 
 	public boolean verifyToken(String token) {
