@@ -16,7 +16,6 @@ import com.emelmujiro.secreto.auth.handler.MyAuthenticationSuccessHandler;
 import com.emelmujiro.secreto.auth.handler.RestAuthenticationEntryPoint;
 import com.emelmujiro.secreto.auth.service.CustomOAuth2UserService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
