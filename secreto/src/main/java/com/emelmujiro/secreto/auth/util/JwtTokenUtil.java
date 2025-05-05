@@ -84,7 +84,8 @@ public class JwtTokenUtil {
 	}
 
 	public String resolveAuthorization(HttpServletRequest request) {
-		return request.getHeader("Authorization").replaceFirst("BEARER ", "");
+		return request.getHeader("Authorization")
+			.replaceFirst("BEARER ".toLowerCase(), "");
 	}
 
 	public boolean verifyToken(String token) {
