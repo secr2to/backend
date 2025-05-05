@@ -58,12 +58,7 @@ public class SecurityConfig {
 		http.logout(logout -> logout
 			.logoutUrl("/logout")
 			.logoutSuccessUrl("/")
-			.addLogoutHandler(((request, response, authentication) -> {
-				HttpSession session = request.getSession();
-				session.invalidate();
-			}))
-			.logoutSuccessHandler((request, response, authentication) ->
-				response.sendRedirect("/"))
+			.deleteCookies("JSESSIONID")
 		);
 
 		http.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
