@@ -48,6 +48,10 @@ public class OAuthUserAttributes {
 
 	private void mapUserAttributeOfGoogle(Map<String, Object> attributes) {
 		Map<String, Object> userInfo = getUserInfo(provider, attributes);
+		this.email = getString(userInfo, "email");
+		this.username = getString(userInfo, "sub");
+		this.nickname = getString(userInfo, "name");
+		this.profileUrl = getString(userInfo, "picture");
 	}
 
 	public User toEntity() {
@@ -65,7 +69,7 @@ public class OAuthUserAttributes {
 		return switch (provider) {
 			case "naver" -> (Map<String, Object>) attributes.get("response");
 			case "kakao" -> (Map<String, Object>) attributes.get("kakao_account");
-			case "google" -> new HashMap<>();
+			case "google" -> attributes;
 			default -> throw new IllegalStateException("Unexpected value: " + provider);
 		};
 	}
