@@ -56,7 +56,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		attributeMap.put("provider", userAttributes.getProvider());
 
 		return new DefaultOAuth2User(
-			Collections.singleton(new SimpleGrantedAuthority(String.format("ROLE_%s", "USER"))),
+			Collections.singleton(new SimpleGrantedAuthority(user.getRole().toString())),
 			attributeMap,
 			"email"
 		);

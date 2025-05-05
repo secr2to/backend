@@ -1,6 +1,5 @@
 package com.emelmujiro.secreto.auth.dto;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.emelmujiro.secreto.user.entity.User;

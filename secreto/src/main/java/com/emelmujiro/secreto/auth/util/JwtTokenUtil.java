@@ -87,7 +87,7 @@ public class JwtTokenUtil {
 		final Map<String, Object> claims = new HashMap<>(Map.of(
 			"userId", user.getId(),
 			"provider", user.getOAuthProvider(),
-			"role", "ROLE_USER"
+			"role", user.getRole().toString()
 		));
 		return generateAccessToken(user.getEmail(), claims);
 	}

@@ -1,17 +1,16 @@
 package com.emelmujiro.secreto.auth.dto;
 
 import com.emelmujiro.secreto.user.entity.User;
+import com.emelmujiro.secreto.user.entity.UserRole;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record SecurityContextUser(
 	Long userId,
 	String provider,
-	String role,
+	UserRole role,
 	String email,
 	String username,
 	String nickname,
@@ -26,7 +25,7 @@ public record SecurityContextUser(
 			.username(user.getUsername())
 			.nickname(user.getNickname())
 			.profileUrl(user.getProfileUrl())
-			.role("ROLE_USER") /* user 엔티티 권한 필드 추가 */
+			.role(user.getRole())
 			.build();
 	}
 

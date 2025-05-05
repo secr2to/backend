@@ -13,6 +13,8 @@ import com.emelmujiro.secreto.room.entity.RoomUser;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -74,6 +76,10 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserLog> userLogList = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, name = "role")
+    private UserRole role;
+
     @Builder(builderMethodName = "oauthUserBuilder")
     public User(String oAuthProvider, String username, String nickname, String email, String profileUrl) {
         this.oAuthProvider = oAuthProvider;
@@ -82,5 +88,6 @@ public class User {
         this.password = "===== OAUTH-USER =====";
         this.email = email;
         this.profileUrl = profileUrl;
+        this.role = UserRole.ROLE_USER;
     }
 }
