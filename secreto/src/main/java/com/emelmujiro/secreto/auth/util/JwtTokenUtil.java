@@ -26,8 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
 
-	private static final long ACCESS_TOKEN_PERIOD_MILLIS = 1000L * 60L * 30L;
-	private static final long REFRESH_TOKEN_PERIOD_MILLIS = 1000L * 60L * 60L * 24L * 7;
+	@Value("${auth.access-token-expiration-seconds}")
+	private long accessTokenExpirationSeconds;
+
+	@Value("${auth.refresh-token-expiration-seconds}")
+	private long refreshTokenExpirationSeconds;
 
 	@Value("${jwt.secret}")
 	private String jwtSecret;
@@ -62,11 +65,11 @@ public class JwtTokenUtil {
 	}
 
 	private String generateRefreshToken(String subject, Map<String, Object> claims) {
-		return buildToken(subject, claims, REFRESH_TOKEN_PERIOD_MILLIS);
+		return buildToken(subject, claims, refreshTokenExpirationSeconds * 1000L);
 	}
 
 	private String generateAccessToken(String subject, Map<String, Object> claims) {
-		return buildToken(subject, claims, ACCESS_TOKEN_PERIOD_MILLIS);
+		return buildToken(subject, claims, accessTokenExpirationSeconds * 1000L);
 	}
 
 	private String buildToken(String subject, Map<String, Object> claims, long periodMillis) {

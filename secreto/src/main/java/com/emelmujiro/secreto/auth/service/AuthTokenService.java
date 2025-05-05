@@ -1,6 +1,7 @@
 package com.emelmujiro.secreto.auth.service;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AuthTokenService {
 
-	@Value("${login.auth-token-expiration-seconds}")
+	@Value("${auth.auth-token-expiration-seconds}")
 	private long authTokenExpirationSeconds;
+
+	@Value("${auth.refresh-token-expiration-seconds}")
+	private long refreshTokenExpirationSeconds;
 
 	private final ObjectMapper mapper = new ObjectMapper();
 	private final RedisTemplate<String, String> authTokenRedisTemplate;
@@ -38,7 +42,12 @@ public class AuthTokenService {
 		UUID uuid = UUID.randomUUID();
 		try {
 			String value = mapper.writeValueAsString(authToken);
-			authTokenRedisTemplate.opsForValue().set(uuid.toString(), value, authTokenExpirationSeconds);
+			authTokenRedisTemplate.opsForValue().set(
+				uuid.toString(),
+				value,
+				authTokenExpirationSeconds,
+				TimeUnit.SECONDS
+			);
 		} catch (JsonProcessingException e) {
 			throw new AuthException(AuthErrorCode.DATA_CONVERSION_FAILED, e);
 		}
@@ -60,7 +69,12 @@ public class AuthTokenService {
 	}
 
 	public void saveRefreshToken(Long userId, String refreshToken) {
-		refreshTokenRedisTemplate.opsForValue().set(String.valueOf(userId), refreshToken);
+		refreshTokenRedisTemplate.opsForValue().set(
+			String.valueOf(userId),
+			refreshToken,
+			refreshTokenExpirationSeconds,
+			TimeUnit.SECONDS
+		);
 	}
 
 	public String getRefreshToken(Long userId) {
