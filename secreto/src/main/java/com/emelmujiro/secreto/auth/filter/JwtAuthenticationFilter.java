@@ -1,6 +1,9 @@
 package com.emelmujiro.secreto.auth.filter;
 
+import static com.emelmujiro.secreto.auth.config.SecurityConfig.*;
+
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,7 +12,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
@@ -30,11 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-	private static final List<String> EXCLUDE_PATHS = List.of(
-		"/", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**",
-		"/auth/token", "/auth/redirect", "/auth/refresh-access-token"
-	);
 
 	private final JwtTokenUtil jwtTokenUtil;
 	private final UserRepository userRepository;
@@ -73,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		return EXCLUDE_PATHS.stream()
+		return Arrays.stream(WHITELIST_URLS)
 			.anyMatch(path -> new AntPathRequestMatcher(path).matches(request));
 	}
 }

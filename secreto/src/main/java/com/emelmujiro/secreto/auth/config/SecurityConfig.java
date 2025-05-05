@@ -24,6 +24,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+	public static final String[] WHITELIST_URLS = {
+		"/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**",
+		"/auth/token", "/auth/redirect", "/auth/refresh-access-token"
+	};
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final MyAuthenticationSuccessHandler authenticationSuccessHandler;
@@ -38,8 +42,7 @@ public class SecurityConfig {
 			.sessionManagement(session -> session
 				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/auth/token", "/auth/redirect", "/auth/refresh-access-token").permitAll()
-				.requestMatchers("/", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
+				.requestMatchers(WHITELIST_URLS).permitAll()
 				.anyRequest().authenticated()
 			)
 			.oauth2Login(oauth2 -> oauth2
