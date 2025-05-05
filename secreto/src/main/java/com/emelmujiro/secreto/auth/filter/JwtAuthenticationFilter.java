@@ -7,12 +7,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
+import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
+import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 
@@ -28,6 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+	private static final List<String> EXCLUDE_PATHS = List.of(
+		"/", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**",
+		"/auth/token", "/auth/redirect", "/auth/refresh-access-token"
+	);
+
 	private final JwtTokenUtil jwtTokenUtil;
 	private final UserRepository userRepository;
 
@@ -35,35 +43,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(
 		HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
 	) throws ServletException, IOException {
-		String authorization = request.getHeader("Authorization");
-		log.info("Authorization={}", authorization);
+		String authorization = jwtTokenUtil.resolveAuthorization(request);
 
-		if (!StringUtils.hasText(authorization)) {
-			doFilter(request, response, filterChain);
+		if (!jwtTokenUtil.verifyToken(authorization)) {
+			FilterResponseWriter.of(response).errorCode(AuthErrorCode.INVALID_TOKEN).send();
+			return;
+		}
+		if (!jwtTokenUtil.isAccessToken(authorization)) {
+			FilterResponseWriter.of(response).errorCode(AuthErrorCode.WRONG_TOKEN_TYPE).send();
 			return;
 		}
 
-		log.info("doFilterInternal");
-		if (jwtTokenUtil.verifyToken(authorization) && jwtTokenUtil.isAccessToken(authorization)) {
-			log.info("verifyToken=true");
-			User findUser = userRepository.findByEmail(jwtTokenUtil.getSubject(authorization))
-				.orElseThrow(IllegalStateException::new); /* TODO: User Exception 생성 필요 */
+		User findUser = userRepository.findByEmail(jwtTokenUtil.getSubject(authorization))
+			.orElseThrow(IllegalStateException::new); /* TODO: User Exception 생성 필요 */
 
-			SecurityContextUser contextUser = SecurityContextUser.of(findUser);
+		SecurityContextUser contextUser = SecurityContextUser.of(findUser);
+		Authentication authentication = getAuthentication(contextUser);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			log.info("contextUser={}", contextUser);
-			Authentication authentication = getAuthentication(contextUser);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-		}
-
-		/* JWT 인증이 완료되지 않았을 시, 예외 처리 필요 */
 		filterChain.doFilter(request, response);
 	}
 
-	public Authentication getAuthentication(SecurityContextUser user) {
+	private Authentication getAuthentication(SecurityContextUser user) {
 		return new UsernamePasswordAuthenticationToken(
 			user,
 			null,
 			List.of(new SimpleGrantedAuthority("ROLE_USER")));
+	}
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+		return EXCLUDE_PATHS.stream()
+			.anyMatch(path -> new AntPathRequestMatcher(path).matches(request));
 	}
 }

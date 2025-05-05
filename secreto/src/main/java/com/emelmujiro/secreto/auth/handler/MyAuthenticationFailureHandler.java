@@ -7,8 +7,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
-import com.emelmujiro.secreto.global.response.ApiResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,15 +22,8 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException, ServletException {
 
-		response.setStatus(AuthErrorCode.UNAUTHORIZED.getHttpStatus().value());
-		response.setContentType("application/json;charset=UTF-8");
-		response.getWriter().write(
-			new ObjectMapper().writeValueAsString(
-				new ApiResponse<>(
-					null,
-					AuthErrorCode.UNAUTHORIZED.getMessage()
-				)
-			)
-		);
+		FilterResponseWriter.of(response)
+			.errorCode(AuthErrorCode.UNAUTHORIZED)
+			.send();
 	}
 }
