@@ -22,6 +22,7 @@ public record SecurityContextUser(
 		return SecurityContextUser.builder()
 			.userId(user.getId())
 			.email(user.getEmail())
+			.provider(user.getOAuthProvider())
 			.username(user.getUsername())
 			.nickname(user.getNickname())
 			.profileUrl(user.getProfileUrl())
