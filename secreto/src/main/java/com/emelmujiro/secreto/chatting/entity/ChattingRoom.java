@@ -22,9 +22,11 @@ public class ChattingRoom {
 
     private LocalDateTime lastChattingDate;
 
+    @Builder.Default
     @OneToMany(mappedBy = "chattingRoom", fetch = FetchType.LAZY)
     private List<ChattingParticipate> chattingParticipateList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "chattingRoom", fetch = FetchType.LAZY)
     private List<ChattingMessage> chattingMessageList = new ArrayList<>();
 
