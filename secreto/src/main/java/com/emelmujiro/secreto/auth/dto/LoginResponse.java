@@ -9,8 +9,12 @@ public record LoginResponse(
 	Long userId,
 	String provider,
 	UserRole role,
+	String roleName,
 	String email,
 	String nickname,
 	String profileUrl
 ) {
+	public LoginResponse {
+		roleName = (role != null) ? role.getName() : null;
+	}
 }
