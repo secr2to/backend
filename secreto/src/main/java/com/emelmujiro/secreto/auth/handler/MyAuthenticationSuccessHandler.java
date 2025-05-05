@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.emelmujiro.secreto.auth.dto.AuthToken;
+import com.emelmujiro.secreto.auth.service.AuthTokenService;
 import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
 
 import jakarta.servlet.ServletException;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JwtTokenUtil jwtTokenUtil;
+	private final AuthTokenService authTokenService;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -35,10 +37,10 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
 		AuthToken token = jwtTokenUtil.generateToken(oAuth2User);
 		log.info("accessToken={}", token.getAccessToken());
 		log.info("refreshToken={}", token.getRefreshToken());
+		String uuid = authTokenService.save(token);
 
 		String redirectUrl = UriComponentsBuilder.fromPath("/auth/redirect")
-			.queryParam("accessToken", token.getAccessToken())
-			.queryParam("refreshToken", token.getRefreshToken())
+			.queryParam("tempId", uuid)
 			.queryParam("isNewUser", isNewUser)
 			.build()
 			.toUriString();

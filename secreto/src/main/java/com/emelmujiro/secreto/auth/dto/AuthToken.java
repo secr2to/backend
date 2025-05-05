@@ -1,12 +1,14 @@
 package com.emelmujiro.secreto.auth.dto;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
+@NoArgsConstructor
 public class AuthToken {
 
-	private final String refreshToken;
-	private final String accessToken;
+	private String refreshToken;
+	private String accessToken;
 
 	public AuthToken(String refreshToken, String accessToken) {
 		this.refreshToken = refreshToken;
