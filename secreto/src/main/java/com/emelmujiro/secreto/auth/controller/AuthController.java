@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,5 +46,13 @@ public class AuthController {
 		return ApiResponse.builder()
 			.data(principal.toLoginResponse())
 			.success();
+	}
+
+	/***
+	 * 액세스 토큰 재발급 API 개발 필요
+	 */
+	@PostMapping("/refresh-access-token")
+	public ResponseEntity<?> refreshAccessToken() {
+		return null;
 	}
 }
