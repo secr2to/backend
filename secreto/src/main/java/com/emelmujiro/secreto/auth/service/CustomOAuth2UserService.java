@@ -42,7 +42,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		final String email = userAttributes.getEmail();
 
 		boolean isNewUser = false;
-		User user = userRepository.findByEmail(email).orElse(null);
+		User user = userRepository.findOAuthUserByEmail(provider, email).orElse(null);
 		if (user == null) {
 			user = userRepository.save(userAttributes.toEntity());
 			isNewUser = true;
