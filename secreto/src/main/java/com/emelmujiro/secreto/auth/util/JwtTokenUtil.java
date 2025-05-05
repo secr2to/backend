@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import com.emelmujiro.secreto.auth.dto.AuthToken;
+import com.emelmujiro.secreto.user.entity.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -70,6 +71,15 @@ public class JwtTokenUtil {
 
 	private String generateAccessToken(String subject, Map<String, Object> claims) {
 		return buildToken(subject, claims, accessTokenExpirationSeconds * 1000L);
+	}
+
+	public String generateAccessToken(User user) {
+		final Map<String, Object> claims = Map.of(
+			"userId", user.getId(),
+			"provider", user.getOAuthProvider(),
+			"role", "ROLE_USER"
+		);
+		return generateAccessToken(user.getEmail(), claims);
 	}
 
 	private String buildToken(String subject, Map<String, Object> claims, long periodMillis) {

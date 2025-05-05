@@ -1,19 +1,19 @@
 package com.emelmujiro.secreto.auth.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
 import com.emelmujiro.secreto.auth.service.AuthTokenService;
+import com.emelmujiro.secreto.auth.util.SecurityContextUtil;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,19 +40,18 @@ public class AuthController {
 
 	@GetMapping("/me")
 	public ResponseEntity<?> getUserInfo() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		SecurityContextUser principal = (SecurityContextUser) authentication.getPrincipal();
-
+		SecurityContextUser principal = SecurityContextUtil.getPrincipal();
 		return ApiResponse.builder()
 			.data(principal.toLoginResponse())
 			.success();
 	}
 
-	/***
-	 * 액세스 토큰 재발급 API 개발 필요
-	 */
-	@PostMapping("/refresh-access-token")
-	public ResponseEntity<?> refreshAccessToken() {
-		return null;
+	@GetMapping("/refresh-access-token")
+	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+		String refreshToken = request.getHeader("Authorization");
+		final String reissuedAccessToken = authTokenService.reissueAccessToken(refreshToken);
+		return ApiResponse.builder()
+			.data(Map.of("accessToken", reissuedAccessToken))
+			.success();
 	}
 }

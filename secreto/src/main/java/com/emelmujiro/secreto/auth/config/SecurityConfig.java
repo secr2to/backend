@@ -38,7 +38,7 @@ public class SecurityConfig {
 			.sessionManagement(session -> session
 				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/auth/token", "/auth/redirect").permitAll()
+				.requestMatchers("/auth/token", "/auth/redirect", "/auth/refresh-access-token").permitAll()
 				.requestMatchers("/", "/css/**","/images/**","/js/**","/favicon.ico","/h2-console/**").permitAll()
 				.anyRequest().authenticated()
 			)

@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import com.emelmujiro.secreto.auth.dto.AuthToken;
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.exception.AuthException;
+import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
+import com.emelmujiro.secreto.user.entity.User;
+import com.emelmujiro.secreto.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,13 +32,19 @@ public class AuthTokenService {
 	private final ObjectMapper mapper = new ObjectMapper();
 	private final RedisTemplate<String, String> authTokenRedisTemplate;
 	private final RedisTemplate<String, String> refreshTokenRedisTemplate;
+	private final UserRepository userRepository;
+	private final JwtTokenUtil jwtTokenUtil;
 
 	public AuthTokenService(
 		@Qualifier("authTokenRedisTemplate") RedisTemplate<String, String> authTokenRedisTemplate,
-		@Qualifier("refreshTokenRedisTemplate") RedisTemplate<String, String> refreshTokenRedisTemplate
+		@Qualifier("refreshTokenRedisTemplate") RedisTemplate<String, String> refreshTokenRedisTemplate,
+		UserRepository userRepository,
+		JwtTokenUtil jwtTokenUtil
 	) {
 		this.authTokenRedisTemplate = authTokenRedisTemplate;
 		this.refreshTokenRedisTemplate = refreshTokenRedisTemplate;
+		this.userRepository = userRepository;
+		this.jwtTokenUtil = jwtTokenUtil;
 	}
 
 	public String saveAuthToken(AuthToken authToken) {
@@ -77,8 +86,21 @@ public class AuthTokenService {
 		);
 	}
 
-	public String getRefreshToken(Long userId) {
-		return sanitizeString(authTokenRedisTemplate.opsForValue().get(String.valueOf(userId)));
+	public String reissueAccessToken(String refreshToken) {
+		Long userId = jwtTokenUtil.getUserId(refreshToken);
+
+		String storedRefreshToken = sanitizeString(refreshTokenRedisTemplate.opsForValue().get(String.valueOf(userId)));
+		if (!refreshToken.equals(storedRefreshToken)) {
+			throw new AuthException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
+		}
+
+		/**
+		 * TODO: User Exception 생성 필요
+		 */
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new IllegalArgumentException("user not found"));
+
+		return jwtTokenUtil.generateAccessToken(user);
 	}
 
 	private String sanitizeString(String value) {
