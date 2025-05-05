@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
 import com.emelmujiro.secreto.auth.service.AuthTokenService;
+import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
 import com.emelmujiro.secreto.auth.util.SecurityContextUtil;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
 	private final AuthTokenService authTokenService;
+	private final JwtTokenUtil jwtTokenUtil;
 
 	@GetMapping("/redirect")
 	public ResponseEntity<?> redirect() {
@@ -48,7 +50,7 @@ public class AuthController {
 
 	@GetMapping("/refresh-access-token")
 	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
-		String refreshToken = request.getHeader("Authorization");
+		String refreshToken = jwtTokenUtil.resolveAuthorization(request);
 		final String reissuedAccessToken = authTokenService.reissueAccessToken(refreshToken);
 		return ApiResponse.builder()
 			.data(Map.of("accessToken", reissuedAccessToken))

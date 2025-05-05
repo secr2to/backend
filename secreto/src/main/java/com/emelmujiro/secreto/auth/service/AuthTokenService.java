@@ -87,9 +87,12 @@ public class AuthTokenService {
 	}
 
 	public String reissueAccessToken(String refreshToken) {
+		if (!jwtTokenUtil.isRefreshToken(refreshToken)) {
+			throw new AuthException(AuthErrorCode.WRONG_TOKEN_TYPE);
+		}
 		Long userId = jwtTokenUtil.getUserId(refreshToken);
-
 		String storedRefreshToken = sanitizeString(refreshTokenRedisTemplate.opsForValue().get(String.valueOf(userId)));
+
 		if (!refreshToken.equals(storedRefreshToken)) {
 			throw new AuthException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		}

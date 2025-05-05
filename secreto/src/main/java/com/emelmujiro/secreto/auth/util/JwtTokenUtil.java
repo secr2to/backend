@@ -1,6 +1,7 @@
 package com.emelmujiro.secreto.auth.util;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
@@ -30,6 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
 
+	private static final String TOKEN_TYPE_ACCESS = "access";
+	private static final String TOKEN_TYPE_REFRESH = "refresh";
+	private static final String AUTHORIZATION = "Authorization";
+
 	@Value("${auth.access-token-expiration-seconds}")
 	private long accessTokenExpirationSeconds;
 
@@ -56,11 +61,11 @@ public class JwtTokenUtil {
 			.getAuthority();
 
 		assert userId != null && provider != null;
-		final Map<String, Object> claims = Map.of(
+		final Map<String, Object> claims = new HashMap<>(Map.of(
 			"userId", userId,
 			"provider", provider,
 			"role", role
-		);
+		));
 
 		final String refreshToken = generateRefreshToken(email, claims);
 		final String accessToken = generateAccessToken(email, claims);
@@ -69,19 +74,21 @@ public class JwtTokenUtil {
 	}
 
 	private String generateRefreshToken(String subject, Map<String, Object> claims) {
+		claims.put("tokenType", TOKEN_TYPE_REFRESH);
 		return buildToken(subject, claims, refreshTokenExpirationSeconds * 1000L);
 	}
 
 	private String generateAccessToken(String subject, Map<String, Object> claims) {
+		claims.put("tokenType", TOKEN_TYPE_ACCESS);
 		return buildToken(subject, claims, accessTokenExpirationSeconds * 1000L);
 	}
 
 	public String generateAccessToken(User user) {
-		final Map<String, Object> claims = Map.of(
+		final Map<String, Object> claims = new HashMap<>(Map.of(
 			"userId", user.getId(),
 			"provider", user.getOAuthProvider(),
 			"role", "ROLE_USER"
-		);
+		));
 		return generateAccessToken(user.getEmail(), claims);
 	}
 
@@ -97,7 +104,7 @@ public class JwtTokenUtil {
 	}
 
 	public String resolveAuthorization(HttpServletRequest request) {
-		return request.getHeader("Authorization")
+		return request.getHeader(AUTHORIZATION)
 			.replaceFirst("BEARER ".toLowerCase(), "");
 	}
 
@@ -130,6 +137,14 @@ public class JwtTokenUtil {
 
 	public String getProvider(String token) {
 		return getClaims(token).get("provider", String.class);
+	}
+
+	public boolean isRefreshToken(String token) {
+		return TOKEN_TYPE_REFRESH.equals(getClaims(token).get("tokenType", String.class));
+	}
+
+	public boolean isAccessToken(String token) {
+		return TOKEN_TYPE_ACCESS.equals(getClaims(token).get("tokenType", String.class));
 	}
 
 	private Claims getClaims(String token) {

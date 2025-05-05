@@ -44,10 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		log.info("doFilterInternal");
-		if (jwtTokenUtil.verifyToken(authorization)) {
+		if (jwtTokenUtil.verifyToken(authorization) && jwtTokenUtil.isAccessToken(authorization)) {
 			log.info("verifyToken=true");
 			User findUser = userRepository.findByEmail(jwtTokenUtil.getSubject(authorization))
-				.orElseThrow(IllegalStateException::new);
+				.orElseThrow(IllegalStateException::new); /* TODO: User Exception 생성 필요 */
 
 			SecurityContextUser contextUser = SecurityContextUser.of(findUser);
 
