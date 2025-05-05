@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import com.emelmujiro.secreto.auth.dto.AuthToken;
+import com.emelmujiro.secreto.auth.error.AuthErrorCode;
+import com.emelmujiro.secreto.auth.exception.AuthException;
 import com.emelmujiro.secreto.user.entity.User;
 
 import io.jsonwebtoken.Claims;
@@ -17,6 +19,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -100,7 +103,6 @@ public class JwtTokenUtil {
 
 	public boolean verifyToken(String token) {
 		try {
-
 			Jws<Claims> claims = Jwts.parser()
 				.verifyWith(secretKey)
 				.build()
@@ -110,7 +112,6 @@ public class JwtTokenUtil {
 				.getExpiration()
 				.after(new Date());
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			return false;
 		}
 	}
@@ -132,10 +133,14 @@ public class JwtTokenUtil {
 	}
 
 	private Claims getClaims(String token) {
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload();
+		try {
+			return Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
+		} catch (SignatureException e) {
+			throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+		}
 	}
 }
