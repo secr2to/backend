@@ -115,7 +115,7 @@ public class JwtTokenUtil {
 				.build()
 				.parseSignedClaims(token);
 
-			return claims.getBody()
+			return claims.getPayload()
 				.getExpiration()
 				.after(new Date());
 		} catch (Exception e) {
