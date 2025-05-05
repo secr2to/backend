@@ -23,27 +23,32 @@ public class AuthTokenService {
 	private long authTokenExpirationSeconds;
 
 	private final ObjectMapper mapper = new ObjectMapper();
-	private final RedisTemplate<String, String> redisTemplate;
+	private final RedisTemplate<String, String> authTokenRedisTemplate;
+	private final RedisTemplate<String, String> refreshTokenRedisTemplate;
 
-	public AuthTokenService(@Qualifier("authTokenRedisTemplate") RedisTemplate<String, String> redisTemplate) {
-		this.redisTemplate = redisTemplate;
+	public AuthTokenService(
+		@Qualifier("authTokenRedisTemplate") RedisTemplate<String, String> authTokenRedisTemplate,
+		@Qualifier("refreshTokenRedisTemplate") RedisTemplate<String, String> refreshTokenRedisTemplate
+	) {
+		this.authTokenRedisTemplate = authTokenRedisTemplate;
+		this.refreshTokenRedisTemplate = refreshTokenRedisTemplate;
 	}
 
-	public String save(AuthToken authToken) {
+	public String saveAuthToken(AuthToken authToken) {
 		UUID uuid = UUID.randomUUID();
 		try {
 			String value = mapper.writeValueAsString(authToken);
-			redisTemplate.opsForValue().set(uuid.toString(), value, authTokenExpirationSeconds);
+			authTokenRedisTemplate.opsForValue().set(uuid.toString(), value, authTokenExpirationSeconds);
 		} catch (JsonProcessingException e) {
 			throw new AuthException(AuthErrorCode.DATA_CONVERSION_FAILED, e);
 		}
 		return uuid.toString();
 	}
 
-	public AuthToken get(String uuid) {
+	public AuthToken getAuthToken(String uuid) {
 		AuthToken token;
 		try {
-			String value = sanitizeString(redisTemplate.opsForValue().get(uuid));
+			String value = sanitizeString(authTokenRedisTemplate.opsForValue().get(uuid));
 			token = mapper.readValue(value, AuthToken.class);
 		} catch (JsonProcessingException e) {
 			throw new AuthException(AuthErrorCode.DATA_CONVERSION_FAILED, e);
@@ -52,6 +57,14 @@ public class AuthTokenService {
 			throw new AuthException(AuthErrorCode.KEY_UUID_INVALID);
 		}
 		return token;
+	}
+
+	public void saveRefreshToken(Long userId, String refreshToken) {
+		refreshTokenRedisTemplate.opsForValue().set(String.valueOf(userId), refreshToken);
+	}
+
+	public String getRefreshToken(Long userId) {
+		return sanitizeString(authTokenRedisTemplate.opsForValue().get(String.valueOf(userId)));
 	}
 
 	private String sanitizeString(String value) {

@@ -31,13 +31,15 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
 		log.info("onAuthenticationSuccess");
 		OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 		boolean isNewUser = Boolean.TRUE.equals(oAuth2User.getAttribute("isNewUser"));
+		Long userId = oAuth2User.getAttribute("userId");
 
 		log.info("oAuth2User={}", oAuth2User);
 
 		AuthToken token = jwtTokenUtil.generateToken(oAuth2User);
 		log.info("accessToken={}", token.getAccessToken());
 		log.info("refreshToken={}", token.getRefreshToken());
-		String uuid = authTokenService.save(token);
+		String uuid = authTokenService.saveAuthToken(token);
+		authTokenService.saveRefreshToken(userId, token.getRefreshToken());
 
 		String redirectUrl = UriComponentsBuilder.fromPath("/auth/redirect")
 			.queryParam("tempId", uuid)

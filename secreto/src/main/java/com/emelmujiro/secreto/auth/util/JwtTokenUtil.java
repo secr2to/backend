@@ -1,7 +1,6 @@
 package com.emelmujiro.secreto.auth.util;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
@@ -58,8 +57,6 @@ public class JwtTokenUtil {
 
 		final String refreshToken = generateRefreshToken(email, claims);
 		final String accessToken = generateAccessToken(email, claims);
-
-		/* === token 저장 로직 === */
 
 		return new AuthToken(refreshToken, accessToken);
 	}
