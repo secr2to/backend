@@ -10,4 +10,9 @@ import lombok.RequiredArgsConstructor;
 public class ApiException extends RuntimeException {
 
 	private final ErrorCode errorCode;
+
+	public ApiException(ErrorCode errorCode, Throwable cause) {
+		super(cause);
+		this.errorCode = errorCode;
+	}
 }
