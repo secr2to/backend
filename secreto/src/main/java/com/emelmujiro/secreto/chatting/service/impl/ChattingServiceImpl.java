@@ -47,6 +47,11 @@ public class ChattingServiceImpl implements ChattingService {
 
         return CreateChattingResDto.builder()
                 .chattingMessageId(newChattingMessage.getId())
+                .writerId(newChattingMessage.getRoomUser().getId())
+                .content(newChattingMessage.getContent())
+                .writeDate(newChattingMessage.getWriteDate())
+                .readYn(newChattingMessage.getReadYn())
+                .chattingRoomId(newChattingMessage.getId())
                 .build();
     }
 }

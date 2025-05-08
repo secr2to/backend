@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,15 +19,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ChattingController {
 
+    private final SimpMessagingTemplate messagingTemplate;
     private final ChattingService chattingService;
 
-    @MessageMapping("/chatting/{chattingRoomId}")
-    @SendTo("/sub/{chattingRoomId}")    // 소켓 연결
+//    @MessageMapping("/chatting/{chattingRoomId}")
+//    @SendTo("/sub/{chattingRoomId}")    // 소켓 연결
+    @PostMapping("/chatting/{chattingRoomId}")
     public ResponseEntity<?> createChatting(@DestinationVariable("chattingRoomId") Long chattingRoomId, @RequestBody CreateChattingReqDto createChattingReqDto) {
 
         createChattingReqDto.setChattingRoomId(chattingRoomId);
 
         CreateChattingResDto result = chattingService.createChatting(createChattingReqDto);
+
+        messagingTemplate.convertAndSend("/sub/" + chattingRoomId, createChattingReqDto);
 
         return ApiResponse.builder()
                 .data(createChattingReqDto)
