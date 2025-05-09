@@ -33,4 +33,8 @@ public class ChattingMessage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id")
     private RoomUser roomUser;
+
+    public void setMessageRead() {
+        this.readYn = false;
+    }
 }

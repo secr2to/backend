@@ -44,7 +44,7 @@ public class ChattingController {
     /*
     * 채팅 내역 조회 api
     * */
-    @GetMapping("/room/{roomId}/chattings/{type}/messages")
+    @GetMapping("/rooms/{roomId}/chattings/{type}/messages")
     public ResponseEntity<?> getChattingList(@PathVariable("roomId") Long roomId, @PathVariable("type") String type, @LoginUser Long userId) {
 
         GetChattingListReqDto params = GetChattingListReqDto.builder()
@@ -66,7 +66,7 @@ public class ChattingController {
     /*
     * 채팅 참여 정보 리스트 조회 api
     * */
-    @GetMapping("/room/{roomId}/chattings/participation")
+    @GetMapping("/rooms/{roomId}/chattings/participation")
     public ResponseEntity<?> getChattingParticipationList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 
         GetChattingParticipationListReqDto params = GetChattingParticipationListReqDto.builder()
@@ -80,6 +80,23 @@ public class ChattingController {
                 .data(resultList)
                 .status(HttpStatus.OK)
                 .message("채팅 참여 리스트를 조회하였습니다.")
+                .success();
+    }
+
+    /*
+    * 채팅 읽음 처리 api
+    * */
+    @PostMapping("/chattings/{chattingRoomId}/messages/read")
+    public ResponseEntity<?> updateChattingReadStatus(@PathVariable("chattingRoomId") Long chattingRoomId, @RequestBody UpdateChattingReadStatusReqDto params) {
+
+        params.setChattingRoomId(chattingRoomId);
+
+        List<UpdateChattingReadStatusResDto> resultList = chattingService.updateChattingReadStatus(params);
+
+        return ApiResponse.builder()
+                .data(resultList)
+                .status(HttpStatus.OK)
+                .message("채팅 메시지를 읽음 처리하였습니다.")
                 .success();
     }
 

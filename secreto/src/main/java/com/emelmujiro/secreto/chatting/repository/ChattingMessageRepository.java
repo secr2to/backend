@@ -10,4 +10,7 @@ public interface ChattingMessageRepository extends JpaRepository<ChattingMessage
 
     @Query("select cm from ChattingMessage cm where cm.chattingRoom.id = :chattingRoomId")
     List<ChattingMessage> findAllByChattingRoomId(Long chattingRoomId);
+
+    @Query("select cm from ChattingMessage cm where cm.chattingRoom.id = :chattingRoomId and cm.id in :chattingMessageIds")
+    List<ChattingMessage> findAllByChattingRoomIdAndChattingMessageId(long chattingRoomId, List<Long> chattingMessageIds);
 }

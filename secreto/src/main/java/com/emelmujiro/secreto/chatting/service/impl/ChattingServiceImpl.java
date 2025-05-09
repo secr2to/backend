@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -83,12 +84,34 @@ public class ChattingServiceImpl implements ChattingService {
         RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
                 .orElseThrow(() -> new RuntimeException("해당 유저는 해당 방에 속해있지 않습니다."));
 
-        List<GetChattingParticipationListResDto> resultList = chattingParticipateRepository.findAllByRoomUserId(findRoomUser.getId())
+        List<GetChattingParticipationListResDto> resultList = chattingParticipateRepository.findAllWithChattingRoomByRoomUserId(findRoomUser.getId())
                 .stream().map(chattingParticipate -> GetChattingParticipationListResDto.builder()
                         .roomUserId(chattingParticipate.getRoomUser().getId())
                         .chattingRoomId(chattingParticipate.getChattingRoom().getId())
                         .type(chattingParticipate.getChattingUserType())
+                        .lastChattingDate(chattingParticipate.getChattingRoom().getLastChattingDate())
                         .build()).toList();
+
+        return resultList;
+    }
+
+    @Override
+    public List<UpdateChattingReadStatusResDto> updateChattingReadStatus(UpdateChattingReadStatusReqDto params) {
+
+        List<ChattingMessage> chattingMessageList = chattingMessageRepository.findAllByChattingRoomIdAndChattingMessageId(params.getChattingRoomId(), params.getChattingMessageIds());
+
+        List<UpdateChattingReadStatusResDto> resultList = new ArrayList<>();
+        for(ChattingMessage cm : chattingMessageList) {
+
+            if(cm.getRoomUser().getId() != params.getRoomUserId()) {
+                cm.setMessageRead();
+            }
+
+            resultList.add(UpdateChattingReadStatusResDto.builder()
+                    .chattingMessageId(cm.getId())
+                    .readYn(cm.getReadYn())
+                    .build());
+        }
 
         return resultList;
     }

@@ -10,4 +10,6 @@ public interface ChattingService {
     List<GetChattingListResDto> getChattingList(GetChattingListReqDto params);
 
     List<GetChattingParticipationListResDto> getChattingParticipationList(GetChattingParticipationListReqDto params);
+
+    List<UpdateChattingReadStatusResDto> updateChattingReadStatus(UpdateChattingReadStatusReqDto params);
 }
