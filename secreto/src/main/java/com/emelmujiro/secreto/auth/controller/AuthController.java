@@ -34,7 +34,7 @@ public class AuthController {
 	}
 
 	@GetMapping("/token")
-	public ResponseEntity<?> getToken(@RequestParam String tempId) {
+	public ResponseEntity<?> getToken(@RequestParam("tempId") String tempId) {
 		return ApiResponse.builder()
 			.data(authTokenService.getAuthToken(tempId))
 			.success();
