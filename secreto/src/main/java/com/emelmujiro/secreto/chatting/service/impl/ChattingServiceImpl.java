@@ -1,9 +1,6 @@
 package com.emelmujiro.secreto.chatting.service.impl;
 
-import com.emelmujiro.secreto.chatting.dto.CreateChattingReqDto;
-import com.emelmujiro.secreto.chatting.dto.CreateChattingResDto;
-import com.emelmujiro.secreto.chatting.dto.GetChattingListReqDto;
-import com.emelmujiro.secreto.chatting.dto.GetChattingListResDto;
+import com.emelmujiro.secreto.chatting.dto.*;
 import com.emelmujiro.secreto.chatting.entity.ChattingMessage;
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
 import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
@@ -31,17 +28,17 @@ public class ChattingServiceImpl implements ChattingService {
     private final RoomUserRepository roomUserRepository;
 
     @Override
-    public CreateChattingResDto createChatting(CreateChattingReqDto createChattingReqDto) {
+    public CreateChattingResDto createChatting(CreateChattingReqDto params) {
 
-        RoomUser findRoomUser = roomUserRepository.findById(createChattingReqDto.getWriterId())
+        RoomUser findRoomUser = roomUserRepository.findById(params.getWriterId())
                 .orElseThrow(() -> new RuntimeException("해당 방 유저가 존재하지 않습니다."));
 
-        ChattingRoom findChattingRoom = chattingRoomRepository.findById(createChattingReqDto.getChattingRoomId())
+        ChattingRoom findChattingRoom = chattingRoomRepository.findById(params.getChattingRoomId())
                 .orElseThrow(() -> new RuntimeException("해당 채팅방이 존재하지 않습니다."));
 
         ChattingMessage newChattingMessage = ChattingMessage.builder()
                 .chattingRoom(findChattingRoom)
-                .content(createChattingReqDto.getContent())
+                .content(params.getContent())
                 .readYn(false)
                 .writeDate(LocalDateTime.now())
                 .roomUser(findRoomUser)
@@ -60,12 +57,12 @@ public class ChattingServiceImpl implements ChattingService {
     }
 
     @Override
-    public List<GetChattingListResDto> getChattingList(GetChattingListReqDto getChattingListReqDto) {
+    public List<GetChattingListResDto> getChattingList(GetChattingListReqDto params) {
 
-        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(getChattingListReqDto.getUserId(), getChattingListReqDto.getRoomId())
+        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
                 .orElseThrow(() -> new RuntimeException("해당 유저는 해당 방에 속해있지 않습니다."));
 
-        ChattingParticipate findChattingParticipate = chattingParticipateRepository.findByRoomUserIdAndType(findRoomUser.getId(), getChattingListReqDto.getType())
+        ChattingParticipate findChattingParticipate = chattingParticipateRepository.findByRoomUserIdAndType(findRoomUser.getId(), params.getType())
                 .orElseThrow(() -> new RuntimeException("해당 유저가 참여한 채팅방이 존재하지 않습니다."));
 
         List<GetChattingListResDto> resultList = chattingMessageRepository.findAllByChattingRoomId(findChattingParticipate.getChattingRoom().getId())
@@ -75,6 +72,22 @@ public class ChattingServiceImpl implements ChattingService {
                         .content(chattingMessage.getContent())
                         .writeDate(chattingMessage.getWriteDate())
                         .readYn(chattingMessage.getReadYn())
+                        .build()).toList();
+
+        return resultList;
+    }
+
+    @Override
+    public List<GetChattingParticipationListResDto> getChattingParticipationList(GetChattingParticipationListReqDto params) {
+
+        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .orElseThrow(() -> new RuntimeException("해당 유저는 해당 방에 속해있지 않습니다."));
+
+        List<GetChattingParticipationListResDto> resultList = chattingParticipateRepository.findAllByRoomUserId(findRoomUser.getId())
+                .stream().map(chattingParticipate -> GetChattingParticipationListResDto.builder()
+                        .roomUserId(chattingParticipate.getRoomUser().getId())
+                        .chattingRoomId(chattingParticipate.getChattingRoom().getId())
+                        .type(chattingParticipate.getChattingUserType())
                         .build()).toList();
 
         return resultList;

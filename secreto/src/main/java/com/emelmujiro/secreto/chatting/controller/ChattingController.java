@@ -1,10 +1,7 @@
 package com.emelmujiro.secreto.chatting.controller;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.chatting.dto.CreateChattingReqDto;
-import com.emelmujiro.secreto.chatting.dto.CreateChattingResDto;
-import com.emelmujiro.secreto.chatting.dto.GetChattingListReqDto;
-import com.emelmujiro.secreto.chatting.dto.GetChattingListResDto;
+import com.emelmujiro.secreto.chatting.dto.*;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +22,17 @@ public class ChattingController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChattingService chattingService;
 
+    /*
+    * 채팅 작성 api
+    * */
     @PostMapping("/chatting/{chattingRoomId}")
-    public ResponseEntity<?> createChatting(@PathVariable("chattingRoomId") Long chattingRoomId, @RequestBody CreateChattingReqDto createChattingReqDto) {
+    public ResponseEntity<?> createChatting(@PathVariable("chattingRoomId") Long chattingRoomId, @RequestBody CreateChattingReqDto params) {
 
-        createChattingReqDto.setChattingRoomId(chattingRoomId);
+        params.setChattingRoomId(chattingRoomId);
 
-        CreateChattingResDto result = chattingService.createChatting(createChattingReqDto);
+        CreateChattingResDto result = chattingService.createChatting(params);
 
-        messagingTemplate.convertAndSend("/sub/" + chattingRoomId, createChattingReqDto);
+        messagingTemplate.convertAndSend("/sub/" + chattingRoomId, result);
 
         return ApiResponse.builder()
                 .data(result)
@@ -41,23 +41,46 @@ public class ChattingController {
                 .success();
     }
 
+    /*
+    * 채팅 내역 조회 api
+    * */
     @GetMapping("/chatting/{roomId}")
     public ResponseEntity<?> getChattingList(@PathVariable("roomId") Long roomId, @RequestParam("type") String type, @LoginUser Long userId) {
 
-        GetChattingListReqDto getChattingListReqDto = GetChattingListReqDto.builder()
+        GetChattingListReqDto params = GetChattingListReqDto.builder()
                 .roomId(roomId)
                 .userId(userId)
                 .type(type)
                 .build();
 
-        List<GetChattingListResDto> resultList = chattingService.getChattingList(getChattingListReqDto);
+        List<GetChattingListResDto> resultList = chattingService.getChattingList(params);
 
         return ApiResponse.builder()
                 .data(resultList)
                 .status(HttpStatus.OK)
-                .message("채팅 메시지를 작성하였습니다.")
+                .message("채팅 내역을 조회하였습니다.")
                 .success();
 
+    }
+
+    /*
+    * 채팅 참여 정보 리스트 조회 api
+    * */
+    @GetMapping("/chatting/participation/{roomId}")
+    public ResponseEntity<?> getChattingParticipationList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        GetChattingParticipationListReqDto params = GetChattingParticipationListReqDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        List<GetChattingParticipationListResDto> resultList = chattingService.getChattingParticipationList(params);
+
+        return ApiResponse.builder()
+                .data(resultList)
+                .status(HttpStatus.OK)
+                .message("채팅 참여 리스트를 조회하였습니다.")
+                .success();
     }
 
 }
