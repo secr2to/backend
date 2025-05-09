@@ -25,7 +25,7 @@ public class ChattingController {
     /*
     * 채팅 작성 api
     * */
-    @PostMapping("/chatting/{chattingRoomId}")
+    @PostMapping("/chattings/{chattingRoomId}/messages")
     public ResponseEntity<?> createChatting(@PathVariable("chattingRoomId") Long chattingRoomId, @RequestBody CreateChattingReqDto params) {
 
         params.setChattingRoomId(chattingRoomId);
@@ -44,8 +44,8 @@ public class ChattingController {
     /*
     * 채팅 내역 조회 api
     * */
-    @GetMapping("/chatting/{roomId}")
-    public ResponseEntity<?> getChattingList(@PathVariable("roomId") Long roomId, @RequestParam("type") String type, @LoginUser Long userId) {
+    @GetMapping("/room/{roomId}/chattings/{type}/messages")
+    public ResponseEntity<?> getChattingList(@PathVariable("roomId") Long roomId, @PathVariable("type") String type, @LoginUser Long userId) {
 
         GetChattingListReqDto params = GetChattingListReqDto.builder()
                 .roomId(roomId)
@@ -66,7 +66,7 @@ public class ChattingController {
     /*
     * 채팅 참여 정보 리스트 조회 api
     * */
-    @GetMapping("/chatting/participation/{roomId}")
+    @GetMapping("/room/{roomId}/chattings/participation")
     public ResponseEntity<?> getChattingParticipationList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 
         GetChattingParticipationListReqDto params = GetChattingParticipationListReqDto.builder()
