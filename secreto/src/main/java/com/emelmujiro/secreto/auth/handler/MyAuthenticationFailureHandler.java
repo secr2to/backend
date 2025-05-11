@@ -22,6 +22,8 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException, ServletException {
 
+//		exception.printStackTrace();
+
 		FilterResponseWriter.of(response)
 			.errorCode(AuthErrorCode.UNAUTHORIZED)
 			.send();
