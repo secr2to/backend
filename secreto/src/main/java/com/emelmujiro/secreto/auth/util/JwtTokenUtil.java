@@ -16,6 +16,7 @@ import com.emelmujiro.secreto.auth.exception.AuthException;
 import com.emelmujiro.secreto.user.entity.User;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -124,27 +125,35 @@ public class JwtTokenUtil {
 	}
 
 	public String getSubject(String token) {
-		return getClaims(token).getSubject();
+		return isAccessToken(token) ? getClaims(token).getSubject() : null;
 	}
 
 	public Long getUserId(String token) {
-		return getClaims(token).get("userId", Long.class);
+		return isAccessToken(token) ? getClaims(token).get("userId", Long.class) : null;
 	}
 
 	public String getRole(String token) {
-		return getClaims(token).get("role", String.class);
+		return isAccessToken(token) ? getClaims(token).get("role", String.class) : null;
 	}
 
 	public String getProvider(String token) {
-		return getClaims(token).get("provider", String.class);
+		return isAccessToken(token) ? getClaims(token).get("provider", String.class) : null;
 	}
 
 	public boolean isRefreshToken(String token) {
-		return TOKEN_TYPE_REFRESH.equals(getClaims(token).get("tokenType", String.class));
+		try {
+			return TOKEN_TYPE_REFRESH.equals(getClaims(token).get("tokenType", String.class));
+		} catch (ExpiredJwtException e) {
+			throw new AuthException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
+		}
 	}
 
 	public boolean isAccessToken(String token) {
-		return TOKEN_TYPE_ACCESS.equals(getClaims(token).get("tokenType", String.class));
+		try {
+			return TOKEN_TYPE_ACCESS.equals(getClaims(token).get("tokenType", String.class));
+		} catch (ExpiredJwtException e) {
+			throw new AuthException(AuthErrorCode.ACCESS_TOKEN_EXPIRED);
+		}
 	}
 
 	private Claims getClaims(String token) {
