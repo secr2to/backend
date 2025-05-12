@@ -53,50 +53,50 @@ public class JwtTokenUtil {
 	}
 
 	public AuthToken generateToken(OAuth2User principal) {
-		final String email = principal.getAttribute("email");
 		final Long userId = principal.getAttribute("userId");
+		final String username = principal.getAttribute("username");
 		final String provider = principal.getAttribute("provider");
 		final String role = principal.getAuthorities().stream()
 			.findFirst()
 			.orElseThrow(IllegalAccessError::new)
 			.getAuthority();
 
-		assert userId != null && provider != null;
+		assert userId != null && username != null && provider != null && role != null;
 		final Map<String, Object> claims = new HashMap<>(Map.of(
-			"userId", userId,
+			"username", username,
 			"provider", provider,
 			"role", role
 		));
 
-		final String refreshToken = generateRefreshToken(email, claims);
-		final String accessToken = generateAccessToken(email, claims);
+		final String refreshToken = generateRefreshToken(userId, claims);
+		final String accessToken = generateAccessToken(userId, claims);
 
 		return new AuthToken(refreshToken, accessToken);
 	}
 
-	private String generateRefreshToken(String subject, Map<String, Object> claims) {
+	private String generateRefreshToken(Long userId, Map<String, Object> claims) {
 		claims.put("tokenType", TOKEN_TYPE_REFRESH);
-		return buildToken(subject, claims, refreshTokenExpirationSeconds * 1000L);
+		return buildToken(userId, claims, refreshTokenExpirationSeconds * 1000L);
 	}
 
-	private String generateAccessToken(String subject, Map<String, Object> claims) {
+	private String generateAccessToken(Long userId, Map<String, Object> claims) {
 		claims.put("tokenType", TOKEN_TYPE_ACCESS);
-		return buildToken(subject, claims, accessTokenExpirationSeconds * 1000L);
+		return buildToken(userId, claims, accessTokenExpirationSeconds * 1000L);
 	}
 
 	public String generateAccessToken(User user) {
 		final Map<String, Object> claims = new HashMap<>(Map.of(
-			"userId", user.getId(),
+			"username", user.getUsername(),
 			"provider", user.getOAuthProvider(),
-			"role", user.getRole().toString()
+			"role", user.getRole()
 		));
-		return generateAccessToken(user.getEmail(), claims);
+		return generateAccessToken(user.getId(), claims);
 	}
 
-	private String buildToken(String subject, Map<String, Object> claims, long periodMillis) {
+	private String buildToken(Long userId, Map<String, Object> claims, long periodMillis) {
 		Date now = new Date();
 		return Jwts.builder()
-			.subject(subject)
+			.subject(String.valueOf(userId))
 			.claims(claims)
 			.issuedAt(now)
 			.expiration(new Date(now.getTime() + periodMillis))
@@ -124,12 +124,12 @@ public class JwtTokenUtil {
 		}
 	}
 
-	public String getSubject(String token) {
-		return getClaims(token).getSubject();
+	public Long getUserId(String token) {
+		return Long.parseLong(getClaims(token).getSubject());
 	}
 
-	public Long getUserId(String token) {
-		return  getClaims(token).get("userId", Long.class);
+	public String getUsername(String token) {
+		return getClaims(token).get("username", String.class);
 	}
 
 	public String getRole(String token) {

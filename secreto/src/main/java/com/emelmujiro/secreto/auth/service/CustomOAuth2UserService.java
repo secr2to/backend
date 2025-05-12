@@ -39,10 +39,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 		Map<String, Object> attributes = oAuth2User.getAttributes();
 		OAuthUserAttributes userAttributes = new OAuthUserAttributes(provider, attributes);
-		final String email = userAttributes.getEmail();
+		final String username = userAttributes.getUsername();
 
 		boolean isNewUser = false;
-		User user = userRepository.findOAuthUserByEmail(provider, email).orElse(null);
+		User user = userRepository.findOAuthUserByUsername(provider, username).orElse(null);
 		if (user == null) {
 			user = userRepository.save(userAttributes.toEntity());
 			isNewUser = true;
@@ -52,13 +52,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		Map<String, Object> attributeMap = new HashMap<>();
 		attributeMap.put("userId", user.getId());
 		attributeMap.put("isNewUser", isNewUser);
-		attributeMap.put("email", userAttributes.getEmail());
 		attributeMap.put("provider", userAttributes.getProvider());
+		attributeMap.put("username", userAttributes.getUsername());
 
 		return new DefaultOAuth2User(
 			Collections.singleton(new SimpleGrantedAuthority(user.getRole().toString())),
 			attributeMap,
-			"email"
+			"userId"
 		);
 	}
 }

@@ -54,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		User findUser = userRepository.findByEmail(jwtTokenUtil.getSubject(authorization))
+		Long userId = jwtTokenUtil.getUserId(authorization);
+		User findUser = userRepository.findById(userId)
 			.orElseThrow(IllegalStateException::new); /* TODO: User Exception 생성 필요 */
 
 		SecurityContextUser contextUser = SecurityContextUser.of(findUser);
