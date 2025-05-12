@@ -125,19 +125,19 @@ public class JwtTokenUtil {
 	}
 
 	public String getSubject(String token) {
-		return isAccessToken(token) ? getClaims(token).getSubject() : null;
+		return getClaims(token).getSubject();
 	}
 
 	public Long getUserId(String token) {
-		return isAccessToken(token) ? getClaims(token).get("userId", Long.class) : null;
+		return  getClaims(token).get("userId", Long.class);
 	}
 
 	public String getRole(String token) {
-		return isAccessToken(token) ? getClaims(token).get("role", String.class) : null;
+		return getClaims(token).get("role", String.class);
 	}
 
 	public String getProvider(String token) {
-		return isAccessToken(token) ? getClaims(token).get("provider", String.class) : null;
+		return getClaims(token).get("provider", String.class);
 	}
 
 	public boolean isRefreshToken(String token) {
