@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
 	@GetMapping("/basic")
-	public ResponseEntity<?> getUserInfo() {
+	public ResponseEntity<?> getBasicUserInfo() {
 		SecurityContextUser principal = SecurityContextUtil.getPrincipal();
 		return ApiResponse.builder()
 			.data(principal.toLoginResponse())
