@@ -4,12 +4,16 @@ import com.emelmujiro.secreto.chatting.dto.*;
 import com.emelmujiro.secreto.chatting.entity.ChattingMessage;
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
 import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
+import com.emelmujiro.secreto.chatting.error.ChattingErrorCode;
+import com.emelmujiro.secreto.chatting.exception.ChattingException;
 import com.emelmujiro.secreto.chatting.repository.ChattingMessageRepository;
 import com.emelmujiro.secreto.chatting.repository.ChattingParticipateRepository;
 import com.emelmujiro.secreto.chatting.repository.ChattingRoomRepository;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
 import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.entity.repository.RoomUserRepository;
+import com.emelmujiro.secreto.room.error.RoomErrorCode;
+import com.emelmujiro.secreto.room.exception.RoomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,10 +36,10 @@ public class ChattingServiceImpl implements ChattingService {
     public CreateChattingResDto createChatting(CreateChattingReqDto params) {
 
         RoomUser findRoomUser = roomUserRepository.findById(params.getWriterId())
-                .orElseThrow(() -> new RuntimeException("해당 방 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER));
 
         ChattingRoom findChattingRoom = chattingRoomRepository.findById(params.getChattingRoomId())
-                .orElseThrow(() -> new RuntimeException("해당 채팅방이 존재하지 않습니다."));
+                .orElseThrow(() -> new ChattingException(ChattingErrorCode.NOT_EXIST_CHATTING_ROOM));
 
         ChattingMessage newChattingMessage = ChattingMessage.builder()
                 .chattingRoom(findChattingRoom)
@@ -61,10 +65,10 @@ public class ChattingServiceImpl implements ChattingService {
     public List<GetChattingListResDto> getChattingList(GetChattingListReqDto params) {
 
         RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
-                .orElseThrow(() -> new RuntimeException("해당 유저는 해당 방에 속해있지 않습니다."));
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
         ChattingParticipate findChattingParticipate = chattingParticipateRepository.findByRoomUserIdAndType(findRoomUser.getId(), params.getType())
-                .orElseThrow(() -> new RuntimeException("해당 유저가 참여한 채팅방이 존재하지 않습니다."));
+                .orElseThrow(() -> new ChattingException(ChattingErrorCode.NOT_EXIST_CHATTING_ROOM));
 
         List<GetChattingListResDto> resultList = chattingMessageRepository.findAllByChattingRoomId(findChattingParticipate.getChattingRoom().getId())
                 .stream().map(chattingMessage -> GetChattingListResDto.builder()
@@ -82,7 +86,7 @@ public class ChattingServiceImpl implements ChattingService {
     public List<GetChattingParticipationListResDto> getChattingParticipationList(GetChattingParticipationListReqDto params) {
 
         RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
-                .orElseThrow(() -> new RuntimeException("해당 유저는 해당 방에 속해있지 않습니다."));
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
         List<GetChattingParticipationListResDto> resultList = chattingParticipateRepository.findAllWithChattingRoomByRoomUserId(findRoomUser.getId())
                 .stream().map(chattingParticipate -> GetChattingParticipationListResDto.builder()
