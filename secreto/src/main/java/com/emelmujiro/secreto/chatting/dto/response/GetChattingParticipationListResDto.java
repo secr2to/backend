@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.chatting.dto;
+package com.emelmujiro.secreto.chatting.dto.response;
 
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipateType;
 import lombok.*;
