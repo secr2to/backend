@@ -1,15 +1,19 @@
 package com.emelmujiro.secreto.chatting.controller;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.chatting.dto.*;
+import com.emelmujiro.secreto.chatting.dto.request.CreateChattingReqDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListReqDto;
+import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusReqDto;
+import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingListReqDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResDto;
+import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResDto;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 

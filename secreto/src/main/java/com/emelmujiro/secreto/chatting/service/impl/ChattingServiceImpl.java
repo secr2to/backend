@@ -1,6 +1,13 @@
 package com.emelmujiro.secreto.chatting.service.impl;
 
-import com.emelmujiro.secreto.chatting.dto.*;
+import com.emelmujiro.secreto.chatting.dto.request.CreateChattingReqDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListReqDto;
+import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusReqDto;
+import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingListReqDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResDto;
+import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResDto;
 import com.emelmujiro.secreto.chatting.entity.ChattingMessage;
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
 import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
@@ -11,7 +18,7 @@ import com.emelmujiro.secreto.chatting.repository.ChattingParticipateRepository;
 import com.emelmujiro.secreto.chatting.repository.ChattingRoomRepository;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
 import com.emelmujiro.secreto.room.entity.RoomUser;
-import com.emelmujiro.secreto.room.entity.repository.RoomUserRepository;
+import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
 import jakarta.transaction.Transactional;
