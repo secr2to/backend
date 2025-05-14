@@ -11,8 +11,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.emelmujiro.secreto.auth.filter.JwtAuthenticationFilter;
-import com.emelmujiro.secreto.auth.handler.MyAuthenticationFailureHandler;
-import com.emelmujiro.secreto.auth.handler.MyAuthenticationSuccessHandler;
+import com.emelmujiro.secreto.auth.handler.CustomAuthenticationFailureHandler;
+import com.emelmujiro.secreto.auth.handler.CustomAuthenticationSuccessHandler;
 import com.emelmujiro.secreto.auth.handler.RestAuthenticationEntryPoint;
 import com.emelmujiro.secreto.auth.service.CustomOAuth2UserService;
 
@@ -24,13 +24,13 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	public static final String[] WHITELIST_URLS = {
-		"/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**",
-		"/auth/token", "/auth/redirect", "/auth/refresh-access-token"
+		"/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/auth/**"
 	};
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	private final MyAuthenticationSuccessHandler authenticationSuccessHandler;
-	private final MyAuthenticationFailureHandler authenticationFailureHandler;
+	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+	private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,7 +39,7 @@ public class SecurityConfig {
 			.cors(Customizer.withDefaults())
 			.csrf(AbstractHttpConfigurer::disable)
 			.sessionManagement(session -> session
-				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(WHITELIST_URLS).permitAll()
 				.anyRequest().authenticated()
@@ -48,16 +48,15 @@ public class SecurityConfig {
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(customOAuth2UserService))
 				.loginPage("/")
-				.failureHandler(authenticationFailureHandler)
-				.successHandler(authenticationSuccessHandler)
+				.failureHandler(customAuthenticationFailureHandler)
+				.successHandler(customAuthenticationSuccessHandler)
 			)
 			.exceptionHandling(exception -> exception
-				.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
+				.authenticationEntryPoint(restAuthenticationEntryPoint));
 
 		http.logout(logout -> logout
 			.logoutUrl("/logout")
 			.logoutSuccessUrl("/")
-			.deleteCookies("JSESSIONID")
 		);
 
 		http.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

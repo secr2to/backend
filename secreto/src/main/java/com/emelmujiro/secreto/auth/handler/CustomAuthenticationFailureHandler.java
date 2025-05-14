@@ -16,14 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
+public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException, ServletException {
 
-//		exception.printStackTrace();
-
+		exception.printStackTrace();
 		FilterResponseWriter.of(response)
 			.errorCode(AuthErrorCode.UNAUTHORIZED)
 			.send();

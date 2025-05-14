@@ -16,6 +16,7 @@ import com.emelmujiro.secreto.auth.exception.AuthException;
 import com.emelmujiro.secreto.user.entity.User;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -52,50 +53,50 @@ public class JwtTokenUtil {
 	}
 
 	public AuthToken generateToken(OAuth2User principal) {
-		final String email = principal.getAttribute("email");
 		final Long userId = principal.getAttribute("userId");
+		final String username = principal.getAttribute("username");
 		final String provider = principal.getAttribute("provider");
 		final String role = principal.getAuthorities().stream()
 			.findFirst()
 			.orElseThrow(IllegalAccessError::new)
 			.getAuthority();
 
-		assert userId != null && provider != null;
+		assert userId != null && username != null && provider != null && role != null;
 		final Map<String, Object> claims = new HashMap<>(Map.of(
-			"userId", userId,
+			"username", username,
 			"provider", provider,
 			"role", role
 		));
 
-		final String refreshToken = generateRefreshToken(email, claims);
-		final String accessToken = generateAccessToken(email, claims);
+		final String refreshToken = generateRefreshToken(userId, claims);
+		final String accessToken = generateAccessToken(userId, claims);
 
 		return new AuthToken(refreshToken, accessToken);
 	}
 
-	private String generateRefreshToken(String subject, Map<String, Object> claims) {
+	private String generateRefreshToken(Long userId, Map<String, Object> claims) {
 		claims.put("tokenType", TOKEN_TYPE_REFRESH);
-		return buildToken(subject, claims, refreshTokenExpirationSeconds * 1000L);
+		return buildToken(userId, claims, refreshTokenExpirationSeconds * 1000L);
 	}
 
-	private String generateAccessToken(String subject, Map<String, Object> claims) {
+	private String generateAccessToken(Long userId, Map<String, Object> claims) {
 		claims.put("tokenType", TOKEN_TYPE_ACCESS);
-		return buildToken(subject, claims, accessTokenExpirationSeconds * 1000L);
+		return buildToken(userId, claims, accessTokenExpirationSeconds * 1000L);
 	}
 
 	public String generateAccessToken(User user) {
 		final Map<String, Object> claims = new HashMap<>(Map.of(
-			"userId", user.getId(),
+			"username", user.getUsername(),
 			"provider", user.getOAuthProvider(),
-			"role", user.getRole().toString()
+			"role", user.getRole()
 		));
-		return generateAccessToken(user.getEmail(), claims);
+		return generateAccessToken(user.getId(), claims);
 	}
 
-	private String buildToken(String subject, Map<String, Object> claims, long periodMillis) {
+	private String buildToken(Long userId, Map<String, Object> claims, long periodMillis) {
 		Date now = new Date();
 		return Jwts.builder()
-			.subject(subject)
+			.subject(String.valueOf(userId))
 			.claims(claims)
 			.issuedAt(now)
 			.expiration(new Date(now.getTime() + periodMillis))
@@ -123,12 +124,12 @@ public class JwtTokenUtil {
 		}
 	}
 
-	public String getSubject(String token) {
-		return getClaims(token).getSubject();
+	public Long getUserId(String token) {
+		return Long.parseLong(getClaims(token).getSubject());
 	}
 
-	public Long getUserId(String token) {
-		return getClaims(token).get("userId", Long.class);
+	public String getUsername(String token) {
+		return getClaims(token).get("username", String.class);
 	}
 
 	public String getRole(String token) {
@@ -140,11 +141,19 @@ public class JwtTokenUtil {
 	}
 
 	public boolean isRefreshToken(String token) {
-		return TOKEN_TYPE_REFRESH.equals(getClaims(token).get("tokenType", String.class));
+		try {
+			return TOKEN_TYPE_REFRESH.equals(getClaims(token).get("tokenType", String.class));
+		} catch (ExpiredJwtException e) {
+			throw new AuthException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
+		}
 	}
 
 	public boolean isAccessToken(String token) {
-		return TOKEN_TYPE_ACCESS.equals(getClaims(token).get("tokenType", String.class));
+		try {
+			return TOKEN_TYPE_ACCESS.equals(getClaims(token).get("tokenType", String.class));
+		} catch (ExpiredJwtException e) {
+			throw new AuthException(AuthErrorCode.ACCESS_TOKEN_EXPIRED);
+		}
 	}
 
 	private Claims getClaims(String token) {
