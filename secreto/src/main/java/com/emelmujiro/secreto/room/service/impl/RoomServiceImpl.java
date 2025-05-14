@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -29,11 +30,9 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<GetRoomListResDto> getRoomList(GetRoomListReqDto params) {
 
-        List<RoomUser> findRoomUserList = roomUserRepository.findAllByUserId(params.getUserId());
-
-        List<Long> roomIdList = new ArrayList<>();
-        findRoomUserList.stream()
-                .forEach(roomUser -> roomIdList.add(roomUser.getRoom().getId()));
+        List<Long> roomIdList = roomUserRepository.findAllByUserId(params.getUserId()).stream()
+                .map(roomUser -> roomUser.getRoom().getId())
+                .toList();
 
         List<GetRoomListResDto> resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
                 .map(room -> GetRoomListResDto.builder()

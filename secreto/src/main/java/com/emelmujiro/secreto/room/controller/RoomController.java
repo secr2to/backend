@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequestMapping("/rooms")
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class RoomController {
     * 방 목록 조회 api
     * */
     @GetMapping("")
-    public ResponseEntity<?> getRoomList(@RequestParam("status") String status, @LoginUser Long userId) {
+    public ResponseEntity<ApiResponse<Object>> getRoomList(@RequestParam("status") String status, @LoginUser Long userId) {
 
         try {
             RoomStatus roomStatus = RoomStatus.fromString(status);
@@ -56,7 +57,7 @@ public class RoomController {
     * 방 조회 api
     * */
     @GetMapping("/{roomId}")
-    public ResponseEntity<?> getRoomDetails(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+    public ResponseEntity<ApiResponse<Object>> getRoomDetails(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 
         GetRoomDetailsReqDto params = GetRoomDetailsReqDto.builder()
                 .roomId(roomId)
