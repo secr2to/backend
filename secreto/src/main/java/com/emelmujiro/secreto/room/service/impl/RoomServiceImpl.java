@@ -2,8 +2,10 @@ package com.emelmujiro.secreto.room.service.impl;
 
 import com.emelmujiro.secreto.room.dto.request.GetRoomDetailsReqDto;
 import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
+import com.emelmujiro.secreto.room.dto.request.GetRoomUserListReqDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomDetailsResDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomUserListResDto;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
@@ -15,9 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -56,5 +56,28 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
         return GetRoomDetailsResDto.from(findRoom);
+    }
+
+    @Override
+    public List<GetRoomUserListResDto> getRoomUserList(GetRoomUserListReqDto params) {
+
+        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+
+        List<GetRoomUserListResDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfile(params.getRoomId()).stream()
+                .map(roomUser -> GetRoomUserListResDto.builder()
+                        .roomUserId(roomUser.getId())
+                        .managerYn(roomUser.getManagerYn())
+                        .standbyYn(roomUser.getStandbyYn())
+                        .nickname(roomUser.getNickname())
+                        .useProfileYn(roomUser.getUseProfileYn())
+                        .selfIntroduction(roomUser.getSelfIntroduction())
+                        .profileUrl(roomUser.getRoomProfile().getUrl())
+                        .skinColorRGB(roomUser.getRoomCharacter().getSkinColorRgb())
+                        .clothesColorRGB(roomUser.getRoomCharacter().getClothesColorRgb())
+                        .build())
+                .toList();
+
+        return resultList;
     }
 }

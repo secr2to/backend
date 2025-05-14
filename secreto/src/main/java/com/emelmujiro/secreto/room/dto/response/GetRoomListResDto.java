@@ -18,5 +18,4 @@ public class GetRoomListResDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private int missionPeriod;
-
 }
