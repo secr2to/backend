@@ -1,8 +1,13 @@
 package com.emelmujiro.secreto.room.service.impl;
 
+import com.emelmujiro.secreto.room.dto.request.GetRoomDetailsReqDto;
 import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomDetailsResDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
+import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.entity.RoomUser;
+import com.emelmujiro.secreto.room.error.RoomErrorCode;
+import com.emelmujiro.secreto.room.exception.RoomException;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.service.RoomService;
@@ -42,5 +47,15 @@ public class RoomServiceImpl implements RoomService {
                 .toList();
 
         return resultList;
+    }
+
+    @Override
+    public GetRoomDetailsResDto getRoomDetails(GetRoomDetailsReqDto params) {
+
+        Room findRoom = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .map(RoomUser::getRoom)
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+
+        return GetRoomDetailsResDto.from(findRoom);
     }
 }

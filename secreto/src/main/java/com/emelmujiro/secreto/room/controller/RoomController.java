@@ -2,7 +2,9 @@ package com.emelmujiro.secreto.room.controller;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.response.ApiResponse;
+import com.emelmujiro.secreto.room.dto.request.GetRoomDetailsReqDto;
 import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomDetailsResDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
@@ -48,5 +50,25 @@ public class RoomController {
 
             throw new RoomException(RoomErrorCode.INVALID_ROOM_STATUS);
         }
+    }
+
+    /*
+    * 방 조회 api
+    * */
+    @GetMapping("/{roomId}")
+    public ResponseEntity<?> getRoomDetails(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        GetRoomDetailsReqDto params = GetRoomDetailsReqDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        GetRoomDetailsResDto result = roomService.getRoomDetails(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방을 조회하였습니다.")
+                .success();
     }
 }
