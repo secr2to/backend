@@ -2,14 +2,8 @@ package com.emelmujiro.secreto.room.controller;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.response.ApiResponse;
-import com.emelmujiro.secreto.room.dto.request.GetRoomDetailsReqDto;
-import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
-import com.emelmujiro.secreto.room.dto.request.GetRoomUserDetailsReqDto;
-import com.emelmujiro.secreto.room.dto.request.GetRoomUserListReqDto;
-import com.emelmujiro.secreto.room.dto.response.GetRoomDetailsResDto;
-import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
-import com.emelmujiro.secreto.room.dto.response.GetRoomUserDetailsResDto;
-import com.emelmujiro.secreto.room.dto.response.GetRoomUserListResDto;
+import com.emelmujiro.secreto.room.dto.request.*;
+import com.emelmujiro.secreto.room.dto.response.*;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
@@ -114,7 +108,24 @@ public class RoomController {
         return ApiResponse.builder()
                 .data(result)
                 .status(HttpStatus.OK)
-                .message("방 유저 목록을 조회하였습니다.")
+                .message("방 유저 세부 정보를 조회하였습니다.")
+                .success();
+    }
+
+    /*
+    * 방 생성 api
+    * */
+    @PostMapping("")
+    public ResponseEntity<ApiResponse<Object>> createRoom(@RequestBody CreateRoomReqDto params, @LoginUser Long userId) {
+
+        params.setManagerId(userId);
+
+        CreateRoomResDto result = roomService.createRoom(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방을 생성하였습니다.")
                 .success();
     }
 

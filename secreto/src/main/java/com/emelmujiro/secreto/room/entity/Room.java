@@ -4,6 +4,7 @@ import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.mission.entity.RoomMissionHistory;
 import com.emelmujiro.secreto.notification.entity.Notification;
+import com.emelmujiro.secreto.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,7 +40,7 @@ public class Room {
     private Integer missionPeriod;
 
     @Builder.Default
-    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<RoomUser> roomUserList = new ArrayList<>();
 
     @Builder.Default
@@ -57,4 +58,16 @@ public class Room {
     @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<Notification> notificationList = new ArrayList<>();
+
+    public void addRoomUser(User user) {
+
+        RoomUser newRoomUser = RoomUser.builder()
+                .managerYn(true)
+                .standbyYn(false)
+                .room(this)
+                .user(user)
+                .build();
+
+        this.roomUserList.add(newRoomUser);
+    }
 }
