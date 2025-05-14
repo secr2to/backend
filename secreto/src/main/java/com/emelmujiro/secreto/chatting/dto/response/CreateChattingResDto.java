@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.chatting.dto;
+package com.emelmujiro.secreto.chatting.dto.response;
 
 import lombok.*;
 
@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetChattingListResDto {
+public class CreateChattingResDto {
 
-    private long chattingRoomId;
+    private long chattingMessageId;
 
     private long writerId;
 
@@ -19,4 +19,6 @@ public class GetChattingListResDto {
     private LocalDateTime writeDate;
 
     private boolean readYn;
+
+    private long chattingRoomId;
 }

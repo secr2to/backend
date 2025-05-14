@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.chatting.dto;
+package com.emelmujiro.secreto.chatting.dto.request;
 
 import lombok.*;
 
