@@ -2,9 +2,11 @@ package com.emelmujiro.secreto.room.service.impl;
 
 import com.emelmujiro.secreto.room.dto.request.GetRoomDetailsReqDto;
 import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
+import com.emelmujiro.secreto.room.dto.request.GetRoomUserDetailsReqDto;
 import com.emelmujiro.secreto.room.dto.request.GetRoomUserListReqDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomDetailsResDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomUserDetailsResDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomUserListResDto;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.entity.RoomUser;
@@ -79,5 +81,17 @@ public class RoomServiceImpl implements RoomService {
                 .toList();
 
         return resultList;
+    }
+
+    @Override
+    public GetRoomUserDetailsResDto getRoomUserDetails(GetRoomUserDetailsReqDto params) {
+
+        RoomUser checkRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+
+        RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfile(params.getRoomUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
+
+        return GetRoomUserDetailsResDto.from(findRoomUser);
     }
 }

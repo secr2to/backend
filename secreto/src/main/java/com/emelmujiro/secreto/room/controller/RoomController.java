@@ -4,9 +4,11 @@ import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 import com.emelmujiro.secreto.room.dto.request.GetRoomDetailsReqDto;
 import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
+import com.emelmujiro.secreto.room.dto.request.GetRoomUserDetailsReqDto;
 import com.emelmujiro.secreto.room.dto.request.GetRoomUserListReqDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomDetailsResDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomUserDetailsResDto;
 import com.emelmujiro.secreto.room.dto.response.GetRoomUserListResDto;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
@@ -93,7 +95,27 @@ public class RoomController {
                 .status(HttpStatus.OK)
                 .message("방 유저 목록을 조회하였습니다.")
                 .success();
+    }
 
+    /*
+    * 방 유저 조회
+    * */
+    @GetMapping("/{roomId}/users/{roomUserId}")
+    public ResponseEntity<ApiResponse<Object>> getRoomUserDetails(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
+
+        GetRoomUserDetailsReqDto params = GetRoomUserDetailsReqDto.builder()
+                .roomId(roomId)
+                .roomUserId(roomUserId)
+                .userId(userId)
+                .build();
+
+        GetRoomUserDetailsResDto result = roomService.getRoomUserDetails(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방 유저 목록을 조회하였습니다.")
+                .success();
     }
 
 }
