@@ -65,17 +65,25 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 	}
 
 	public AuthToken getAuthToken(String uuid) {
-		AuthToken token;
+		String value = sanitizeString(authTokenRedisTemplate.opsForValue().get(uuid));
+		if (value == null || value.trim().isEmpty()) {
+			throw new AuthException(AuthErrorCode.KEY_UUID_INVALID);
+		}
+		AuthToken token = parseAuthToken(sanitizeString(value));
+		authTokenRedisTemplate.delete(uuid);
+		return token;
+	}
+
+	private AuthToken parseAuthToken(String value) {
 		try {
-			String value = sanitizeString(authTokenRedisTemplate.opsForValue().get(uuid));
-			token = mapper.readValue(value, AuthToken.class);
+			AuthToken token = mapper.readValue(value, AuthToken.class);
+			if (token == null) {
+				throw new AuthException(AuthErrorCode.KEY_UUID_INVALID);
+			}
+			return token;
 		} catch (JsonProcessingException e) {
 			throw new AuthException(AuthErrorCode.DATA_CONVERSION_FAILED, e);
 		}
-		if (token == null) {
-			throw new AuthException(AuthErrorCode.KEY_UUID_INVALID);
-		}
-		return token;
 	}
 
 	public void saveRefreshToken(Long userId, String refreshToken) {
