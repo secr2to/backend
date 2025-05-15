@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthRedirectController {
 
 	@GetMapping("/redirect")
-	public String redirect(@RequestParam String tempId, @RequestParam boolean isNewUser) {
+	public String redirect(@RequestParam("tempId") String tempId, @RequestParam("isNewUser") boolean isNewUser) {
 		log.info("tempId={}", tempId);
 		return "/login-success";
 	}
