@@ -19,4 +19,6 @@ public interface RoomService {
     UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params);
 
     UpdateRoomStatusStartResDto updateRoomStatusStart(UpdateRoomStatusStartReqDto params);
+
+    void updateRoomStatusEnd(UpdateRoomStatusEndReqDto params);
 }

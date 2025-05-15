@@ -86,4 +86,10 @@ public class Room {
         this.roomStatus = RoomStatus.PROGRESS;
         this.startDate = LocalDateTime.now();
     }
+
+    public void terminateRoom() {
+
+        this.roomStatus = RoomStatus.TERMINATED;
+        this.endDate = LocalDateTime.now();
+    }
 }

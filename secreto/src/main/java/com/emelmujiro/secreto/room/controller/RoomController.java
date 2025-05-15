@@ -165,6 +165,25 @@ public class RoomController {
                 .success();
     }
 
+    /*
+    * 방 종료 api
+    * */
+    @PutMapping("/{roomId}/end")
+    public ResponseEntity<ApiResponse<Object>> updateRoomStatusEnd(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        UpdateRoomStatusEndReqDto params = UpdateRoomStatusEndReqDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        roomService.updateRoomStatusEnd(params);
+
+        return ApiResponse.builder()
+                .data(null)
+                .status(HttpStatus.OK)
+                .message("방을 종료하였습니다.")
+                .success();
+    }
 
 }
 

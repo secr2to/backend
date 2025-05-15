@@ -33,6 +33,8 @@ public class RoomServiceImpl implements RoomService {
     private final UserRepository userRepository;
     private final RoomMissionRepository roomMissionRepository;
 
+    private final RoomAuthorizationService roomAuthorizationService;
+
     @Override
     public List<GetRoomListResDto> getRoomList(GetRoomListReqDto params) {
 
@@ -67,8 +69,8 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<GetRoomUserListResDto> getRoomUserList(GetRoomUserListReqDto params) {
 
-        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
-                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+        // 방에 소속된 유저인지 확인
+        roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
         List<GetRoomUserListResDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfile(params.getRoomId()).stream()
                 .map(roomUser -> GetRoomUserListResDto.builder()
@@ -90,8 +92,8 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public GetRoomUserDetailsResDto getRoomUserDetails(GetRoomUserDetailsReqDto params) {
 
-        RoomUser checkRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
-                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+        // 방에 소속된 유저인지 확인
+        roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
         RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfile(params.getRoomUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
@@ -132,12 +134,7 @@ public class RoomServiceImpl implements RoomService {
     public UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params) {
 
         // 방장인지 권한 확인
-        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
-                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
-
-        if(!findRoomUser.getManagerYn()) {
-            throw new RoomException(RoomErrorCode.INVAILD_AUTHORITY);
-        }
+        RoomUser findRoomUser = roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
         // 방 정보 수정
         Room findRoom = roomRepository.findById(findRoomUser.getRoom().getId())
@@ -152,12 +149,7 @@ public class RoomServiceImpl implements RoomService {
     public UpdateRoomStatusStartResDto updateRoomStatusStart(UpdateRoomStatusStartReqDto params) {
 
         // 방장인지 권한 확인
-        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
-                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
-
-        if(!findRoomUser.getManagerYn()) {
-            throw new RoomException(RoomErrorCode.INVAILD_AUTHORITY);
-        }
+        roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
         // 대기상태인 방 유저들 삭제
         List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYnFalse(params.getRoomId());
@@ -180,13 +172,25 @@ public class RoomServiceImpl implements RoomService {
 
         roomMissionRepository.saveAll(newRoomMissionList);
 
+        // TODO: 남아있는 방 유저들간 마니또, 마니띠 관계 매칭
 
-        // 남아있는 방 유저들간 마니또, 마니띠 관계 매칭 @TODO
-
-
-        // 방 유저들 간 채팅 생성 @TODO
-
+        // TODO: 방 유저들 간 채팅 생성
 
         return UpdateRoomStatusStartResDto.from(findRoom);
+    }
+
+    @Override
+    public void updateRoomStatusEnd(UpdateRoomStatusEndReqDto params) {
+
+        // 방장인지 권한 확인
+        roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
+
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
+        findRoom.terminateRoom();
+
+        // TODO: 방 히스토리 저장, 필요없는 잔여 데이터 삭제
+
     }
 }
