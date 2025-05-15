@@ -71,7 +71,7 @@ public class JwtTokenUtil {
 		final String refreshToken = generateRefreshToken(userId, claims);
 		final String accessToken = generateAccessToken(userId, claims);
 
-		return new AuthToken(refreshToken, accessToken);
+		return AuthToken.ofBearer(refreshToken, accessToken);
 	}
 
 	private String generateRefreshToken(Long userId, Map<String, Object> claims) {
