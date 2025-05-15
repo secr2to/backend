@@ -26,7 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	public static final String[] WHITELIST_URLS = {
-		"/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/auth/**"
+		"/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/auth/**",
+		"/ws-stomp"
 	};
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
