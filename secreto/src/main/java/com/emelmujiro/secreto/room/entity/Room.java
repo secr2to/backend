@@ -80,4 +80,10 @@ public class Room {
             this.missionPeriod = missionPeriod;
         }
     }
+
+    public void startRoom() {
+
+        this.roomStatus = RoomStatus.PROGRESS;
+        this.startDate = LocalDateTime.now();
+    }
 }

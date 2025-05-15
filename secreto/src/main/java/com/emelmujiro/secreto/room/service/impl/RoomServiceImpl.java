@@ -1,11 +1,13 @@
 package com.emelmujiro.secreto.room.service.impl;
 
+import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
+import com.emelmujiro.secreto.room.repository.RoomMissionRepository;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.service.RoomService;
@@ -16,6 +18,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -28,6 +31,7 @@ public class RoomServiceImpl implements RoomService {
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
+    private final RoomMissionRepository roomMissionRepository;
 
     @Override
     public List<GetRoomListResDto> getRoomList(GetRoomListReqDto params) {
@@ -127,6 +131,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params) {
 
+        // 방장인지 권한 확인
         RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
@@ -134,6 +139,7 @@ public class RoomServiceImpl implements RoomService {
             throw new RoomException(RoomErrorCode.INVAILD_AUTHORITY);
         }
 
+        // 방 정보 수정
         Room findRoom = roomRepository.findById(findRoomUser.getRoom().getId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
 
@@ -142,7 +148,45 @@ public class RoomServiceImpl implements RoomService {
         return UpdateRoomDetailsResDto.from(findRoom);
     }
 
+    @Override
+    public UpdateRoomStatusStartResDto updateRoomStatusStart(UpdateRoomStatusStartReqDto params) {
+
+        // 방장인지 권한 확인
+        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+
+        if(!findRoomUser.getManagerYn()) {
+            throw new RoomException(RoomErrorCode.INVAILD_AUTHORITY);
+        }
+
+        // 대기상태인 방 유저들 삭제
+        List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYnFalse(params.getRoomId());
+        roomUserRepository.deleteAll(findRoomUserNotAcceptedList);
+
+        // 방 시작
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
+        findRoom.startRoom();
+
+        // 미션 리스트 생성
+        List<RoomMission> newRoomMissionList = params.getMissionList().stream()
+                .map(content -> RoomMission.builder()
+                        .room(findRoom)
+                        .content(content)
+                        .executeYn(false)
+                        .build())
+                .toList();
+
+        roomMissionRepository.saveAll(newRoomMissionList);
 
 
+        // 남아있는 방 유저들간 마니또, 마니띠 관계 매칭 @TODO
 
+
+        // 방 유저들 간 채팅 생성 @TODO
+
+
+        return UpdateRoomStatusStartResDto.from(findRoom);
+    }
 }

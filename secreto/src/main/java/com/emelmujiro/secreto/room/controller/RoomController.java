@@ -92,7 +92,7 @@ public class RoomController {
     }
 
     /*
-    * 방 유저 조회
+    * 방 유저 조회 api
     * */
     @GetMapping("/{roomId}/users/{roomUserId}")
     public ResponseEntity<ApiResponse<Object>> getRoomUserDetails(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
@@ -130,7 +130,7 @@ public class RoomController {
     }
 
     /*
-    * 방 정보 변경
+    * 방 정보 변경 api
     * */
     @PutMapping("/{roomId}/details")
     public ResponseEntity<ApiResponse<Object>> updateRoomDetails(@PathVariable("roomId") Long roomId, @RequestBody UpdateRoomDetailsReqDto params, @LoginUser Long userId) {
@@ -144,6 +144,24 @@ public class RoomController {
                 .data(result)
                 .status(HttpStatus.OK)
                 .message("방 정보를 변경하였습니다.")
+                .success();
+    }
+
+    /*
+    * 방 시작 api
+    * */
+    @PutMapping("/{roomId}/start")
+    public ResponseEntity<ApiResponse<Object>> updateRoomStatusStart(@PathVariable("roomId") Long roomId, @RequestBody UpdateRoomStatusStartReqDto params, @LoginUser Long userId) {
+
+        params.setRoomId(roomId);
+        params.setUserId(userId);
+
+        UpdateRoomStatusStartResDto result = roomService.updateRoomStatusStart(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방을 시작하였습니다.")
                 .success();
     }
 

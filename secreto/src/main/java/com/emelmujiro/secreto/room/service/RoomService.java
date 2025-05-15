@@ -17,4 +17,6 @@ public interface RoomService {
     CreateRoomResDto createRoom(CreateRoomReqDto params);
 
     UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params);
+
+    UpdateRoomStatusStartResDto updateRoomStatusStart(UpdateRoomStatusStartReqDto params);
 }
