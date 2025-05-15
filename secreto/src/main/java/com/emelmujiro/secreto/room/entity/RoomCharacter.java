@@ -16,11 +16,11 @@ public class RoomCharacter {
     @Column(name = "room_character_id")
     private Long id;
 
-    private Integer skinColorId;
+    private String skinColorRgb;
 
-    private Integer clothesColorId;
+    private String clothesColorRgb;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_user_id")
     private RoomUser roomUser;
 }

@@ -1,6 +1,5 @@
-package com.emelmujiro.secreto.room.dto.response;
+package com.emelmujiro.secreto.room.dto.request;
 
-import com.emelmujiro.secreto.room.entity.RoomStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -9,13 +8,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetRoomListResDto {
+public class CreateRoomReqDto {
 
-    private long roomId;
     private String name;
-    private RoomStatus status;
-    private String code;
-    private LocalDateTime startDate;
     private LocalDateTime endDate;
     private int missionPeriod;
+
+    @Setter
+    private long managerId;
 }
