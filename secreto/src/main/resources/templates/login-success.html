@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+
+login success.
+<a th:href="@{/auth/token(tempId=${param.tempId})}">Token 발급</a>
+
+</body>
+</html>

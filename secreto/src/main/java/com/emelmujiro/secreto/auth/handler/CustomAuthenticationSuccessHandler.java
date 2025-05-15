@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JwtTokenUtil jwtTokenUtil;
 	private final AuthTokenService authTokenService;

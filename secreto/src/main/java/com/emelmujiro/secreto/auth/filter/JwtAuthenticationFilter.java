@@ -5,6 +5,7 @@ import static com.emelmujiro.secreto.auth.config.SecurityConfig.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,7 +44,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String authorization = jwtTokenUtil.resolveAuthorization(request);
 
 		if (!jwtTokenUtil.verifyToken(authorization)) {
-			FilterResponseWriter.of(response).errorCode(AuthErrorCode.INVALID_TOKEN).send();
+			FilterResponseWriter.of(response)
+				.data(Map.of("tokenType", "accessToken"))
+				.errorCode(AuthErrorCode.ACCESS_TOKEN_EXPIRED).send();
 			return;
 		}
 		if (!jwtTokenUtil.isAccessToken(authorization)) {
@@ -51,7 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		User findUser = userRepository.findByEmail(jwtTokenUtil.getSubject(authorization))
+		Long userId = jwtTokenUtil.getUserId(authorization);
+		User findUser = userRepository.findById(userId)
 			.orElseThrow(IllegalStateException::new); /* TODO: User Exception 생성 필요 */
 
 		SecurityContextUser contextUser = SecurityContextUser.of(findUser);

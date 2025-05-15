@@ -10,8 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	@Query("SELECT u FROM User u WHERE u.oAuthProvider = :provider AND u.email = :email")
-	Optional<User> findOAuthUserByEmail(@Param("provider") String provider, @Param("email") String email);
-
-	Optional<User> findByEmail(String email);
+	@Query("SELECT u FROM User u WHERE u.oAuthProvider = :provider AND u.username = :username")
+	Optional<User> findOAuthUserByUsername(@Param("provider") String provider, @Param("username") String username);
 }
