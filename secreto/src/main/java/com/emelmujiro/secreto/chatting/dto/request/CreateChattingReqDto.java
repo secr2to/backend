@@ -14,10 +14,6 @@ public class CreateChattingReqDto {
 
     private String content;
 
-    private LocalDateTime writeDate;
-
-    private boolean readYn;
-
     @Setter
     private long chattingRoomId;
 

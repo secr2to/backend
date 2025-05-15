@@ -4,6 +4,7 @@ import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
 import com.emelmujiro.secreto.room.entity.Room;
+import com.emelmujiro.secreto.room.entity.RoomStatus;
 import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
@@ -120,6 +121,7 @@ public class RoomServiceImpl implements RoomService {
                 .endDate(params.getEndDate())
                 .missionPeriod(params.getMissionPeriod())
                 .code(generatedcode)
+                .roomStatus(RoomStatus.WAITING)
                 .build();
 
         User findUser = userRepository.findById(params.getManagerId()).orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
