@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.auth.service;
+package com.emelmujiro.secreto.auth.service.impl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
 	private final UserRepository userRepository;
 

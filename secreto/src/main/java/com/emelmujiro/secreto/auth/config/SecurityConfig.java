@@ -7,6 +7,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -14,7 +17,6 @@ import com.emelmujiro.secreto.auth.filter.JwtAuthenticationFilter;
 import com.emelmujiro.secreto.auth.handler.CustomAuthenticationFailureHandler;
 import com.emelmujiro.secreto.auth.handler.CustomAuthenticationSuccessHandler;
 import com.emelmujiro.secreto.auth.handler.RestAuthenticationEntryPoint;
-import com.emelmujiro.secreto.auth.service.CustomOAuth2UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,9 +26,10 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	public static final String[] WHITELIST_URLS = {
-		"/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/auth/**"
+		"/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/auth/**",
+		"/ws-stomp"
 	};
-	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
@@ -46,7 +49,7 @@ public class SecurityConfig {
 			)
 			.oauth2Login(oauth2 -> oauth2
 				.userInfoEndpoint(userInfo -> userInfo
-					.userService(customOAuth2UserService))
+					.userService(oAuth2UserService))
 				.loginPage("/")
 				.failureHandler(customAuthenticationFailureHandler)
 				.successHandler(customAuthenticationSuccessHandler)

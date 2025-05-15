@@ -71,7 +71,7 @@ public class JwtTokenUtil {
 		final String refreshToken = generateRefreshToken(userId, claims);
 		final String accessToken = generateAccessToken(userId, claims);
 
-		return new AuthToken(refreshToken, accessToken);
+		return AuthToken.ofBearer(refreshToken, accessToken);
 	}
 
 	private String generateRefreshToken(Long userId, Map<String, Object> claims) {
@@ -106,7 +106,10 @@ public class JwtTokenUtil {
 
 	public String resolveAuthorization(HttpServletRequest request) {
 		String authorization = request.getHeader(AUTHORIZATION);
-		return authorization != null ? authorization.replaceFirst("Bearer ", "") : null;
+		if (!authorization.startsWith("Bearer ")) {
+			throw new AuthException(AuthErrorCode.MISSING_BEARER_TOKEN);
+		}
+		return authorization.replaceFirst("Bearer ", "");
 	}
 
 	public boolean verifyToken(String token) {
