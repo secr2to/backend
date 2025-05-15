@@ -15,4 +15,6 @@ public interface RoomService {
     GetRoomUserDetailsResDto getRoomUserDetails(GetRoomUserDetailsReqDto params);
 
     CreateRoomResDto createRoom(CreateRoomReqDto params);
+
+    UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params);
 }

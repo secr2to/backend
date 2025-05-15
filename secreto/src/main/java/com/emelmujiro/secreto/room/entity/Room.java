@@ -70,4 +70,14 @@ public class Room {
 
         this.roomUserList.add(newRoomUser);
     }
+
+    public void updateRoomInfo(LocalDateTime endDate, Integer missionPeriod) {
+
+        if(endDate != null) {
+            this.endDate = endDate;
+        }
+        if(missionPeriod != null) {
+            this.missionPeriod = missionPeriod;
+        }
+    }
 }

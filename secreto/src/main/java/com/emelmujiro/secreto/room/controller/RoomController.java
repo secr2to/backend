@@ -124,9 +124,43 @@ public class RoomController {
 
         return ApiResponse.builder()
                 .data(result)
-                .status(HttpStatus.OK)
+                .status(HttpStatus.CREATED)
                 .message("방을 생성하였습니다.")
                 .success();
     }
 
+    /*
+    * 방 정보 변경
+    * */
+    @PutMapping("/{roomId}/details")
+    public ResponseEntity<ApiResponse<Object>> updateRoomDetails(@PathVariable("roomId") Long roomId, @RequestBody UpdateRoomDetailsReqDto params, @LoginUser Long userId) {
+
+        params.setRoomId(roomId);
+        params.setUserId(userId);
+
+        UpdateRoomDetailsResDto result = roomService.updateRoomDetails(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방 정보를 변경하였습니다.")
+                .success();
+    }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

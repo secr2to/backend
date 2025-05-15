@@ -9,6 +9,7 @@ import com.emelmujiro.secreto.room.exception.RoomException;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.service.RoomService;
+import com.emelmujiro.secreto.room.utils.GenerateRandomCodeUtil;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -101,7 +102,7 @@ public class RoomServiceImpl implements RoomService {
         boolean isCodeExists = true;
         while(isCodeExists) {
 
-            generatedcode = generateRandomCode();
+            generatedcode = GenerateRandomCodeUtil.generateRandomCode();
 
             if(roomRepository.findByCode(generatedcode).isEmpty()) {
                 isCodeExists = false;
@@ -123,20 +124,25 @@ public class RoomServiceImpl implements RoomService {
         return CreateRoomResDto.from(newRoom);
     }
 
-    /**
-     * 방 입장 코드 생성 메서드
-     */
-    public String generateRandomCode() {
-        int leftLimit = 48; // numeral '0'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 6;
-        Random random = new Random();
-        String generatedCode = random.ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(targetStringLength)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
+    @Override
+    public UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params) {
 
-        return generatedCode;
+        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+
+        if(!findRoomUser.getManagerYn()) {
+            throw new RoomException(RoomErrorCode.INVAILD_AUTHORITY);
+        }
+
+        Room findRoom = roomRepository.findById(findRoomUser.getRoom().getId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
+        findRoom.updateRoomInfo(params.getEndDate(), params.getMissionPeriod());
+
+        return UpdateRoomDetailsResDto.from(findRoom);
     }
+
+
+
+
 }
