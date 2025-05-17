@@ -6,7 +6,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import com.emelmujiro.secreto.auth.error.AuthErrorCode;
+import com.emelmujiro.secreto.global.error.CommonErrorCode;
 import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 
 import jakarta.servlet.ServletException;
@@ -20,9 +20,8 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException, ServletException {
 
-		exception.printStackTrace();
 		FilterResponseWriter.of(response)
-			.errorCode(AuthErrorCode.UNAUTHORIZED)
+			.errorCode(CommonErrorCode.INTERNAL_SERVER_ERROR)
 			.send();
 	}
 }

@@ -7,7 +7,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.emelmujiro.secreto.auth.argumentresolver.LoginUserArgumentResolver;
-import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,10 +14,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
-	private final JwtTokenUtil jwtTokenUtil;
-
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-		resolvers.add(new LoginUserArgumentResolver(jwtTokenUtil));
+		resolvers.add(new LoginUserArgumentResolver());
 	}
 }

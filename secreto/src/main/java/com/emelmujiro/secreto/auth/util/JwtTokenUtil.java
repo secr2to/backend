@@ -106,6 +106,9 @@ public class JwtTokenUtil {
 
 	public String resolveAuthorization(HttpServletRequest request) {
 		String authorization = request.getHeader(AUTHORIZATION);
+		if (authorization == null) {
+			throw new AuthException(AuthErrorCode.MISSING_AUTHORIZATION_HEADER);
+		}
 		if (!authorization.startsWith("Bearer ")) {
 			throw new AuthException(AuthErrorCode.MISSING_BEARER_TOKEN);
 		}

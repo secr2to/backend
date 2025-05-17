@@ -2,17 +2,19 @@ package com.emelmujiro.secreto.example_template.controller;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emelmujiro.secreto.auth.annotation.InjectUserId;
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.auth.error.AuthErrorCode;
+import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import com.emelmujiro.secreto.global.error.CommonErrorCode;
 import com.emelmujiro.secreto.global.exception.ApiException;
 import com.emelmujiro.secreto.global.response.ApiResponse;
@@ -48,34 +50,42 @@ public class TestController {
 		throw new ApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
 	}
 
-	@GetMapping("/refresh")
-	public ResponseEntity<?> refresh() {
-		Map<String, String> data = new HashMap<>();
-		data.put("tokenType", "refreshToken");
-
+	@PostMapping("/{one}/{two}/{three}/{four}/{five}/{six}")
+	public ResponseEntity<?> customRequestBody(@RequestBody TestDto testDto,
+		@LoginUser Long userId) {
+		log.info("userId={}", userId);
+		log.info("one={}", testDto.one);
+		log.info("two={}", testDto.twotwo);
+		log.info("three={}", testDto.three);
+		log.info("four={}", testDto.four);
+		log.info("five={}", testDto.fivefive);
+		log.info("six={}", testDto.six);
 		return ApiResponse.builder()
-			.data(data)
-			.error(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
-	}
-
-	@GetMapping("/refresh-success")
-	public ResponseEntity<?> refreshSuccess() {
-		Map<String, String> data = new HashMap<>();
-		data.put("accessToken", "1234567");
-
-		return ApiResponse.builder()
-			.data(data)
 			.success();
 	}
 
-	@GetMapping("/access")
-	public ResponseEntity<?> access() {
-		Map<String, String> data = new HashMap<>();
-		data.put("tokenType", "accessToken");
+	public static class TestDto {
 
-		return ApiResponse.builder()
-			.data(data)
-			.error(AuthErrorCode.ACCESS_TOKEN_EXPIRED);
+		@InjectUserId
+		private long userId;
+
+		@InjectPathVariable(name = "one")
+		private int one;
+
+		@InjectPathVariable(name = "two")
+		private Double twotwo;
+
+		@InjectPathVariable
+		private Long three;
+
+		@InjectPathVariable
+		private long four;
+
+		@InjectPathVariable(name = "five")
+		private String fivefive;
+
+		@InjectPathVariable
+		private float six;
 	}
 }
 

@@ -13,6 +13,7 @@ public enum AuthErrorCode implements ErrorCode {
 
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+	MISSING_AUTHORIZATION_HEADER(HttpStatus.UNAUTHORIZED, "인증 헤더가 존재하지 않습니다."),
 	MISSING_BEARER_TOKEN(HttpStatus.UNAUTHORIZED, "Bearer 토큰이 존재하지 않습니다."),
 	WRONG_TOKEN_TYPE(HttpStatus.UNAUTHORIZED, "잘못된 토큰 타입입니다."),
 	ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다."),

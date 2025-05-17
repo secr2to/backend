@@ -1,29 +1,27 @@
 package com.emelmujiro.secreto.auth.argumentresolver;
 
+import static com.emelmujiro.secreto.auth.util.SecurityContextUtil.*;
+
 import org.springframework.core.MethodParameter;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
-
-	private final JwtTokenUtil jwtTokenUtil;
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		log.info("supportsParameter 실행");
 		boolean hasLoginAnnotation = parameter.hasParameterAnnotation(LoginUser.class);
-		boolean hasLongType = Long.class.isAssignableFrom(parameter.getParameterType());
+		boolean hasLongType = Long.class.isAssignableFrom(parameter.getParameterType()) ||
+			parameter.getParameterType() == long.class;
 		return hasLoginAnnotation && hasLongType;
 	}
 
@@ -32,12 +30,10 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 		NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 		log.info("resolveArgument 실행");
 
-		HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-		String authorization = jwtTokenUtil.resolveAuthorization(request);
-
-		if (authorization == null) {
+		Authentication authentication = getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
 			return null;
 		}
-		return jwtTokenUtil.getUserId(authorization);
+		return getPrincipal().userId();
 	}
 }
