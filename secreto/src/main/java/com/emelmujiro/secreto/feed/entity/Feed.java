@@ -44,6 +44,7 @@ public class Feed extends TimestampedEntity {
     private String content;
 
     private int heartCount;
+    private int replyCount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "type")

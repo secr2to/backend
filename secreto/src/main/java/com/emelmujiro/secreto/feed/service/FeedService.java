@@ -7,11 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
+import com.emelmujiro.secreto.global.dto.response.SliceResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
+import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
 import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
 import com.emelmujiro.secreto.room.entity.Room;
@@ -30,6 +34,11 @@ public class FeedService {
 	private final UserRepository userRepository;
 	private final FeedRepository feedRepository;
 	private final FeedFactory feedFactory;
+	private final FeedQueryRepository feedQueryRepository;
+
+	public SliceResponseDto<GetCommunityResponseDto> getCommunity(GetCommunityRequestDto dto) {
+		return feedQueryRepository.getCommunity(dto);
+	}
 
 	@Transactional
 	public CreateFeedResponseDto create(CreateFeedRequestDto dto) {
