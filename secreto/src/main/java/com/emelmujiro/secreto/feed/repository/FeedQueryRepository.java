@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
-import com.emelmujiro.secreto.feed.entity.FeedType;
-import com.emelmujiro.secreto.global.dto.response.SliceResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.CommunityFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.QCommunityFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QFeedUserResponseDto;
-import com.emelmujiro.secreto.feed.dto.response.QGetCommunityResponseDto;
+import com.emelmujiro.secreto.feed.entity.FeedType;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
@@ -34,15 +34,15 @@ public class FeedQueryRepository {
 		this.query = new JPAQueryFactory(em);
 	}
 
-	public SliceResponseDto<GetCommunityResponseDto> getCommunity(GetCommunityRequestDto dto) {
-		List<GetCommunityResponseDto> content = query
-			.select(new QGetCommunityResponseDto(
+	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
+		List<CommunityFeedResponseDto> content = query
+			.select(new QCommunityFeedResponseDto(
 				feed.id,
 				feed.title,
-				Expressions.asNumber(1),
+				Expressions.asNumber(1), /* TODO: 하트 수 */
 				feed.heartCount,
 				feed.replyCount,
-				Expressions.asString("value"),
+				Expressions.asString("value"),  /* TODO: 썸네일 이미지 */
 				new QFeedUserResponseDto(
 					feed.author.id,
 					feed.author.nickname,
@@ -57,7 +57,7 @@ public class FeedQueryRepository {
 					.and(feed.deletedYn.eq(false))
 					.and(stringContains(feed.title, dto.getKeyword())
 						.or(stringContains(feed.author.nickname, dto.getKeyword()))
-				)
+					)
 			)
 			.orderBy(feed.createDate.desc())
 			.offset(dto.getOffset())
@@ -69,11 +69,11 @@ public class FeedQueryRepository {
 			content.remove(pageSize);
 			hasNext = true;
 		}
-		return new SliceResponseDto<>(
-			content,
-			dto.getOffset() + pageSize,
-			hasNext
-		);
+		return GetCommunityResponseDto.builder()
+			.content(content)
+			.offset(dto.getOffset() + pageSize)
+			.hasNext(hasNext)
+			.build();
 	}
 
 	private BooleanExpression stringContains(StringExpression expression, String pattern) {

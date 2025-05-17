@@ -10,7 +10,6 @@ import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
-import com.emelmujiro.secreto.global.dto.response.SliceResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
@@ -36,7 +35,7 @@ public class FeedService {
 	private final FeedFactory feedFactory;
 	private final FeedQueryRepository feedQueryRepository;
 
-	public SliceResponseDto<GetCommunityResponseDto> getCommunity(GetCommunityRequestDto dto) {
+	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
 		return feedQueryRepository.getCommunity(dto);
 	}
 

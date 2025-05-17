@@ -41,7 +41,7 @@ public class FeedController {
 	@GetMapping("/community/{feedId}")
 	public ResponseEntity<?> getCommunityDetail() {
 		return ApiResponse.builder()
-			.data(feedService.create(null))
+			.data(null)
 			.message(format(FeedApiMessage.GET_COMMUNITY_DETAIL_SUCCESS.getMessage(), "id"))
 			.success();
 	}
@@ -49,7 +49,7 @@ public class FeedController {
 	@GetMapping("/rooms/{roomId}/feeds")
 	public ResponseEntity<?> getIngameFeeds() {
 		return ApiResponse.builder()
-			.data(feedService.create(null))
+			.data(null)
 			.message(format(FeedApiMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), "page", "keyword"))
 			.success();
 	}

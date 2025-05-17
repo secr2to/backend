@@ -1,21 +1,9 @@
 package com.emelmujiro.secreto.feed.dto.response;
 
-import java.time.LocalDateTime;
+import com.emelmujiro.secreto.global.dto.response.SliceResponseDto;
 
-import com.querydsl.core.annotations.QueryProjection;
+import lombok.experimental.SuperBuilder;
 
-public record GetCommunityResponseDto(
-	Long feedId,
-	String title,
-	int imageCount,
-	int heartCount,
-	int replyCount,
-	String thumbnailImageUrl,
-	FeedUserResponseDto author,
-	LocalDateTime createDate
-) {
-
-	@QueryProjection
-	public GetCommunityResponseDto {
-	}
+@SuperBuilder
+public class GetCommunityResponseDto extends SliceResponseDto<CommunityFeedResponseDto> {
 }
