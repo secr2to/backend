@@ -17,6 +17,7 @@ import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.message.FeedApiMessage;
 import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
@@ -94,6 +95,14 @@ public class FeedController {
 		HeartRequestDto heartRequest = new HeartRequestDto(feedId, roomId, userId);
 		return ApiResponse.builder()
 			.data(feedService.unheart(heartRequest))
+			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
+			.success();
+	}
+
+	@PostMapping("/replies")
+	public ResponseEntity<?> writeReply(@RequestBody WriteReplyRequestDto writeReplyRequest) {
+		return ApiResponse.builder()
+			.data(feedService.writeReply(writeReplyRequest))
 			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
 			.success();
 	}

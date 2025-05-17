@@ -27,7 +27,7 @@ public class FeedFactory {
 	private final FeedRepository feedRepository;
 	private final UserRepository userRepository;
 
-	public Feed createFeed(CreateFeedRequestDto createFeedRequest, Room room, User author) {
+	public Feed createFeed(Room room, User author, CreateFeedRequestDto createFeedRequest) {
 		return feedRepository.save(
 			Feed.builder()
 				.title(createFeedRequest.getTitle())
@@ -38,17 +38,17 @@ public class FeedFactory {
 		);
 	}
 
-	public void syncImages(Feed feed, List<FeedImageRequestDto> feedImageRequestDtos) {
+	public void syncImages(Feed feed, List<FeedImageRequestDto> feedImageRequests) {
 		feed.removeAllFeedImages();
 		int order = 0;
-		for (FeedImageRequestDto dto: feedImageRequestDtos) {
+		for (FeedImageRequestDto dto: feedImageRequests) {
 			feed.addFeedImage(new FeedImage(dto.getImageUrl(), order++));
 		}
 	}
 
-	public void syncTags(Feed feed, List<FeedTagRequestDto> feedTagRequestDtos) {
+	public void syncTags(Feed feed, List<FeedTagRequestDto> feedTagRequests) {
 		feed.removeAllTagUsers();
-		List<Long> tagUserIds = feedTagRequestDtos
+		List<Long> tagUserIds = feedTagRequests
 			.stream()
 			.map(FeedTagRequestDto::getUserId)
 			.toList();
@@ -57,7 +57,7 @@ public class FeedFactory {
 			.stream()
 			.collect(Collectors.toMap(User::getId, Function.identity()));
 
-		feedTagRequestDtos
+		feedTagRequests
 			.forEach(tag ->
 				feed.addTagUser(new FeedTagUser(feed, userMap.get(tag.getUserId())))
 			);

@@ -10,16 +10,21 @@ import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedHeart;
+import com.emelmujiro.secreto.feed.entity.FeedReply;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
 import com.emelmujiro.secreto.feed.repository.FeedHeartRepository;
 import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
+import com.emelmujiro.secreto.feed.repository.FeedReplyRepository;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
 import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
+import com.emelmujiro.secreto.feed.service.factory.FeedReplyFactory;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.user.entity.User;
@@ -36,6 +41,8 @@ public class FeedService {
 	private final UserRepository userRepository;
 	private final FeedRepository feedRepository;
 	private final FeedFactory feedFactory;
+	private final FeedReplyFactory feedReplyFactory;
+	private final FeedReplyRepository feedReplyRepository;
 	private final FeedQueryRepository feedQueryRepository;
 	private final FeedHeartRepository feedHeartRepository;
 
@@ -54,7 +61,7 @@ public class FeedService {
 		User author = userRepository.findById(authorId)
 			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
 
-		Feed feed = feedFactory.createFeed(dto, room, author);
+		Feed feed = feedFactory.createFeed(room, author, dto);
 		feedFactory.syncImages(feed, dto.getImages());
 		feedFactory.syncTags(feed, dto.getTags());
 
@@ -108,6 +115,16 @@ public class FeedService {
 			success = true;
 		}
 		return Map.of("success", success);
+	}
+
+	@Transactional
+	public WriteReplyResponseDto writeReply(WriteReplyRequestDto dto) {
+		Feed feed = getFeed(dto.getFeedId());
+		User user = userRepository.findById(dto.getUserId())
+			.orElseThrow(() -> new IllegalArgumentException("user not found"));
+		FeedReply reply = feedReplyFactory.createReply(feed, user, dto);
+		feed.addReply(reply);
+		return WriteReplyResponseDto.from(reply);
 	}
 
 	public Feed getFeed(Long feedId) {

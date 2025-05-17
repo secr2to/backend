@@ -125,4 +125,10 @@ public class Feed extends TimestampedEntity {
         this.feedHeartList.remove(heart);
         heart.setFeed(null);
     }
+
+    public void addReply(FeedReply reply) {
+        ++replyCount;
+        this.feedReplyList.add(reply);
+        reply.setFeed(this);
+    }
 }
