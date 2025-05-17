@@ -2,10 +2,12 @@ package com.emelmujiro.secreto.feed.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.message.FeedApiMessage;
 import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
@@ -23,6 +25,14 @@ public class FeedController {
 		return ApiResponse.builder()
 			.data(feedService.create(createFeedRequest))
 			.message(FeedApiMessage.CREATE_FEED_SUCCESS.getMessage())
+			.success();
+	}
+
+	@PutMapping({"/community/{feedId}", "/rooms/{roomId}/feed/{feedId}"})
+	public ResponseEntity<?> updateFeed(@RequestBody UpdateFeedRequestDto updateFeedRequest) {
+		return ApiResponse.builder()
+			.data(feedService.update(updateFeedRequest))
+			.message(FeedApiMessage.UPDATE_FEED_SUCCESS.getMessage())
 			.success();
 	}
 }

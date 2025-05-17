@@ -13,9 +13,9 @@ import com.emelmujiro.secreto.feed.dto.request.FeedTagRequestDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedImage;
 import com.emelmujiro.secreto.feed.entity.FeedTagUser;
-import com.emelmujiro.secreto.feed.repository.FeedImageRepository;
+import com.emelmujiro.secreto.feed.error.FeedErrorCode;
+import com.emelmujiro.secreto.feed.exception.FeedException;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
-import com.emelmujiro.secreto.feed.repository.FeedTagUserRepository;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
@@ -27,9 +27,17 @@ import lombok.RequiredArgsConstructor;
 public class FeedFactory {
 
 	private final FeedRepository feedRepository;
-	private final FeedImageRepository feedImageRepository;
-	private final FeedTagUserRepository feedTagUserRepository;
 	private final UserRepository userRepository;
+
+	public Feed getFeed(Long feedId) {
+		return feedRepository.findById(feedId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
+	}
+
+	public Feed getFeed(Long feedId, Long authorId) {
+		return feedRepository.findByIdAndAuthorId(feedId, authorId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND_OR_FORBIDDEN));
+	}
 
 	public Feed createFeed(CreateFeedRequestDto createFeedRequest, Room room, User author) {
 		return feedRepository.save(
@@ -42,16 +50,16 @@ public class FeedFactory {
 		);
 	}
 
-	public List<FeedImage> addImages(Feed feed, List<FeedImageRequestDto> feedImageRequestDtos) {
-		return feedImageRepository.saveAll(
-			feedImageRequestDtos
-				.stream()
-				.map(image -> new FeedImage(feed, image.getImageUrl()))
-				.toList()
-		);
+	public void syncImages(Feed feed, List<FeedImageRequestDto> feedImageRequestDtos) {
+		feed.removeAllFeedImages();
+		int order = 0;
+		for (FeedImageRequestDto dto: feedImageRequestDtos) {
+			feed.addFeedImage(new FeedImage(dto.getImageUrl(), order++));
+		}
 	}
 
-	public List<FeedTagUser> addTagUsers(Feed feed, List<FeedTagRequestDto> feedTagRequestDtos) {
+	public void syncTags(Feed feed, List<FeedTagRequestDto> feedTagRequestDtos) {
+		feed.removeAllTagUsers();
 		List<Long> tagUserIds = feedTagRequestDtos
 			.stream()
 			.map(FeedTagRequestDto::getUserId)
@@ -61,14 +69,9 @@ public class FeedFactory {
 			.stream()
 			.collect(Collectors.toMap(User::getId, Function.identity()));
 
-		return feedTagUserRepository.saveAll(
-			feedTagRequestDtos
-				.stream()
-				.map(tagUser ->
-					new FeedTagUser(feed, userMap.get(tagUser.getUserId()))
-				)
-				.filter(tagUser -> tagUser.getUser() != null)
-				.toList()
-		);
+		feedTagRequestDtos
+			.forEach(tag ->
+				feed.addTagUser(new FeedTagUser(feed, userMap.get(tag.getUserId())))
+			);
 	}
 }

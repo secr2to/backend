@@ -33,8 +33,11 @@ public class FeedImage {
 	@JoinColumn(name = "feed_id")
 	private Feed feed;
 
-	public FeedImage(Feed feed, String imageUrl) {
-		this.feed = feed;
+	@Column(name = "order_number")
+	private int order;
+
+	public FeedImage(String imageUrl, int order) {
 		this.imageUrl = imageUrl;
+		this.order = order;
 	}
 }

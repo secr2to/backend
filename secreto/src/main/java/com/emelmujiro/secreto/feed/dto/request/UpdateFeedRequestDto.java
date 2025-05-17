@@ -11,10 +11,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreateFeedRequestDto {
+public class UpdateFeedRequestDto {
 
 	@InjectUserId
 	private Long authorId;
+
+	@InjectPathVariable
+	private Long feedId;
 
 	private String title;
 	private String content;

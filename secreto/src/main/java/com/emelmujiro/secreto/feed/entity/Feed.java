@@ -8,6 +8,7 @@ import com.emelmujiro.secreto.global.entity.base.TimestampedEntity;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -63,10 +64,20 @@ public class Feed extends TimestampedEntity {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+    @OneToMany(
+        mappedBy = "feed",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
     private List<FeedTagUser> tagUsers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+    @OneToMany(
+        mappedBy = "feed",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
     private List<FeedImage> images = new ArrayList<>();
 
     @Builder
@@ -79,13 +90,30 @@ public class Feed extends TimestampedEntity {
         this.author = author;
     }
 
-    public void addImages(Collection<FeedImage> images) {
-        this.images.addAll(images);
-        images.forEach(image -> image.setFeed(this));
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 
-    public void addTagUsers(Collection<FeedTagUser> tagUsers) {
-        this.tagUsers.addAll(tagUsers);
-        tagUsers.forEach(tagUser -> tagUser.setFeed(this));
+    public void addFeedImage(FeedImage image) {
+        this.images.add(image);
+        image.setFeed(this);
+    }
+
+    public void removeAllFeedImages() {
+        this.images.forEach(image -> image.setFeed(null));
+        this.images.clear();
+    }
+
+    public void addTagUser(FeedTagUser tagUser) {
+        if (tagUser == null || tagUser.getUser() == null) return;
+        if (tagUser.getUser().equals(author)) return;
+        this.tagUsers.add(tagUser);
+        tagUser.setFeed(this);
+    }
+
+    public void removeAllTagUsers() {
+        this.tagUsers.forEach(tagUser -> tagUser.setFeed(null));
+        this.tagUsers.clear();
     }
 }

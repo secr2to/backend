@@ -1,0 +1,20 @@
+package com.emelmujiro.secreto.feed.error;
+
+import org.springframework.http.HttpStatus;
+
+import com.emelmujiro.secreto.global.error.ErrorCode;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum FeedErrorCode implements ErrorCode {
+
+	FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다."),
+	FEED_NOT_FOUND_OR_FORBIDDEN(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않거나 권한이 없습니다."),
+	;
+
+	private final HttpStatus httpStatus;
+	private final String message;
+}
