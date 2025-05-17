@@ -1,24 +1,25 @@
 package com.emelmujiro.secreto.room.controller;
 
-import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
-import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
-import com.emelmujiro.secreto.room.entity.RoomStatus;
-import com.emelmujiro.secreto.room.service.RoomService;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
+import com.emelmujiro.secreto.room.entity.RoomStatus;
+import com.emelmujiro.secreto.room.service.RoomService;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -27,7 +28,6 @@ class RoomControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
     private RoomService roomService;
 
     @Test

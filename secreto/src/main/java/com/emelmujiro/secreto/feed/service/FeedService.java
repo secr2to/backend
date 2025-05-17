@@ -1,0 +1,91 @@
+package com.emelmujiro.secreto.feed.service;
+
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
+import com.emelmujiro.secreto.feed.entity.Feed;
+import com.emelmujiro.secreto.feed.error.FeedErrorCode;
+import com.emelmujiro.secreto.feed.exception.FeedException;
+import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
+import com.emelmujiro.secreto.feed.repository.FeedRepository;
+import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
+import com.emelmujiro.secreto.room.entity.Room;
+import com.emelmujiro.secreto.room.repository.RoomRepository;
+import com.emelmujiro.secreto.user.entity.User;
+import com.emelmujiro.secreto.user.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+public class FeedService {
+
+	private final RoomRepository roomRepository;
+	private final UserRepository userRepository;
+	private final FeedRepository feedRepository;
+	private final FeedFactory feedFactory;
+	private final FeedQueryRepository feedQueryRepository;
+
+	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
+		return feedQueryRepository.getCommunity(dto);
+	}
+
+	@Transactional
+	public CreateFeedResponseDto create(CreateFeedRequestDto dto) {
+		Long roomId = dto.getRoomId();
+		Room room = roomId != null
+			? roomRepository.findById(roomId).orElseThrow(() -> new IllegalArgumentException("invalid room id"))
+			: null;
+
+		Long authorId = dto.getAuthorId();
+		User author = userRepository.findById(authorId)
+			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+
+		Feed feed = feedFactory.createFeed(dto, room, author);
+		feedFactory.syncImages(feed, dto.getImages());
+		feedFactory.syncTags(feed, dto.getTags());
+
+		return CreateFeedResponseDto.from(feed);
+	}
+
+	@Transactional
+	public Map<String, Object> update(UpdateFeedRequestDto dto) {
+		Feed feed = getFeed(dto.getFeedId(), dto.getRoomId(), dto.getAuthorId());
+		feed.update(dto.getTitle(), dto.getContent());
+		feedFactory.syncImages(feed, dto.getImages());
+		feedFactory.syncTags(feed, dto.getTags());
+		return Map.of("success", true);
+	}
+
+	@Transactional
+	public Map<String, Object> delete(DeleteFeedRequestDto dto) {
+		Feed feed = getFeed(dto.getFeedId(), dto.getRoomId(), dto.getAuthorId());
+		return Map.of("success", feed.delete());
+	}
+
+	public Feed getFeed(Long feedId) {
+		return feedRepository.findActiveById(feedId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
+	}
+
+	public Feed getFeed(Long feedId, Long authorId) {
+		return feedRepository.findByIdAndAuthorId(feedId, authorId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND_OR_FORBIDDEN));
+	}
+
+	public Feed getFeed(Long feedId, Long roomId, Long authorId) {
+		/**
+		 * TODO: Room에 속한 유저인지 체크
+		 */
+		return getFeed(feedId, authorId);
+	}
+}
