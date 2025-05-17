@@ -28,9 +28,9 @@ public class PathVariableInjectionAdvice implements RequestBodyAdvice {
 	@Override
 	public boolean supports(MethodParameter methodParameter, Type targetType,
 		Class<? extends HttpMessageConverter<?>> converterType) {
-		HttpServletRequest request = getHttpServletRequest();
-		Map<String, String> pathVariables = getPathVariables(request);
-		return !pathVariables.isEmpty();
+		Class<?> clazz = methodParameter.getParameterType();
+		return Arrays.stream(clazz.getDeclaredFields())
+			.anyMatch(field -> field.isAnnotationPresent(InjectPathVariable.class));
 	}
 
 	@Override
@@ -48,12 +48,23 @@ public class PathVariableInjectionAdvice implements RequestBodyAdvice {
 		Arrays.stream(body.getClass().getDeclaredFields())
 			.filter(field -> field.isAnnotationPresent(InjectPathVariable.class))
 			.forEach(field -> {
+				InjectPathVariable annotation = field.getAnnotation(InjectPathVariable.class);
 				String name = resolveFieldName(field);
-				Class<?> type = field.getType();
-				Object value = getConvertedValue(pathVariables, name, type);
+				boolean required = annotation.required();
 
-				ReflectionUtils.makeAccessible(field);
-				ReflectionUtils.setField(field, body, value);
+				if (!pathVariables.containsKey(name) && required) {
+					throw new IllegalArgumentException(
+						String.format("Path variable '%s' is required.", name)
+					);
+				}
+
+				if (pathVariables.containsKey(name)) {
+					Class<?> type = field.getType();
+					Object value = getConvertedValue(pathVariables, name, type);
+
+					ReflectionUtils.makeAccessible(field);
+					ReflectionUtils.setField(field, body, value);
+				}
 			});
 	}
 
