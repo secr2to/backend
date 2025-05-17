@@ -2,7 +2,6 @@ package com.emelmujiro.secreto.example_template.controller;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emelmujiro.secreto.auth.annotation.InjectUserId;
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import com.emelmujiro.secreto.global.error.CommonErrorCode;
 import com.emelmujiro.secreto.global.exception.ApiException;
@@ -52,7 +51,9 @@ public class TestController {
 	}
 
 	@PostMapping("/{one}/{two}/{three}/{four}/{five}/{six}")
-	public ResponseEntity<?> customRequestBody(@RequestBody TestDto testDto) {
+	public ResponseEntity<?> customRequestBody(@RequestBody TestDto testDto,
+		@LoginUser Long userId) {
+		log.info("userId={}", userId);
 		log.info("one={}", testDto.one);
 		log.info("two={}", testDto.twotwo);
 		log.info("three={}", testDto.three);
@@ -64,6 +65,9 @@ public class TestController {
 	}
 
 	public static class TestDto {
+
+		@InjectUserId
+		private long userId;
 
 		@InjectPathVariable(name = "one")
 		private int one;
