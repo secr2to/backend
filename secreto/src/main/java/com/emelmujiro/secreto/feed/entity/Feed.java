@@ -1,7 +1,6 @@
 package com.emelmujiro.secreto.feed.entity;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.emelmujiro.secreto.global.entity.base.TimestampedEntity;
@@ -80,6 +79,8 @@ public class Feed extends TimestampedEntity {
     )
     private List<FeedImage> images = new ArrayList<>();
 
+    private boolean deletedYn;
+
     @Builder
     public Feed(String title, String content, Room room, User author) {
         this.title = title;
@@ -115,5 +116,10 @@ public class Feed extends TimestampedEntity {
     public void removeAllTagUsers() {
         this.tagUsers.forEach(tagUser -> tagUser.setFeed(null));
         this.tagUsers.clear();
+    }
+
+    public boolean delete() {
+        if (this.deletedYn) return false;
+        return this.deletedYn = true;
     }
 }

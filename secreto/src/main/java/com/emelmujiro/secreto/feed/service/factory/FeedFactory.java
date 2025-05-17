@@ -13,8 +13,6 @@ import com.emelmujiro.secreto.feed.dto.request.FeedTagRequestDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedImage;
 import com.emelmujiro.secreto.feed.entity.FeedTagUser;
-import com.emelmujiro.secreto.feed.error.FeedErrorCode;
-import com.emelmujiro.secreto.feed.exception.FeedException;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.user.entity.User;
@@ -28,16 +26,6 @@ public class FeedFactory {
 
 	private final FeedRepository feedRepository;
 	private final UserRepository userRepository;
-
-	public Feed getFeed(Long feedId) {
-		return feedRepository.findById(feedId)
-			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
-	}
-
-	public Feed getFeed(Long feedId, Long authorId) {
-		return feedRepository.findByIdAndAuthorId(feedId, authorId)
-			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND_OR_FORBIDDEN));
-	}
 
 	public Feed createFeed(CreateFeedRequestDto createFeedRequest, Room room, User author) {
 		return feedRepository.save(

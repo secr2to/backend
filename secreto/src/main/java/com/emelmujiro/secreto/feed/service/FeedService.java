@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
@@ -27,35 +28,56 @@ public class FeedService {
 
 	private final RoomRepository roomRepository;
 	private final UserRepository userRepository;
-	private final FeedFactory feedFactory;
 	private final FeedRepository feedRepository;
+	private final FeedFactory feedFactory;
 
 	@Transactional
-	public CreateFeedResponseDto create(CreateFeedRequestDto createFeedRequest) {
-		Long roomId = createFeedRequest.getRoomId();
+	public CreateFeedResponseDto create(CreateFeedRequestDto dto) {
+		Long roomId = dto.getRoomId();
 		Room room = roomId != null
 			? roomRepository.findById(roomId).orElseThrow(() -> new IllegalArgumentException("invalid room id"))
 			: null;
 
-		Long authorId = createFeedRequest.getAuthorId();
+		Long authorId = dto.getAuthorId();
 		User author = userRepository.findById(authorId)
 			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
 
-		Feed feed = feedFactory.createFeed(createFeedRequest, room, author);
-		feedFactory.syncImages(feed, createFeedRequest.getImages());
-		feedFactory.syncTags(feed, createFeedRequest.getTags());
+		Feed feed = feedFactory.createFeed(dto, room, author);
+		feedFactory.syncImages(feed, dto.getImages());
+		feedFactory.syncTags(feed, dto.getTags());
 
 		return CreateFeedResponseDto.from(feed);
 	}
 
 	@Transactional
-	public Map<String, Object> update(UpdateFeedRequestDto updateFeedRequest) {
-		Feed feed = feedFactory.getFeed(updateFeedRequest.getFeedId(), updateFeedRequest.getAuthorId());
-
-		feed.update(updateFeedRequest.getTitle(), updateFeedRequest.getContent());
-		feedFactory.syncImages(feed, updateFeedRequest.getImages());
-		feedFactory.syncTags(feed, updateFeedRequest.getTags());
-
+	public Map<String, Object> update(UpdateFeedRequestDto dto) {
+		Feed feed = getFeed(dto.getFeedId(), dto.getRoomId(), dto.getAuthorId());
+		feed.update(dto.getTitle(), dto.getContent());
+		feedFactory.syncImages(feed, dto.getImages());
+		feedFactory.syncTags(feed, dto.getTags());
 		return Map.of("success", true);
+	}
+
+	@Transactional
+	public Map<String, Object> delete(DeleteFeedRequestDto dto) {
+		Feed feed = getFeed(dto.getFeedId(), dto.getRoomId(), dto.getAuthorId());
+		return Map.of("success", feed.delete());
+	}
+
+	public Feed getFeed(Long feedId) {
+		return feedRepository.findActiveById(feedId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
+	}
+
+	public Feed getFeed(Long feedId, Long authorId) {
+		return feedRepository.findByIdAndAuthorId(feedId, authorId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND_OR_FORBIDDEN));
+	}
+
+	public Feed getFeed(Long feedId, Long roomId, Long authorId) {
+		/**
+		 * TODO: Room에 속한 유저인지 체크
+		 */
+		return getFeed(feedId, authorId);
 	}
 }

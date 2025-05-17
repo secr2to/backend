@@ -10,6 +10,9 @@ import com.emelmujiro.secreto.feed.entity.Feed;
 
 public interface FeedRepository extends JpaRepository<Feed, Long> {
 
-	@Query("select f from Feed f where f.id = :id and f.author.id = :authorId")
-	Optional<Feed> findByIdAndAuthorId(@Param("id") Long feedId, @Param("authorId") Long authorId);
+	@Query("select f from Feed f where f.id = :id and f.author.id = :authorId and f.deletedYn = false ")
+	Optional<Feed> findByIdAndAuthorId(@Param("id") Long id, @Param("authorId") Long authorId);
+
+	@Query("select f from Feed f where f.id = :id and f.deletedYn = false ")
+	Optional<Feed> findActiveById(@Param("id") Long id);
 }
