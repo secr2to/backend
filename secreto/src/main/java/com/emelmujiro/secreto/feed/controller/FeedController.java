@@ -6,14 +6,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
-import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.message.FeedApiMessage;
 import com.emelmujiro.secreto.feed.service.FeedService;
@@ -70,11 +72,29 @@ public class FeedController {
 			.success();
 	}
 
-	@DeleteMapping({"/community/{feedId}", "/rooms/{roomId}/feeds/{feedId}"})
-	public ResponseEntity<?> deleteFeed(@RequestBody DeleteFeedRequestDto deleteFeedRequest) {
+	@PostMapping({"/community/{feedId}/heart", "/rooms/{roomId}/feeds/{feedId}/heart"})
+	public ResponseEntity<?> heart(
+		@PathVariable("feedId") Long feedId,
+		@PathVariable(value = "roomId", required = false) Long roomId,
+		@LoginUser Long userId
+	) {
+		HeartRequestDto heartRequest = new HeartRequestDto(feedId, roomId, userId);
 		return ApiResponse.builder()
-			.data(feedService.delete(deleteFeedRequest))
-			.message(FeedApiMessage.DELETE_FEED_SUCCESS.getMessage())
+			.data(feedService.heart(heartRequest))
+			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
+			.success();
+	}
+
+	@DeleteMapping({"/community/{feedId}/heart", "/rooms/{roomId}/feeds/{feedId}/heart"})
+	public ResponseEntity<?> unheart(
+		@PathVariable("feedId") Long feedId,
+		@PathVariable(value = "roomId", required = false) Long roomId,
+		@LoginUser Long userId
+	) {
+		HeartRequestDto heartRequest = new HeartRequestDto(feedId, roomId, userId);
+		return ApiResponse.builder()
+			.data(feedService.unheart(heartRequest))
+			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
 			.success();
 	}
 }

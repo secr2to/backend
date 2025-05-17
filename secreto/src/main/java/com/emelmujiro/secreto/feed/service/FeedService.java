@@ -8,12 +8,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
+import com.emelmujiro.secreto.feed.entity.FeedHeart;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
+import com.emelmujiro.secreto.feed.repository.FeedHeartRepository;
 import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
 import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
@@ -34,6 +37,7 @@ public class FeedService {
 	private final FeedRepository feedRepository;
 	private final FeedFactory feedFactory;
 	private final FeedQueryRepository feedQueryRepository;
+	private final FeedHeartRepository feedHeartRepository;
 
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
 		return feedQueryRepository.getCommunity(dto);
@@ -70,6 +74,40 @@ public class FeedService {
 	public Map<String, Object> delete(DeleteFeedRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId(), dto.getRoomId(), dto.getAuthorId());
 		return Map.of("success", feed.delete());
+	}
+
+	@Transactional
+	public Map<String, Object> heart(HeartRequestDto dto) {
+		/* TODO: 방에 속한 유저인지 검사 */
+		Feed feed = getFeed(dto.getFeedId());
+		User user = userRepository.findById(dto.getUserId())
+			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+
+		boolean success = false;
+		if (feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId()).isEmpty()) {
+			FeedHeart heart = feedHeartRepository.save(new FeedHeart(feed, user));
+			feed.addHeart(heart);
+			success = true;
+		}
+		return Map.of("success", success);
+	}
+
+	@Transactional
+	public Map<String, Object> unheart(HeartRequestDto dto) {
+		/* TODO: 방에 속한 유저인지 검사 */
+		Feed feed = getFeed(dto.getFeedId());
+		User user = userRepository.findById(dto.getUserId())
+			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+
+		FeedHeart heart = feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId())
+			.orElse(null);
+
+		boolean success = false;
+		if (heart != null) {
+			feed.removeHeart(heart);
+			success = true;
+		}
+		return Map.of("success", success);
 	}
 
 	public Feed getFeed(Long feedId) {

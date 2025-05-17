@@ -54,7 +54,7 @@ public class Feed extends TimestampedEntity {
     @JoinColumn(name = "room_id")
     private Room room;
 
-    @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "feed", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FeedHeart> feedHeartList = new ArrayList<>();
 
     @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
@@ -64,20 +64,10 @@ public class Feed extends TimestampedEntity {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @OneToMany(
-        mappedBy = "feed",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "feed", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FeedTagUser> tagUsers = new ArrayList<>();
 
-    @OneToMany(
-        mappedBy = "feed",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "feed", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FeedImage> images = new ArrayList<>();
 
     private boolean deletedYn;
@@ -122,5 +112,17 @@ public class Feed extends TimestampedEntity {
     public boolean delete() {
         if (this.deletedYn) return false;
         return this.deletedYn = true;
+    }
+
+    public void addHeart(FeedHeart heart) {
+        ++heartCount;
+        this.feedHeartList.add(heart);
+        heart.setFeed(this);
+    }
+
+    public void removeHeart(FeedHeart heart) {
+        --heartCount;
+        this.feedHeartList.remove(heart);
+        heart.setFeed(null);
     }
 }
