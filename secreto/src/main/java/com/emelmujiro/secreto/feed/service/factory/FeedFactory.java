@@ -13,6 +13,8 @@ import com.emelmujiro.secreto.feed.dto.request.FeedTagRequestDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedImage;
 import com.emelmujiro.secreto.feed.entity.FeedTagUser;
+import com.emelmujiro.secreto.feed.error.FeedErrorCode;
+import com.emelmujiro.secreto.feed.exception.FeedException;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.user.entity.User;
@@ -39,6 +41,9 @@ public class FeedFactory {
 	}
 
 	public void syncImages(Feed feed, List<FeedImageRequestDto> feedImageRequests) {
+		if (feedImageRequests == null || feedImageRequests.isEmpty()) {
+			throw new FeedException(FeedErrorCode.IMAGE_REQUIRED);
+		}
 		feed.removeAllFeedImages();
 		int order = 0;
 		for (FeedImageRequestDto dto: feedImageRequests) {
@@ -48,6 +53,7 @@ public class FeedFactory {
 
 	public void syncTags(Feed feed, List<FeedTagRequestDto> feedTagRequests) {
 		feed.removeAllTagUsers();
+		if (feedTagRequests == null || feedTagRequests.isEmpty()) return;
 		List<Long> tagUserIds = feedTagRequests
 			.stream()
 			.map(FeedTagRequestDto::getUserId)

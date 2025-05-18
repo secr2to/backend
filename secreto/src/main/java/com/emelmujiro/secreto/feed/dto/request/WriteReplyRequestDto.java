@@ -2,12 +2,13 @@ package com.emelmujiro.secreto.feed.dto.request;
 
 import com.emelmujiro.secreto.auth.annotation.InjectUserId;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 public class WriteReplyRequestDto {
 
 	@InjectUserId

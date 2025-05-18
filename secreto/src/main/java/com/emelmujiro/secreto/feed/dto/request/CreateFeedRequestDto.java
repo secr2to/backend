@@ -5,12 +5,13 @@ import java.util.List;
 import com.emelmujiro.secreto.auth.annotation.InjectUserId;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 public class CreateFeedRequestDto {
 
 	@InjectUserId

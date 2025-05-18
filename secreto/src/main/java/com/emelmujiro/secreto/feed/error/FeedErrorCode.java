@@ -17,6 +17,7 @@ public enum FeedErrorCode implements ErrorCode {
 	REPLY_NOT_FOUND_OR_FORBIDDEN(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않거나 권한이 없습니다."),
 	PARENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "상위 댓글이 존재하지 않습니다."),
 	SELF_MENTION_NOT_ALLOW(HttpStatus.BAD_REQUEST, "본인을 멘션할 수 없습니다."),
+	IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "최소 1장 이상의 이미지를 첨부해주세요."),
 	;
 
 	private final HttpStatus httpStatus;
