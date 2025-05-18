@@ -1,11 +1,11 @@
-package com.emelmujiro.secreto.auth.dto;
+package com.emelmujiro.secreto.user.dto.response;
 
 import com.emelmujiro.secreto.user.entity.UserRole;
 
 import lombok.Builder;
 
 @Builder
-public record LoginResponse(
+public record UserLoginResponseDto(
 	Long userId,
 	String provider,
 	UserRole role,
@@ -14,7 +14,7 @@ public record LoginResponse(
 	String searchId,
 	String profileUrl
 ) {
-	public LoginResponse {
+	public UserLoginResponseDto {
 		roleName = (role != null) ? role.getName() : null;
 	}
 }

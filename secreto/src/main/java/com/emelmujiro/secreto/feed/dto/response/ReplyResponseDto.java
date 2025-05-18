@@ -2,6 +2,7 @@ package com.emelmujiro.secreto.feed.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.emelmujiro.secreto.user.dto.response.UserProfileResponseDto;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.Data;
@@ -20,11 +21,11 @@ public class ReplyResponseDto {
 	private int nestedReplyCount;
 	private int heartCount;
 	private boolean heart;
-	private FeedUserResponseDto replier;
+	private UserProfileResponseDto replier;
 
 	@QueryProjection
 	public ReplyResponseDto(Long replyId, String comment, LocalDateTime createDate, boolean nestedReplyYn,
-		int nestedReplyCount, int heartCount, boolean heart, FeedUserResponseDto replier) {
+		int nestedReplyCount, int heartCount, boolean heart, UserProfileResponseDto replier) {
 		this.replyId = replyId;
 		this.comment = comment;
 		this.createDate = createDate;

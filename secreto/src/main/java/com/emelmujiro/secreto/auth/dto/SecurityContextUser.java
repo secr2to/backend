@@ -1,5 +1,6 @@
 package com.emelmujiro.secreto.auth.dto;
 
+import com.emelmujiro.secreto.user.dto.response.UserLoginResponseDto;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.entity.UserRole;
 
@@ -29,8 +30,8 @@ public record SecurityContextUser(
 			.build();
 	}
 
-	public LoginResponse toLoginResponse() {
-		return LoginResponse.builder()
+	public UserLoginResponseDto toLoginResponse() {
+		return UserLoginResponseDto.builder()
 			.userId(userId)
 			.provider(provider)
 			.role(role)

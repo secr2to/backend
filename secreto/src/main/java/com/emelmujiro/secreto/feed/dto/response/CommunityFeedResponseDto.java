@@ -2,6 +2,7 @@ package com.emelmujiro.secreto.feed.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.emelmujiro.secreto.user.dto.response.UserProfileResponseDto;
 import com.querydsl.core.annotations.QueryProjection;
 
 public record CommunityFeedResponseDto(
@@ -11,7 +12,7 @@ public record CommunityFeedResponseDto(
 	int heartCount,
 	int replyCount,
 	String thumbnailImageUrl,
-	FeedUserResponseDto author,
+	UserProfileResponseDto author,
 	LocalDateTime createDate
 ) {
 

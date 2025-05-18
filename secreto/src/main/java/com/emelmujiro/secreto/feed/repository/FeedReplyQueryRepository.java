@@ -1,23 +1,25 @@
 package com.emelmujiro.secreto.feed.repository;
 
 import static com.emelmujiro.secreto.feed.entity.QFeedReply.*;
+import static com.emelmujiro.secreto.feed.entity.QFeedReplyHeart.*;
 import static com.emelmujiro.secreto.user.entity.QUser.*;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
-import com.emelmujiro.secreto.feed.dto.response.QFeedUserResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QReplyResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.ReplyResponseDto;
-import com.querydsl.core.types.Predicate;
+import com.emelmujiro.secreto.feed.entity.QFeedReplyHeart;
+import com.emelmujiro.secreto.room.dto.response.QRoomUserProfileResponseDto;
+import com.emelmujiro.secreto.user.dto.response.QUserProfileResponseDto;
+import com.emelmujiro.secreto.user.dto.response.UserProfileResponseDto;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
@@ -35,6 +37,7 @@ public class FeedReplyQueryRepository {
 	}
 
 	public GetRepliesResponseDto getReplies(GetRepliesRequestDto dto) {
+		boolean isInCommunityFeed = dto.getRoomId() == null;
 		List<ReplyResponseDto> content = query
 			.select(new QReplyResponseDto(
 				feedReply.id,
@@ -43,18 +46,15 @@ public class FeedReplyQueryRepository {
 				feedReply.nestedReplyYn,
 				feedReply.nestedReplyCount,
 				feedReply.heartCount,
-				Expressions.asBoolean(false), /* TODO: 좋아요 여부 */
-				new QFeedUserResponseDto(
-					user.id,
-					user.searchId,
-					user.profileUrl,
-					Expressions.nullExpression(),
-					Expressions.nullExpression()
-				)
+				feedReplyHeart.user.isNotNull(),
+				getUserProfile(isInCommunityFeed)
 			))
 			.from(feedReply)
 			.leftJoin(feedReply.replier, user)
-			.where(feedReply.feed.id.eq(dto.getFeedId()),
+			.leftJoin(feedReply.feedReplyHeartList, feedReplyHeart)
+			.on(feedReplyHeart.user.id.eq(dto.getUserId()))
+			.where(
+				feedReply.feed.id.eq(dto.getFeedId()),
 				feedReply.deletedYn.eq(false),
 				replyCondition(dto),
 				nestedReplyCondition(dto))
@@ -73,6 +73,16 @@ public class FeedReplyQueryRepository {
 			.offset(hasNext ? dto.getOffset() + pageSize : -1)
 			.hasNext(hasNext)
 			.build();
+	}
+
+	private Expression<? extends UserProfileResponseDto> getUserProfile(boolean isInCommunityFeed) {
+		return isInCommunityFeed
+			? new QUserProfileResponseDto(
+				user.id, user.searchId, user.profileUrl)
+			: new QRoomUserProfileResponseDto(
+				user.id, user.searchId, user.profileUrl,
+				Expressions.nullExpression(), Expressions.nullExpression()
+		);
 	}
 
 	private BooleanExpression replyCondition(GetRepliesRequestDto dto) {

@@ -13,8 +13,8 @@ import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CommunityFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QCommunityFeedResponseDto;
-import com.emelmujiro.secreto.feed.dto.response.QFeedUserResponseDto;
 import com.emelmujiro.secreto.feed.entity.FeedType;
+import com.emelmujiro.secreto.user.dto.response.QUserProfileResponseDto;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
@@ -39,16 +39,14 @@ public class FeedQueryRepository {
 			.select(new QCommunityFeedResponseDto(
 				feed.id,
 				feed.title,
-				Expressions.asNumber(1), /* TODO: 하트 수 */
+				Expressions.asNumber(1), /* TODO: 이미지 수 */
 				feed.heartCount,
 				feed.replyCount,
 				Expressions.asString("value"),  /* TODO: 썸네일 이미지 */
-				new QFeedUserResponseDto(
+				new QUserProfileResponseDto(
 					feed.author.id,
 					feed.author.username,
-					feed.author.profileUrl,
-					Expressions.nullExpression(),
-					Expressions.nullExpression()
+					feed.author.profileUrl
 				),
 				feed.createDate
 			))
