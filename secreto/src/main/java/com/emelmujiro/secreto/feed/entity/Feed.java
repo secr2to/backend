@@ -64,10 +64,20 @@ public class Feed extends TimestampedEntity {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @OneToMany(mappedBy = "feed", orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+        mappedBy = "feed",
+        cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
     private List<FeedTagUser> tagUsers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed", orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+        mappedBy = "feed",
+        cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
     private List<FeedImage> images = new ArrayList<>();
 
     private boolean deletedYn;
