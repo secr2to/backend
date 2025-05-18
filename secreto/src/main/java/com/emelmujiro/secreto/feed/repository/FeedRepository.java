@@ -15,4 +15,11 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
 
 	@Query("select f from Feed f where f.id = :id and f.deletedYn = false ")
 	Optional<Feed> findActiveById(@Param("id") Long id);
+
+	@Query("select f from Feed f "
+		+ " join fetch f.author a "
+		+ " join fetch f.images i "
+		+ " where f.id = :id "
+		+ " and f.deletedYn = false ")
+	Optional<Feed> findByIdWithAuthorAndImages(@Param("id") Long id);
 }

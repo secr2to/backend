@@ -16,6 +16,7 @@ import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetCommunityFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
@@ -47,10 +48,11 @@ public class FeedController {
 	}
 
 	@GetMapping("/community/{feedId}")
-	public ResponseEntity<?> getCommunityDetail() {
+	public ResponseEntity<?> getCommunityFeed(@PathVariable("feedId") Long feedId, @LoginUser Long userId) {
+		GetCommunityFeedRequestDto getCommunityFeedRequest = new GetCommunityFeedRequestDto(feedId, userId);
 		return ApiResponse.builder()
-			.data(null)
-			.message(format(FeedApiMessage.GET_COMMUNITY_DETAIL_SUCCESS.getMessage(), "id"))
+			.data(feedService.getCommunityFeed(getCommunityFeedRequest))
+			.message(format(FeedApiMessage.GET_COMMUNITY_FEED_SUCCESS.getMessage(), feedId))
 			.success();
 	}
 

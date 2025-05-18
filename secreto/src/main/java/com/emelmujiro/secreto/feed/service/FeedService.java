@@ -1,6 +1,8 @@
 package com.emelmujiro.secreto.feed.service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetCommunityFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
@@ -16,6 +19,7 @@ import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.GetCommunityFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
@@ -58,6 +62,16 @@ public class FeedService {
 
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
 		return feedQueryRepository.getCommunity(dto);
+	}
+
+	public GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto) {
+		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
+		List<User> heartUsers = feedHeartRepository.findByFeedIdWithUser(dto.getFeedId())
+			.stream()
+			.map(FeedHeart::getUser)
+			.toList();
+		return GetCommunityFeedResponseDto.from(feed, heartUsers, dto.getUserId());
 	}
 
 	public GetRepliesResponseDto getReplies(GetRepliesRequestDto dto) {

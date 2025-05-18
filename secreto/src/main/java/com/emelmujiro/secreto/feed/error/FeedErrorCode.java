@@ -18,6 +18,7 @@ public enum FeedErrorCode implements ErrorCode {
 	PARENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "상위 댓글이 존재하지 않습니다."),
 	SELF_MENTION_NOT_ALLOW(HttpStatus.BAD_REQUEST, "본인을 멘션할 수 없습니다."),
 	IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "최소 1장 이상의 이미지를 첨부해주세요."),
+	UNMATCHED_FEED_TYPE(HttpStatus.BAD_REQUEST, "게시글 타입이 일치하지 않습니다."),
 	;
 
 	private final HttpStatus httpStatus;
