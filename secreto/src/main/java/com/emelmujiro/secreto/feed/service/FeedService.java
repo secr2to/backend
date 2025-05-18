@@ -9,12 +9,14 @@ import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedHeart;
@@ -23,6 +25,7 @@ import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
 import com.emelmujiro.secreto.feed.repository.FeedHeartRepository;
 import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
+import com.emelmujiro.secreto.feed.repository.FeedReplyQueryRepository;
 import com.emelmujiro.secreto.feed.repository.FeedReplyRepository;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
 import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
@@ -46,10 +49,15 @@ public class FeedService {
 	private final FeedReplyFactory feedReplyFactory;
 	private final FeedReplyRepository feedReplyRepository;
 	private final FeedQueryRepository feedQueryRepository;
+	private final FeedReplyQueryRepository feedReplyQueryRepository;
 	private final FeedHeartRepository feedHeartRepository;
 
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
 		return feedQueryRepository.getCommunity(dto);
+	}
+
+	public GetRepliesResponseDto getReplies(GetRepliesRequestDto dto) {
+		return feedReplyQueryRepository.getReplies(dto);
 	}
 
 	@Transactional

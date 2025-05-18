@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
@@ -17,6 +18,7 @@ import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
@@ -112,6 +114,27 @@ public class FeedController {
 		return ApiResponse.builder()
 			.data(feedService.unheart(heartRequest))
 			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
+			.success();
+	}
+
+	@GetMapping({"/community/{feedId}/replies", "/rooms/{roomId}/feeds/{feedId}/replies"})
+	public ResponseEntity<?> getReplies(
+		@ModelAttribute GetRepliesRequestDto getRepliesRequest,
+		@PathVariable("feedId") Long feedId,
+		@PathVariable(value = "roomId", required = false) Long roomId,
+		@LoginUser Long userId) {
+		getRepliesRequest.setFeedId(feedId);
+		getRepliesRequest.setRoomId(roomId);
+		getRepliesRequest.setUserId(userId);
+		Long replyId = getRepliesRequest.getReplyId();
+
+		String message = replyId == null
+			? format(FeedApiMessage.GET_REPLIES_SUCCESS.getMessage(), feedId)
+			: format(FeedApiMessage.GET_NESTED_REPLIES_SUCCESS.getMessage(), feedId, replyId);
+
+		return ApiResponse.builder()
+			.data(feedService.getReplies(getRepliesRequest))
+			.message(message)
 			.success();
 	}
 

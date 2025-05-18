@@ -5,7 +5,9 @@ import com.querydsl.core.annotations.QueryProjection;
 public record FeedUserResponseDto(
 	Long userId,
 	String searchId,
-	String profileUrl
+	String profileUrl,
+	Long roomUserId,
+	String roomNickname
 ) {
 
 	@QueryProjection

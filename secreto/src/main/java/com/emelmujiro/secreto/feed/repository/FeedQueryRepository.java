@@ -46,7 +46,9 @@ public class FeedQueryRepository {
 				new QFeedUserResponseDto(
 					feed.author.id,
 					feed.author.nickname,
-					feed.author.profileUrl
+					feed.author.profileUrl,
+					Expressions.nullExpression(),
+					Expressions.nullExpression()
 				),
 				feed.createDate
 			))
@@ -71,7 +73,7 @@ public class FeedQueryRepository {
 		}
 		return GetCommunityResponseDto.builder()
 			.content(content)
-			.offset(dto.getOffset() + pageSize)
+			.offset(hasNext ? dto.getOffset() + pageSize : -1)
 			.hasNext(hasNext)
 			.build();
 	}
