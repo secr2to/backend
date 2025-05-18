@@ -131,4 +131,12 @@ public class Feed extends TimestampedEntity {
         this.feedReplyList.add(reply);
         reply.setFeed(this);
     }
+
+    public boolean removeReply(FeedReply reply) {
+        if (reply.delete()) {
+            --replyCount;
+            return true;
+        }
+        return false;
+    }
 }

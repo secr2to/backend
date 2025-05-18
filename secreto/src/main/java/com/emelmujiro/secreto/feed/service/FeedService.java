@@ -132,7 +132,7 @@ public class FeedService {
 	public Map<String, Object> deleteReply(DeleteReplyRequestDto dto) {
 		FeedReply reply = feedReplyRepository.findActiveByIdAndReplierId(dto.getReplyId(), dto.getReplierId())
 			.orElseThrow(() -> new FeedException(FeedErrorCode.REPLY_NOT_FOUND_OR_FORBIDDEN));
-		return Map.of("success", reply.delete());
+		return Map.of("success", reply.getFeed().removeReply(reply));
 	}
 
 	public Feed getFeed(Long feedId) {
