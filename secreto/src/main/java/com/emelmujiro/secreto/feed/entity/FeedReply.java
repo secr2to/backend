@@ -87,4 +87,16 @@ public class FeedReply extends TimestampedEntity {
         this.nestedReplyList.remove(reply);
         --nestedReplyCount;
     }
+
+    public void addHeart(FeedReplyHeart heart) {
+        ++heartCount;
+        this.feedReplyHeartList.add(heart);
+        heart.setFeedReply(this);
+    }
+
+    public void removeHeart(FeedReplyHeart heart) {
+        --heartCount;
+        this.feedReplyHeartList.remove(heart);
+        heart.setFeedReply(null);
+    }
 }

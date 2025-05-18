@@ -11,6 +11,7 @@ import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.ReplyHeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
@@ -21,10 +22,12 @@ import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedHeart;
 import com.emelmujiro.secreto.feed.entity.FeedReply;
+import com.emelmujiro.secreto.feed.entity.FeedReplyHeart;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
 import com.emelmujiro.secreto.feed.repository.FeedHeartRepository;
 import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
+import com.emelmujiro.secreto.feed.repository.FeedReplyHeartRepository;
 import com.emelmujiro.secreto.feed.repository.FeedReplyQueryRepository;
 import com.emelmujiro.secreto.feed.repository.FeedReplyRepository;
 import com.emelmujiro.secreto.feed.repository.FeedRepository;
@@ -51,6 +54,7 @@ public class FeedService {
 	private final FeedQueryRepository feedQueryRepository;
 	private final FeedReplyQueryRepository feedReplyQueryRepository;
 	private final FeedHeartRepository feedHeartRepository;
+	private final FeedReplyHeartRepository feedReplyHeartRepository;
 
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
 		return feedQueryRepository.getCommunity(dto);
@@ -122,6 +126,7 @@ public class FeedService {
 		boolean success = false;
 		if (heart != null) {
 			feed.removeHeart(heart);
+			feedHeartRepository.delete(heart);
 			success = true;
 		}
 		return Map.of("success", success);
@@ -140,17 +145,48 @@ public class FeedService {
 
 	@Transactional
 	public Map<String, Object> updateReply(UpdateReplyRequestDto dto) {
-		FeedReply reply = feedReplyRepository.findActiveByIdAndReplierId(dto.getReplyId(), dto.getReplierId())
-			.orElseThrow(() -> new FeedException(FeedErrorCode.REPLY_NOT_FOUND_OR_FORBIDDEN));
+		FeedReply reply = getFeedReply(dto.getReplyId(), dto.getReplierId());
 		reply.updateContent(dto.getComment());
 		return Map.of("success", true);
 	}
 
 	@Transactional
 	public Map<String, Object> deleteReply(DeleteReplyRequestDto dto) {
-		FeedReply reply = feedReplyRepository.findActiveByIdAndReplierId(dto.getReplyId(), dto.getReplierId())
-			.orElseThrow(() -> new FeedException(FeedErrorCode.REPLY_NOT_FOUND_OR_FORBIDDEN));
+		FeedReply reply = getFeedReply(dto.getReplyId(), dto.getReplierId());
 		return Map.of("success", reply.getFeed().removeReply(reply));
+	}
+
+	@Transactional
+	public Map<String, Object> replyHeart(ReplyHeartRequestDto dto) {
+		FeedReply reply = getFeedReply(dto.getReplyId());
+		User user = userRepository.findById(dto.getUserId())
+			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+
+		boolean success = false;
+		if (feedReplyHeartRepository.findByReplyIdAndUserId(dto.getReplyId(), user.getId()).isEmpty()) {
+			FeedReplyHeart heart = feedReplyHeartRepository.save(new FeedReplyHeart(reply, user));
+			reply.addHeart(heart);
+			success = true;
+		}
+		return Map.of("success", success);
+	}
+
+	@Transactional
+	public Map<String, Object> replyUnheart(ReplyHeartRequestDto dto) {
+		FeedReply reply = getFeedReply(dto.getReplyId());
+		User user = userRepository.findById(dto.getUserId())
+			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+
+		FeedReplyHeart heart = feedReplyHeartRepository.findByReplyIdAndUserId(reply.getId(), user.getId())
+			.orElse(null);
+
+		boolean success = false;
+		if (heart != null) {
+			reply.removeHeart(heart);
+			feedReplyHeartRepository.delete(heart);
+			success = true;
+		}
+		return Map.of("success", success);
 	}
 
 	public Feed getFeed(Long feedId) {
@@ -168,5 +204,15 @@ public class FeedService {
 		 * TODO: Room에 속한 유저인지 체크
 		 */
 		return getFeed(feedId, authorId);
+	}
+
+	public FeedReply getFeedReply(Long replyId) {
+		return feedReplyRepository.findActiveById(replyId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.REPLY_NOT_FOUND_OR_FORBIDDEN));
+	}
+
+	public FeedReply getFeedReply(Long replyId, Long replierId) {
+		return feedReplyRepository.findByIdAndReplierId(replyId, replierId)
+			.orElseThrow(() -> new FeedException(FeedErrorCode.REPLY_NOT_FOUND_OR_FORBIDDEN));
 	}
 }

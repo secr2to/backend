@@ -14,5 +14,5 @@ public interface FeedReplyRepository extends JpaRepository<FeedReply, Long> {
 	Optional<FeedReply> findActiveById(@Param("id") Long id);
 
 	@Query("select r from FeedReply r where r.id = :id and r.replier.id = :replierId and r.deletedYn = false ")
-	Optional<FeedReply> findActiveByIdAndReplierId(@Param("id") Long id, @Param("replierId") Long replierId);
+	Optional<FeedReply> findByIdAndReplierId(@Param("id") Long id, @Param("replierId") Long replierId);
 }

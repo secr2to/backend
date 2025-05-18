@@ -16,6 +16,7 @@ import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.ReplyHeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
@@ -159,6 +160,30 @@ public class FeedController {
 		return ApiResponse.builder()
 			.data(feedService.deleteReply(deleteReplyRequest))
 			.message(FeedApiMessage.DELETE_REPLY_SUCCESS.getMessage())
+			.success();
+	}
+
+	@PostMapping("/replies/{replyId}/heart")
+	public ResponseEntity<?> replyHeart(
+		@PathVariable("replyId") Long replyId,
+		@LoginUser Long userId
+	) {
+		ReplyHeartRequestDto heartRequest = new ReplyHeartRequestDto(replyId, userId);
+		return ApiResponse.builder()
+			.data(feedService.replyHeart(heartRequest))
+			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
+			.success();
+	}
+
+	@DeleteMapping("/replies/{replyId}/heart")
+	public ResponseEntity<?> replyUnheart(
+		@PathVariable("replyId") Long replyId,
+		@LoginUser Long userId
+	) {
+		ReplyHeartRequestDto heartRequest = new ReplyHeartRequestDto(replyId, userId);
+		return ApiResponse.builder()
+			.data(feedService.replyUnheart(heartRequest))
+			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
 			.success();
 	}
 }

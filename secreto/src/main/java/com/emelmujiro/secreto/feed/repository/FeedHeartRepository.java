@@ -10,6 +10,6 @@ import com.emelmujiro.secreto.feed.entity.FeedHeart;
 
 public interface FeedHeartRepository extends JpaRepository<FeedHeart, Long> {
 
-	@Query("select fh from FeedHeart fh where fh.feed.id = :feedId and fh.user.id = :userId")
+	@Query("select h from FeedHeart h where h.feed.id = :feedId and h.user.id = :userId")
 	Optional<FeedHeart> findByFeedIdAndUserId(@Param("feedId") Long feedId, @Param("userId") Long userId);
 }
