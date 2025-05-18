@@ -46,7 +46,7 @@ public class FeedReplyQueryRepository {
 				Expressions.asBoolean(false), /* TODO: 좋아요 여부 */
 				new QFeedUserResponseDto(
 					user.id,
-					user.nickname,
+					user.searchId,
 					user.profileUrl,
 					Expressions.nullExpression(),
 					Expressions.nullExpression()

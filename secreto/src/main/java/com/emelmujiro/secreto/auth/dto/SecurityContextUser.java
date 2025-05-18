@@ -13,7 +13,7 @@ public record SecurityContextUser(
 	UserRole role,
 	String email,
 	String username,
-	String nickname,
+	String searchId,
 	String profileUrl
 ) {
 
@@ -23,7 +23,7 @@ public record SecurityContextUser(
 			.email(user.getEmail())
 			.provider(user.getOAuthProvider())
 			.username(user.getUsername())
-			.nickname(user.getNickname())
+			.searchId(user.getSearchId())
 			.profileUrl(user.getProfileUrl())
 			.role(user.getRole())
 			.build();
@@ -35,7 +35,7 @@ public record SecurityContextUser(
 			.provider(provider)
 			.role(role)
 			.email(email)
-			.nickname(nickname)
+			.searchId(searchId)
 			.profileUrl(profileUrl)
 			.build();
 	}

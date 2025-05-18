@@ -14,7 +14,7 @@ public class OAuthUserAttributes {
 	private String provider;
 	private String email;
 	private String username;
-	private String nickname;
+	private String searchId;
 	private String profileUrl;
 
 	public OAuthUserAttributes(String provider, Map<String, Object> attributes) {
@@ -31,7 +31,7 @@ public class OAuthUserAttributes {
 		Map<String, Object> userInfo = getUserInfo(provider, attributes);
 		this.email = getString(userInfo, "email");
 		this.username = getString(userInfo, "id");
-		this.nickname = getString(userInfo, "nickname");
+		this.searchId = getString(userInfo, "nickname");
 		this.profileUrl = getString(userInfo, "profile_image");
 	}
 
@@ -41,7 +41,7 @@ public class OAuthUserAttributes {
 		Map<String, Object> profileInfo = (Map<String, Object>) userInfo.get("profile");
 		this.email = getString(userInfo, "email");
 		this.username = String.valueOf(getLong(attributes, "id"));
-		this.nickname = getString(profileInfo, "nickname");
+		this.searchId = getString(profileInfo, "nickname");
 		this.profileUrl = getString(profileInfo, "profile_image_url");
 	}
 
@@ -49,7 +49,7 @@ public class OAuthUserAttributes {
 		Map<String, Object> userInfo = getUserInfo(provider, attributes);
 		this.email = getString(userInfo, "email");
 		this.username = getString(userInfo, "sub");
-		this.nickname = getString(userInfo, "name");
+		this.searchId = getString(userInfo, "name");
 		this.profileUrl = getString(userInfo, "picture");
 	}
 
@@ -58,7 +58,7 @@ public class OAuthUserAttributes {
 			.oAuthProvider(provider)
 			.email(email)
 			.username(username)
-			.nickname(nickname)
+			.searchId(searchId)
 			.profileUrl(profileUrl)
 			.build();
 	}

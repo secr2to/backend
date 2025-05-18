@@ -50,7 +50,7 @@ public class InitDb {
 					.oAuthProvider("naver")
 					.profileUrl("https://avatars.githubusercontent.com/u/80024307?v=4")
 					.username("sub")
-					.nickname("searchId")
+					.searchId("searchId")
 					.build()
 			);
 

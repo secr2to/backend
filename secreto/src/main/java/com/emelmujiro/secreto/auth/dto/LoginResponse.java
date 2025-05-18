@@ -11,7 +11,7 @@ public record LoginResponse(
 	UserRole role,
 	String roleName,
 	String email,
-	String nickname,
+	String searchId,
 	String profileUrl
 ) {
 	public LoginResponse {

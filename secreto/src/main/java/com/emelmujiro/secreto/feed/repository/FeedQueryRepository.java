@@ -45,7 +45,7 @@ public class FeedQueryRepository {
 				Expressions.asString("value"),  /* TODO: 썸네일 이미지 */
 				new QFeedUserResponseDto(
 					feed.author.id,
-					feed.author.nickname,
+					feed.author.username,
 					feed.author.profileUrl,
 					Expressions.nullExpression(),
 					Expressions.nullExpression()
@@ -58,7 +58,7 @@ public class FeedQueryRepository {
 				feed.feedType.eq(FeedType.COMMUNITY)
 					.and(feed.deletedYn.eq(false))
 					.and(stringContains(feed.title, dto.getKeyword())
-						.or(stringContains(feed.author.nickname, dto.getKeyword()))
+						.or(stringContains(feed.author.searchId, dto.getKeyword()))
 					)
 			)
 			.orderBy(feed.createDate.desc())
