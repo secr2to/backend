@@ -32,7 +32,7 @@ public class FeedReplyFactory {
 				.feed(feed)
 				.comment(writeReplyRequest.getContent())
 				.parent(parentReply)
-				.user(user)
+				.replier(user)
 				.mentionedUser(mentionedUser)
 				.build()
 		);
@@ -40,7 +40,7 @@ public class FeedReplyFactory {
 
 	private FeedReply getReply(Long replyId) {
 		if (replyId == null) return null;
-		return feedReplyRepository.findById(replyId)
+		return feedReplyRepository.findActiveById(replyId)
 			.orElseThrow(() -> new FeedException(FeedErrorCode.PARENT_REPLY_NOT_FOUND));
 	}
 

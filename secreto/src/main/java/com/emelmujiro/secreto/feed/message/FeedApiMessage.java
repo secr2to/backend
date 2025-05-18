@@ -15,6 +15,9 @@ public enum FeedApiMessage {
 	DELETE_FEED_SUCCESS("게시글을 삭제하였습니다."),
 	HEART_SUCCESS("'좋아요'를 했습니다."),
 	UNHEART_SUCCESS("'좋아요'를 취소했습니다."),
+	WRITE_REPLY_SUCCESS("댓글을 작성하였습니다."),
+	UPDATE_REPLY_SUCCESS("댓글을 수정하였습니다."),
+	DELETE_REPLY_SUCCESS("댓글을 삭제하였습니다."),
 	;
 
 	private final String message;

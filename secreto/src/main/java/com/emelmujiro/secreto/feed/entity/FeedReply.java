@@ -25,7 +25,7 @@ public class FeedReply {
     @JoinColumn(name = "mentioned_user_id")
     private User mentionedUser;
 
-    private Boolean nestedReplyYn;
+    private boolean nestedReplyYn;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_reply_id")
@@ -44,12 +44,14 @@ public class FeedReply {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "replier_id")
-    private User user;
+    private User replier;
+
+    private boolean deletedYn;
 
     @Builder
-    public FeedReply(Feed feed, User user, String comment, FeedReply parent, User mentionedUser) {
+    public FeedReply(Feed feed, User replier, String comment, FeedReply parent, User mentionedUser) {
         this.feed = feed;
-        this.user = user;
+        this.replier = replier;
         this.parent = parent;
         if (parent != null) {
             this.nestedReplyYn = true;
@@ -57,5 +59,10 @@ public class FeedReply {
         }
         this.comment = comment;
         this.mentionedUser = mentionedUser;
+    }
+
+    public boolean delete() {
+        if (this.deletedYn) return false;
+        return this.deletedYn = true;
     }
 }

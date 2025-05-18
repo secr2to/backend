@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
@@ -125,6 +126,13 @@ public class FeedService {
 		FeedReply reply = feedReplyFactory.createReply(feed, user, dto);
 		feed.addReply(reply);
 		return WriteReplyResponseDto.from(reply);
+	}
+
+	@Transactional
+	public Map<String, Object> deleteReply(DeleteReplyRequestDto dto) {
+		FeedReply reply = feedReplyRepository.findActiveByIdAndReplierId(dto.getReplyId(), dto.getReplierId())
+			.orElseThrow(() -> new FeedException(FeedErrorCode.REPLY_NOT_FOUND_OR_FORBIDDEN));
+		return Map.of("success", reply.delete());
 	}
 
 	public Feed getFeed(Long feedId) {

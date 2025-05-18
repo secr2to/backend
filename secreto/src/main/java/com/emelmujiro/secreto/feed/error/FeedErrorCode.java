@@ -13,6 +13,8 @@ public enum FeedErrorCode implements ErrorCode {
 
 	FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않습니다."),
 	FEED_NOT_FOUND_OR_FORBIDDEN(HttpStatus.NOT_FOUND, "해당 게시글이 존재하지 않거나 권한이 없습니다."),
+	REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않습니다."),
+	REPLY_NOT_FOUND_OR_FORBIDDEN(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않거나 권한이 없습니다."),
 	PARENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "상위 댓글이 존재하지 않습니다."),
 	SELF_MENTION_NOT_ALLOW(HttpStatus.BAD_REQUEST, "본인을 멘션할 수 없습니다."),
 	;
