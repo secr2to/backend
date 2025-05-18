@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
@@ -71,6 +72,19 @@ public class FeedController {
 		return ApiResponse.builder()
 			.data(feedService.update(updateFeedRequest))
 			.message(FeedApiMessage.UPDATE_FEED_SUCCESS.getMessage())
+			.success();
+	}
+
+	@DeleteMapping({"/community/{feedId}", "/rooms/{roomId}/feeds/{feedId}"})
+	public ResponseEntity<?> deleteFeed(
+		@PathVariable("feedId") Long feedId,
+		@PathVariable(value = "roomId", required = false) Long roomId,
+		@LoginUser Long authorId
+	) {
+		DeleteFeedRequestDto deleteFeedRequest = new DeleteFeedRequestDto(feedId, roomId, authorId);
+		return ApiResponse.builder()
+			.data(feedService.delete(deleteFeedRequest))
+			.message(FeedApiMessage.DELETE_FEED_SUCCESS.getMessage())
 			.success();
 	}
 
