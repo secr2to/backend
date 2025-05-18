@@ -39,10 +39,10 @@ public class FeedQueryRepository {
 			.select(new QCommunityFeedResponseDto(
 				feed.id,
 				feed.title,
-				Expressions.asNumber(1), /* TODO: 이미지 수 */
+				feed.imageCount,
 				feed.heartCount,
 				feed.replyCount,
-				Expressions.asString("value"),  /* TODO: 썸네일 이미지 */
+				feed.thumbnailImage,
 				new QUserProfileResponseDto(
 					feed.author.id,
 					feed.author.username,
