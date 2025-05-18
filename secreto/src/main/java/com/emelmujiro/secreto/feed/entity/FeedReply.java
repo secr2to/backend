@@ -65,4 +65,8 @@ public class FeedReply {
         if (this.deletedYn) return false;
         return this.deletedYn = true;
     }
+
+    public void updateContent(String comment) {
+        this.comment = comment;
+    }
 }

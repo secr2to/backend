@@ -30,7 +30,7 @@ public class FeedReplyFactory {
 		return feedReplyRepository.save(
 			FeedReply.builder()
 				.feed(feed)
-				.comment(writeReplyRequest.getContent())
+				.comment(writeReplyRequest.getComment())
 				.parent(parentReply)
 				.replier(user)
 				.mentionedUser(mentionedUser)

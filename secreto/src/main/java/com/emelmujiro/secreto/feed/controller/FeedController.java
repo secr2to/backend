@@ -19,6 +19,7 @@ import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.message.FeedApiMessage;
 import com.emelmujiro.secreto.feed.service.FeedService;
@@ -119,6 +120,14 @@ public class FeedController {
 		return ApiResponse.builder()
 			.data(feedService.writeReply(writeReplyRequest))
 			.message(FeedApiMessage.WRITE_REPLY_SUCCESS.getMessage())
+			.success();
+	}
+
+	@PutMapping("/replies/{replyId}")
+	public ResponseEntity<?> updateReply(@RequestBody UpdateReplyRequestDto updateReplyRequest) {
+		return ApiResponse.builder()
+			.data(feedService.updateReply(updateReplyRequest))
+			.message(FeedApiMessage.UPDATE_REPLY_SUCCESS.getMessage())
 			.success();
 	}
 

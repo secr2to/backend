@@ -11,6 +11,7 @@ import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
@@ -120,12 +121,21 @@ public class FeedService {
 
 	@Transactional
 	public WriteReplyResponseDto writeReply(WriteReplyRequestDto dto) {
+		/* TODO: 방에 속한 유저인지 검사 */
 		Feed feed = getFeed(dto.getFeedId());
 		User user = userRepository.findById(dto.getUserId())
 			.orElseThrow(() -> new IllegalArgumentException("user not found"));
 		FeedReply reply = feedReplyFactory.createReply(feed, user, dto);
 		feed.addReply(reply);
 		return WriteReplyResponseDto.from(reply);
+	}
+
+	@Transactional
+	public Map<String, Object> updateReply(UpdateReplyRequestDto dto) {
+		FeedReply reply = feedReplyRepository.findActiveByIdAndReplierId(dto.getReplyId(), dto.getReplierId())
+			.orElseThrow(() -> new FeedException(FeedErrorCode.REPLY_NOT_FOUND_OR_FORBIDDEN));
+		reply.updateContent(dto.getComment());
+		return Map.of("success", true);
 	}
 
 	@Transactional
