@@ -51,20 +51,20 @@ public class User {
 
     private String profileUrl;
 
-    private String nickname;
+    private String searchId;
 
     private String oAuthProvider;
   
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<FeedReplyHeart> feedReplyHeartList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "replier", fetch = FetchType.LAZY)
     private List<FeedReply> feedReplyList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<FeedHeart> feedHeartList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Feed> feedList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -81,10 +81,10 @@ public class User {
     private UserRole role;
 
     @Builder(builderMethodName = "oauthUserBuilder")
-    public User(String oAuthProvider, String username, String nickname, String email, String profileUrl) {
+    public User(String oAuthProvider, String username, String searchId, String email, String profileUrl) {
         this.oAuthProvider = oAuthProvider;
         this.username = username;
-        this.nickname = nickname;
+        this.searchId = searchId;
         this.password = "===== OAUTH-USER =====";
         this.email = email;
         this.profileUrl = profileUrl;

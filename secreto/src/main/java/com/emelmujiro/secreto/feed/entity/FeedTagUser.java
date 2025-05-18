@@ -21,25 +21,26 @@ import lombok.Setter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "feed_heart")
-public class FeedHeart {
+@Table(name = "feed_tag_user")
+public class FeedTagUser {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feed_heart_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "feed_tag_user_id")
+	private Long id;
 
-    @Setter(value = AccessLevel.PROTECTED)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feed_id")
-    private Feed feed;
+	@Setter(value = AccessLevel.PROTECTED)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "feed_id")
+	private Feed feed;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
 
-    public FeedHeart(Feed feed, User user) {
-        this.feed = feed;
-        this.user = user;
-    }
+	public FeedTagUser(Feed feed, User user) {
+		this.feed = feed;
+		this.user = user;
+	}
 }
+
