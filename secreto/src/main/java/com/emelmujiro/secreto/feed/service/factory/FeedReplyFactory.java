@@ -32,7 +32,7 @@ public class FeedReplyFactory {
 		if (user == mentionedUser) {
 			throw new FeedException(FeedErrorCode.SELF_MENTION_NOT_ALLOW);
 		}
-		return feedReplyRepository.save(
+		FeedReply reply = feedReplyRepository.save(
 			FeedReply.builder()
 				.feed(feed)
 				.comment(writeReplyRequest.getComment())
@@ -41,6 +41,8 @@ public class FeedReplyFactory {
 				.mentionedUser(mentionedUser)
 				.build()
 		);
+		if (parentReply != null) parentReply.addNestedReply(reply);
+		return reply;
 	}
 
 	private FeedReply getReply(Long replyId) {

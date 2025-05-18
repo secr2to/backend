@@ -143,6 +143,9 @@ public class Feed extends TimestampedEntity {
     }
 
     public boolean removeReply(FeedReply reply) {
+        if (reply.isNestedReplyYn()) {
+            reply.getParent().removeNestedReply(reply);
+        }
         if (reply.delete()) {
             --replyCount;
             return true;

@@ -26,6 +26,7 @@ public class FeedReply extends TimestampedEntity {
     @JoinColumn(name = "mentioned_user_id")
     private User mentionedUser;
 
+    @Setter(value = AccessLevel.PROTECTED)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_reply_id")
     private FeedReply parent;
@@ -72,5 +73,18 @@ public class FeedReply extends TimestampedEntity {
 
     public void updateContent(String comment) {
         this.comment = comment;
+    }
+
+    public void addNestedReply(FeedReply reply) {
+        if (reply == this) return;
+        this.nestedReplyList.add(reply);
+        ++nestedReplyCount;
+        reply.setParent(this);
+    }
+
+    public void removeNestedReply(FeedReply reply) {
+        if (reply == null) return;
+        this.nestedReplyList.remove(reply);
+        --nestedReplyCount;
     }
 }
