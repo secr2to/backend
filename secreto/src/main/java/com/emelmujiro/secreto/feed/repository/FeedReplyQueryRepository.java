@@ -55,6 +55,7 @@ public class FeedReplyQueryRepository {
 			.from(feedReply)
 			.leftJoin(feedReply.replier, user)
 			.where(feedReply.feed.id.eq(dto.getFeedId()),
+				feedReply.deletedYn.eq(false),
 				replyCondition(dto),
 				nestedReplyCondition(dto))
 			.orderBy(feedReply.createDate.desc())
