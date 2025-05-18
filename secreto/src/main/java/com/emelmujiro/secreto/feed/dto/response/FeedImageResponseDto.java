@@ -16,11 +16,13 @@ public class FeedImageResponseDto {
 
 	private Long imageId;
 	private String imageUrl;
+	private int order;
 
 	public static FeedImageResponseDto from(FeedImage image) {
 		return FeedImageResponseDto.builder()
 			.imageId(image.getId())
 			.imageUrl(image.getImageUrl())
+			.order(image.getOrder())
 			.build();
 	}
 }

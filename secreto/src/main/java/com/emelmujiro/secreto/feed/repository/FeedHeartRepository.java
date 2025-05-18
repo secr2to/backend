@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.emelmujiro.secreto.feed.entity.FeedHeart;
+import com.emelmujiro.secreto.user.entity.User;
 
 public interface FeedHeartRepository extends JpaRepository<FeedHeart, Long> {
 
@@ -16,4 +17,7 @@ public interface FeedHeartRepository extends JpaRepository<FeedHeart, Long> {
 
 	@Query("select h from FeedHeart h join fetch h.user where h.feed.id = :feedId ")
 	List<FeedHeart> findByFeedIdWithUser(@Param("feedId") Long feedId);
+
+	@Query("select h from FeedHeart h join fetch h.user where h.feed.id in :feedIds")
+	List<FeedHeart> findAllByFeedIdInWithUser(@Param("feedIds") List<Long> feedIds);
 }

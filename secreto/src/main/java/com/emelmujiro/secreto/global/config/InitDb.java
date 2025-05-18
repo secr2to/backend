@@ -13,6 +13,9 @@ import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
 import com.emelmujiro.secreto.feed.service.FeedService;
+import com.emelmujiro.secreto.room.dto.request.CreateRoomReqDto;
+import com.emelmujiro.secreto.room.dto.response.CreateRoomResDto;
+import com.emelmujiro.secreto.room.service.RoomService;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 
@@ -42,6 +45,7 @@ public class InitDb {
 
 		private final UserRepository userRepository;
 		private final FeedService feedService;
+		private final RoomService roomService;
 
 		public void feedInit() {
 			User user = userRepository.save(
@@ -54,11 +58,18 @@ public class InitDb {
 					.build()
 			);
 
+			CreateRoomResDto roomResponse = roomService.createRoom(CreateRoomReqDto.builder()
+				.managerId(user.getId())
+				.name("room1")
+				.build());
+
 			for (int i = 0; i < 3; ++i) {
 				CreateFeedRequestDto dto = new CreateFeedRequestDto();
 				dto.setTitle("title");
 				dto.setContent("content");
 				dto.setAuthorId(user.getId());
+				if (i == 2)
+					dto.setRoomId(roomResponse.getRoomId());
 				dto.setImages(
 					new ArrayList<>(List.of(new FeedImageRequestDto("image.url")))
 				);

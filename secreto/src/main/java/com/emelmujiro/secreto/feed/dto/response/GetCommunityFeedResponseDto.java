@@ -45,6 +45,17 @@ public class GetCommunityFeedResponseDto {
 			.stream()
 			.map(FeedImageResponseDto::from)
 			.toList();
+
+		String heartMessage;
+		if (heartCount == 0) {
+			heartMessage = "";
+		} else if (heartCount == 1) {
+			heartMessage = String.format(FeedApiMessage.HEART_MESSAGE_ONE.getMessage(), heartUsers.get(0).getSearchId());
+		} else {
+			heartMessage = String.format(FeedApiMessage.HEART_MESSAGE.getMessage(),
+				heartUsers.get(0).getSearchId(),
+				heartUsers.size() - 1);
+		}
 		return GetCommunityFeedResponseDto.builder()
 			.feedId(feed.getId())
 			.title(feed.getTitle())
@@ -54,13 +65,7 @@ public class GetCommunityFeedResponseDto {
 			.heartCount(heartCount)
 			.heart(heartUsers.stream()
 				.anyMatch(user -> user.getId().equals(userId)))
-			.heartMessage(heartCount > 1
-				? String.format(
-					FeedApiMessage.HEART_MESSAGE.getMessage(),
-					heartUsers.get(0).getSearchId(),
-					heartUsers.size() - 1)
-				: ""
-			)
+			.heartMessage(heartMessage)
 			.createTime(feed.getCreateDate())
 			.imageCount(imageResponseDtos.size())
 			.images(imageResponseDtos)

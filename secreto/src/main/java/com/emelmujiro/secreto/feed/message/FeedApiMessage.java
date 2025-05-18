@@ -8,8 +8,8 @@ import lombok.Getter;
 public enum FeedApiMessage {
 
 	GET_COMMUNITY_SUCCESS("커뮤니티 게시글 목록을 조회하였습니다. offset=%d, keyword='%s'"),
-	GET_COMMUNITY_FEED_SUCCESS("커뮤니티 게시글을 조회하였습니다. id={}"),
-	GET_INGAME_FEEDS_SUCCESS("인게임 게시글을 조회하였습니다."),
+	GET_COMMUNITY_FEED_SUCCESS("커뮤니티 게시글을 조회하였습니다. id=%s"),
+	GET_INGAME_FEEDS_SUCCESS("인게임 게시글을 조회하였습니다. roomId=%s"),
 	CREATE_FEED_SUCCESS("게시글을 생성하였습니다."),
 	UPDATE_FEED_SUCCESS("게시글을 수정하였습니다."),
 	DELETE_FEED_SUCCESS("게시글을 삭제하였습니다."),
@@ -21,6 +21,7 @@ public enum FeedApiMessage {
 	UPDATE_REPLY_SUCCESS("댓글을 수정하였습니다."),
 	DELETE_REPLY_SUCCESS("댓글을 삭제하였습니다."),
 	HEART_MESSAGE("%s 외 %d명이 좋아합니다."),
+	HEART_MESSAGE_ONE("%s님이 좋아합니다."),
 	;
 
 	private final String message;

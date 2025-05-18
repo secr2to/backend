@@ -1,8 +1,10 @@
 package com.emelmujiro.secreto.feed.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.ReplyHeartRequestDto;
@@ -21,15 +24,19 @@ import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.GetIngameFeedsResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.IngameFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedHeart;
+import com.emelmujiro.secreto.feed.entity.FeedImage;
 import com.emelmujiro.secreto.feed.entity.FeedReply;
 import com.emelmujiro.secreto.feed.entity.FeedReplyHeart;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
 import com.emelmujiro.secreto.feed.repository.FeedHeartRepository;
+import com.emelmujiro.secreto.feed.repository.FeedImageRepository;
 import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
 import com.emelmujiro.secreto.feed.repository.FeedReplyHeartRepository;
 import com.emelmujiro.secreto.feed.repository.FeedReplyQueryRepository;
@@ -59,9 +66,10 @@ public class FeedService {
 	private final FeedReplyQueryRepository feedReplyQueryRepository;
 	private final FeedHeartRepository feedHeartRepository;
 	private final FeedReplyHeartRepository feedReplyHeartRepository;
+	private final FeedImageRepository feedImageRepository;
 
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
-		return feedQueryRepository.getCommunity(dto);
+		return feedQueryRepository.findCommunityFeeds(dto);
 	}
 
 	public GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto) {
@@ -72,6 +80,32 @@ public class FeedService {
 			.map(FeedHeart::getUser)
 			.toList();
 		return GetCommunityFeedResponseDto.from(feed, heartUsers, dto.getUserId());
+	}
+
+	public GetIngameFeedsResponseDto getIngameFeeds(GetIngameFeedsRequestDto dto) {
+		GetIngameFeedsResponseDto response = feedQueryRepository.findIngameFeedsWithoutHeartsAndImages(dto);
+		List<IngameFeedResponseDto> content = response.getContent();
+		List<Long> feedIds = content.stream()
+			.map(IngameFeedResponseDto::getFeedId)
+			.toList();
+
+		Map<Long, List<User>> heartUsersMap = feedHeartRepository.findAllByFeedIdInWithUser(feedIds)
+			.stream()
+			.collect(Collectors.groupingBy(
+				heart -> heart.getFeed().getId(),
+				Collectors.mapping(FeedHeart::getUser, Collectors.toList())
+			));
+		Map<Long, List<FeedImage>> imagesMap = feedImageRepository.findAllByFeedIdIn(feedIds)
+			.stream()
+			.collect(Collectors.groupingBy(
+				image -> image.getFeed().getId()
+			));
+
+		content.forEach(feedDto -> {
+			feedDto.applyImages(imagesMap.getOrDefault(feedDto.getFeedId(), List.of()));
+			feedDto.applyHearts(heartUsersMap.getOrDefault(feedDto.getFeedId(), List.of()), dto.getUserId());
+		});
+		return response;
 	}
 
 	public GetRepliesResponseDto getReplies(GetRepliesRequestDto dto) {

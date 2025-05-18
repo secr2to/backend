@@ -18,6 +18,7 @@ import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.ReplyHeartRequestDto;
@@ -57,10 +58,15 @@ public class FeedController {
 	}
 
 	@GetMapping("/rooms/{roomId}/feeds")
-	public ResponseEntity<?> getIngameFeeds() {
+	public ResponseEntity<?> getIngameFeeds(
+		@PathVariable("roomId") Long roomId,
+		@ModelAttribute GetIngameFeedsRequestDto getIngameFeedsRequest,
+		@LoginUser Long userId) {
+		getIngameFeedsRequest.setUserId(userId);
+		getIngameFeedsRequest.setRoomId(roomId);
 		return ApiResponse.builder()
-			.data(null)
-			.message(format(FeedApiMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), "page", "keyword"))
+			.data(feedService.getIngameFeeds(getIngameFeedsRequest))
+			.message(format(FeedApiMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), roomId))
 			.success();
 	}
 
