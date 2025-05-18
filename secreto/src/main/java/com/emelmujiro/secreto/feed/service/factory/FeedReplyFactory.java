@@ -22,6 +22,11 @@ public class FeedReplyFactory {
 
 	public FeedReply createReply(Feed feed, User user, WriteReplyRequestDto writeReplyRequest) {
 		FeedReply parentReply = getReply(writeReplyRequest.getParentReplyId());
+
+		/* TODO: 댓글 태그 기능 처리 */
+		if (parentReply != null && parentReply.isNestedReplyYn()) {
+			parentReply = parentReply.getParent();
+		}
 		User mentionedUser = getUser(writeReplyRequest.getMentionUserId());
 
 		if (user == mentionedUser) {
