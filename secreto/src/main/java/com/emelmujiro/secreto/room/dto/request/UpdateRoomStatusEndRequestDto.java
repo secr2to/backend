@@ -6,9 +6,8 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetRoomUserListReqDto {
-
-    private long userId;
+public class UpdateRoomStatusEndRequestDto {
 
     private long roomId;
+    private long userId;
 }

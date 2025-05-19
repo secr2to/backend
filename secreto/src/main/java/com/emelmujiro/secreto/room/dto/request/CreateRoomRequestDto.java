@@ -1,5 +1,6 @@
 package com.emelmujiro.secreto.room.dto.request;
 
+import com.emelmujiro.secreto.auth.annotation.InjectUserId;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -8,14 +9,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class UpdateRoomDetailsReqDto {
+public class CreateRoomRequestDto {
 
+    private String name;
     private LocalDateTime endDate;
-    private Integer missionPeriod;
+    private int missionPeriod;
 
-    @Setter
-    private long roomId;
-
-    @Setter
-    private long userId;
+    @InjectUserId
+    private long managerId;
 }

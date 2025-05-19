@@ -7,13 +7,13 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class CreateRoomResDto {
+public class UpdateRoomDetailsResponseDto {
 
     private Long roomId;
 
-    public static CreateRoomResDto from(Room room) {
+    public static UpdateRoomDetailsResponseDto from(Room room) {
 
-        return CreateRoomResDto.builder()
+        return UpdateRoomDetailsResponseDto.builder()
                 .roomId(room.getId())
                 .build();
     }

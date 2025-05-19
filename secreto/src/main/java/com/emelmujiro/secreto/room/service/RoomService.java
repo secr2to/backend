@@ -6,19 +6,19 @@ import com.emelmujiro.secreto.room.dto.response.*;
 import java.util.List;
 
 public interface RoomService {
-    List<GetRoomListResDto> getRoomList(GetRoomListReqDto params);
+    List<GetRoomListResponseDto> getRoomList(GetRoomListRequestDto params);
 
-    GetRoomDetailsResDto getRoomDetails(GetRoomDetailsReqDto params);
+    GetRoomDetailsResponseDto getRoomDetails(GetRoomDetailsRequestDto params);
 
-    List<GetRoomUserListResDto> getRoomUserList(GetRoomUserListReqDto params);
+    List<GetRoomUserListResponseDto> getRoomUserList(GetRoomUserListRequestDto params);
 
-    GetRoomUserDetailsResDto getRoomUserDetails(GetRoomUserDetailsReqDto params);
+    GetRoomUserDetailsResponseDto getRoomUserDetails(GetRoomUserDetailsRequestDto params);
 
-    CreateRoomResDto createRoom(CreateRoomReqDto params);
+    CreateRoomResponseDto createRoom(CreateRoomRequestDto params);
 
-    UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params);
+    UpdateRoomDetailsResponseDto updateRoomDetails(UpdateRoomDetailsRequestDto params);
 
-    UpdateRoomStatusStartResDto updateRoomStatusStart(UpdateRoomStatusStartReqDto params);
+    UpdateRoomStatusStartResponseDto updateRoomStatusStart(UpdateRoomStatusStartRequestDto params);
 
-    void updateRoomStatusEnd(UpdateRoomStatusEndReqDto params);
+    void updateRoomStatusEnd(UpdateRoomStatusEndRequestDto params);
 }

@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.chatting.dto.request;
+package com.emelmujiro.secreto.room.dto.request;
 
 import lombok.*;
 
@@ -6,9 +6,9 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetChattingParticipationListReqDto {
-
-    private long roomId;
+public class GetRoomDetailsRequestDto {
 
     private long userId;
+
+    private long roomId;
 }

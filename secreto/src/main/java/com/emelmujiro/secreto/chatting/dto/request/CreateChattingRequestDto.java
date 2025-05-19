@@ -1,20 +1,19 @@
 package com.emelmujiro.secreto.chatting.dto.request;
 
+import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class CreateChattingReqDto {
+public class CreateChattingRequestDto {
 
     private long writerId;
 
     private String content;
 
-    @Setter
-    private long chattingRoomId;
+    @InjectPathVariable(name = "chattingRoomId")
+    private Long chattingRoomId;
 
 }

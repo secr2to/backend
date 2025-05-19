@@ -2,18 +2,15 @@ package com.emelmujiro.secreto.chatting.dto.request;
 
 import lombok.*;
 
-import java.util.List;
-
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class UpdateChattingReadStatusReqDto {
+public class GetChattingListRequestDto {
 
-    private long roomUserId;
+    private Long roomId;
 
-    private List<Long> chattingMessageIds;
+    private Long userId;
 
-    @Setter
-    private long chattingRoomId;
+    private String type;
 }

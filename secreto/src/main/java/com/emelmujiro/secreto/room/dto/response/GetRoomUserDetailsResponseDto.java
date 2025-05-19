@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetRoomUserDetailsResDto {
+public class GetRoomUserDetailsResponseDto {
 
     private Long roomUserId;
     private Boolean managerYn;
@@ -19,9 +19,9 @@ public class GetRoomUserDetailsResDto {
     private String skinColorRgb;
     private String clothesColorRgb;
 
-    public static GetRoomUserDetailsResDto from(RoomUser roomUser) {
+    public static GetRoomUserDetailsResponseDto from(RoomUser roomUser) {
 
-        return GetRoomUserDetailsResDto.builder()
+        return GetRoomUserDetailsResponseDto.builder()
                 .roomUserId(roomUser.getId())
                 .managerYn(roomUser.getManagerYn())
                 .standbyYn(roomUser.getStandbyYn())

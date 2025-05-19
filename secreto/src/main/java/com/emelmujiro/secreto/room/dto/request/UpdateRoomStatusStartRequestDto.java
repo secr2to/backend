@@ -1,5 +1,7 @@
 package com.emelmujiro.secreto.room.dto.request;
 
+import com.emelmujiro.secreto.auth.annotation.InjectUserId;
+import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import lombok.*;
 
 import java.util.List;
@@ -8,13 +10,13 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class UpdateRoomStatusStartReqDto {
+public class UpdateRoomStatusStartRequestDto {
 
     private List<String> missionList;
 
-    @Setter
+    @InjectPathVariable(name = "roomId")
     private long roomId;
 
-    @Setter
+    @InjectUserId
     private long userId;
 }

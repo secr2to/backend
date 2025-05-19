@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetRoomListResDto {
+public class GetRoomListResponseDto {
 
     private long roomId;
     private String name;

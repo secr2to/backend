@@ -13,8 +13,8 @@ import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
 import com.emelmujiro.secreto.feed.service.FeedService;
-import com.emelmujiro.secreto.room.dto.request.CreateRoomReqDto;
-import com.emelmujiro.secreto.room.dto.response.CreateRoomResDto;
+import com.emelmujiro.secreto.room.dto.request.CreateRoomRequestDto;
+import com.emelmujiro.secreto.room.dto.response.CreateRoomResponseDto;
 import com.emelmujiro.secreto.room.service.RoomService;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
@@ -58,7 +58,7 @@ public class InitDb {
 					.build()
 			);
 
-			CreateRoomResDto roomResponse = roomService.createRoom(CreateRoomReqDto.builder()
+			CreateRoomResponseDto roomResponse = roomService.createRoom(CreateRoomRequestDto.builder()
 				.managerId(user.getId())
 				.name("room1")
 				.build());

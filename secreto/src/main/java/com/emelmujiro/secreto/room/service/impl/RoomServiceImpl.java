@@ -19,10 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 
 @RequiredArgsConstructor
 @Transactional
@@ -37,14 +34,14 @@ public class RoomServiceImpl implements RoomService {
     private final RoomAuthorizationService roomAuthorizationService;
 
     @Override
-    public List<GetRoomListResDto> getRoomList(GetRoomListReqDto params) {
+    public List<GetRoomListResponseDto> getRoomList(GetRoomListRequestDto params) {
 
         List<Long> roomIdList = roomUserRepository.findAllByUserId(params.getUserId()).stream()
                 .map(roomUser -> roomUser.getRoom().getId())
                 .toList();
 
-        List<GetRoomListResDto> resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
-                .map(room -> GetRoomListResDto.builder()
+        List<GetRoomListResponseDto> resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
+                .map(room -> GetRoomListResponseDto.builder()
                                 .roomId(room.getId())
                                 .name(room.getName())
                                 .code(room.getCode())
@@ -58,23 +55,23 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public GetRoomDetailsResDto getRoomDetails(GetRoomDetailsReqDto params) {
+    public GetRoomDetailsResponseDto getRoomDetails(GetRoomDetailsRequestDto params) {
 
         Room findRoom = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
                 .map(RoomUser::getRoom)
                 .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
-        return GetRoomDetailsResDto.from(findRoom);
+        return GetRoomDetailsResponseDto.from(findRoom);
     }
 
     @Override
-    public List<GetRoomUserListResDto> getRoomUserList(GetRoomUserListReqDto params) {
+    public List<GetRoomUserListResponseDto> getRoomUserList(GetRoomUserListRequestDto params) {
 
         // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
-        List<GetRoomUserListResDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfile(params.getRoomId()).stream()
-                .map(roomUser -> GetRoomUserListResDto.builder()
+        List<GetRoomUserListResponseDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfile(params.getRoomId()).stream()
+                .map(roomUser -> GetRoomUserListResponseDto.builder()
                         .roomUserId(roomUser.getId())
                         .managerYn(roomUser.getManagerYn())
                         .standbyYn(roomUser.getStandbyYn())
@@ -91,7 +88,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public GetRoomUserDetailsResDto getRoomUserDetails(GetRoomUserDetailsReqDto params) {
+    public GetRoomUserDetailsResponseDto getRoomUserDetails(GetRoomUserDetailsRequestDto params) {
 
         // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
@@ -99,11 +96,11 @@ public class RoomServiceImpl implements RoomService {
         RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfile(params.getRoomUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
 
-        return GetRoomUserDetailsResDto.from(findRoomUser);
+        return GetRoomUserDetailsResponseDto.from(findRoomUser);
     }
 
     @Override
-    public CreateRoomResDto createRoom(CreateRoomReqDto params) {
+    public CreateRoomResponseDto createRoom(CreateRoomRequestDto params) {
 
         String generatedcode = "";
         boolean isCodeExists = true;
@@ -129,11 +126,11 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.save(newRoom);
 
-        return CreateRoomResDto.from(newRoom);
+        return CreateRoomResponseDto.from(newRoom);
     }
 
     @Override
-    public UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params) {
+    public UpdateRoomDetailsResponseDto updateRoomDetails(UpdateRoomDetailsRequestDto params) {
 
         // 방장인지 권한 확인
         RoomUser findRoomUser = roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
@@ -144,11 +141,11 @@ public class RoomServiceImpl implements RoomService {
 
         findRoom.updateRoomInfo(params.getEndDate(), params.getMissionPeriod());
 
-        return UpdateRoomDetailsResDto.from(findRoom);
+        return UpdateRoomDetailsResponseDto.from(findRoom);
     }
 
     @Override
-    public UpdateRoomStatusStartResDto updateRoomStatusStart(UpdateRoomStatusStartReqDto params) {
+    public UpdateRoomStatusStartResponseDto updateRoomStatusStart(UpdateRoomStatusStartRequestDto params) {
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
@@ -178,11 +175,11 @@ public class RoomServiceImpl implements RoomService {
 
         // TODO: 방 유저들 간 채팅 생성
 
-        return UpdateRoomStatusStartResDto.from(findRoom);
+        return UpdateRoomStatusStartResponseDto.from(findRoom);
     }
 
     @Override
-    public void updateRoomStatusEnd(UpdateRoomStatusEndReqDto params) {
+    public void updateRoomStatusEnd(UpdateRoomStatusEndRequestDto params) {
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());

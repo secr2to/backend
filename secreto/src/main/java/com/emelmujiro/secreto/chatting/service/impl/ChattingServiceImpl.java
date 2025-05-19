@@ -1,13 +1,13 @@
 package com.emelmujiro.secreto.chatting.service.impl;
 
-import com.emelmujiro.secreto.chatting.dto.request.CreateChattingReqDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListReqDto;
-import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusReqDto;
-import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingListReqDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResDto;
-import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResDto;
+import com.emelmujiro.secreto.chatting.dto.request.CreateChattingRequestDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListRequestDto;
+import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusRequestDto;
+import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResponseDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingListRequestDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResponseDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResponseDto;
+import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResponseDto;
 import com.emelmujiro.secreto.chatting.entity.ChattingMessage;
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
 import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
@@ -40,7 +40,7 @@ public class ChattingServiceImpl implements ChattingService {
     private final RoomUserRepository roomUserRepository;
 
     @Override
-    public CreateChattingResDto createChatting(CreateChattingReqDto params) {
+    public CreateChattingResponseDto createChatting(CreateChattingRequestDto params) {
 
         RoomUser findRoomUser = roomUserRepository.findById(params.getWriterId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER));
@@ -58,7 +58,7 @@ public class ChattingServiceImpl implements ChattingService {
 
         chattingMessageRepository.save(newChattingMessage);
 
-        return CreateChattingResDto.builder()
+        return CreateChattingResponseDto.builder()
                 .chattingMessageId(newChattingMessage.getId())
                 .writerId(newChattingMessage.getRoomUser().getId())
                 .content(newChattingMessage.getContent())
@@ -69,7 +69,7 @@ public class ChattingServiceImpl implements ChattingService {
     }
 
     @Override
-    public List<GetChattingListResDto> getChattingList(GetChattingListReqDto params) {
+    public List<GetChattingListResponseDto> getChattingList(GetChattingListRequestDto params) {
 
         RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
@@ -77,8 +77,8 @@ public class ChattingServiceImpl implements ChattingService {
         ChattingParticipate findChattingParticipate = chattingParticipateRepository.findByRoomUserIdAndType(findRoomUser.getId(), params.getType())
                 .orElseThrow(() -> new ChattingException(ChattingErrorCode.NOT_EXIST_CHATTING_ROOM));
 
-        List<GetChattingListResDto> resultList = chattingMessageRepository.findAllByChattingRoomId(findChattingParticipate.getChattingRoom().getId())
-                .stream().map(chattingMessage -> GetChattingListResDto.builder()
+        List<GetChattingListResponseDto> resultList = chattingMessageRepository.findAllByChattingRoomId(findChattingParticipate.getChattingRoom().getId())
+                .stream().map(chattingMessage -> GetChattingListResponseDto.builder()
                         .chattingRoomId(chattingMessage.getId())
                         .writerId(chattingMessage.getRoomUser().getId())
                         .content(chattingMessage.getContent())
@@ -90,13 +90,13 @@ public class ChattingServiceImpl implements ChattingService {
     }
 
     @Override
-    public List<GetChattingParticipationListResDto> getChattingParticipationList(GetChattingParticipationListReqDto params) {
+    public List<GetChattingParticipationListResponseDto> getChattingParticipationList(GetChattingParticipationListRequestDto params) {
 
         RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
-        List<GetChattingParticipationListResDto> resultList = chattingParticipateRepository.findAllWithChattingRoomByRoomUserId(findRoomUser.getId())
-                .stream().map(chattingParticipate -> GetChattingParticipationListResDto.builder()
+        List<GetChattingParticipationListResponseDto> resultList = chattingParticipateRepository.findAllWithChattingRoomByRoomUserId(findRoomUser.getId())
+                .stream().map(chattingParticipate -> GetChattingParticipationListResponseDto.builder()
                         .roomUserId(chattingParticipate.getRoomUser().getId())
                         .chattingRoomId(chattingParticipate.getChattingRoom().getId())
                         .type(chattingParticipate.getChattingUserType())
@@ -107,18 +107,18 @@ public class ChattingServiceImpl implements ChattingService {
     }
 
     @Override
-    public List<UpdateChattingReadStatusResDto> updateChattingReadStatus(UpdateChattingReadStatusReqDto params) {
+    public List<UpdateChattingReadStatusResponseDto> updateChattingReadStatus(UpdateChattingReadStatusRequestDto params) {
 
         List<ChattingMessage> chattingMessageList = chattingMessageRepository.findAllByChattingRoomIdAndChattingMessageId(params.getChattingRoomId(), params.getChattingMessageIds());
 
-        List<UpdateChattingReadStatusResDto> resultList = new ArrayList<>();
+        List<UpdateChattingReadStatusResponseDto> resultList = new ArrayList<>();
         for(ChattingMessage cm : chattingMessageList) {
 
             if(cm.getRoomUser().getId() != params.getRoomUserId()) {
                 cm.setMessageRead();
             }
 
-            resultList.add(UpdateChattingReadStatusResDto.builder()
+            resultList.add(UpdateChattingReadStatusResponseDto.builder()
                     .chattingMessageId(cm.getId())
                     .readYn(cm.getReadYn())
                     .build());

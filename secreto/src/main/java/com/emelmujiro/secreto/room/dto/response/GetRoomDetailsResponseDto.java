@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetRoomDetailsResDto {
+public class GetRoomDetailsResponseDto {
 
     private long roomId;
     private String name;
@@ -20,9 +20,9 @@ public class GetRoomDetailsResDto {
     private LocalDateTime endDate;
     private int missionPeriod;
 
-    public static GetRoomDetailsResDto from(Room room) {
+    public static GetRoomDetailsResponseDto from(Room room) {
 
-        return GetRoomDetailsResDto.builder()
+        return GetRoomDetailsResponseDto.builder()
                 .roomId(room.getId())
                 .name(room.getName())
                 .status(room.getRoomStatus())

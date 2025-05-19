@@ -1,7 +1,7 @@
 package com.emelmujiro.secreto.room.service.impl;
 
-import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
-import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
+import com.emelmujiro.secreto.room.dto.request.GetRoomListRequestDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomListResponseDto;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
 import com.emelmujiro.secreto.room.entity.RoomUser;
@@ -36,7 +36,7 @@ class RoomServiceImplTest {
     void getRoomList() {
 
         // given
-        GetRoomListReqDto param = GetRoomListReqDto.builder()
+        GetRoomListRequestDto param = GetRoomListRequestDto.builder()
                 .userId(1L)
                 .status(RoomStatus.PROGRESS)
                 .build();
@@ -105,7 +105,7 @@ class RoomServiceImplTest {
         when(roomRepository.findAllByIdsAndRoomStatus(Arrays.asList(room1.getId(), room2.getId(), room3.getId()), param.getStatus())).thenReturn(Arrays.asList(room1, room2));
 
         // when
-        List<GetRoomListResDto> resultList = roomServiceImpl.getRoomList(param);
+        List<GetRoomListResponseDto> resultList = roomServiceImpl.getRoomList(param);
 
         // then
         assertEquals(2, resultList.size());

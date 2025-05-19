@@ -1,6 +1,5 @@
 package com.emelmujiro.secreto.chatting.dto.response;
 
-import com.emelmujiro.secreto.chatting.entity.ChattingParticipateType;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -9,13 +8,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetChattingParticipationListResDto {
-
-    private long roomUserId;
+public class GetChattingListResponseDto {
 
     private long chattingRoomId;
 
-    private Enum<ChattingParticipateType> type;
+    private long writerId;
 
-    private LocalDateTime lastChattingDate;
+    private String content;
+
+    private LocalDateTime writeDate;
+
+    private boolean readYn;
 }
