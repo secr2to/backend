@@ -7,19 +7,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.emelmujiro.secreto.auth.annotation.InjectUserId;
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import com.emelmujiro.secreto.global.error.CommonErrorCode;
 import com.emelmujiro.secreto.global.exception.ApiException;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -64,10 +66,29 @@ public class TestController {
 			.success();
 	}
 
+	@GetMapping("/{one}")
+	public ResponseEntity<?> ModelAttributeTest(@ModelAttribute TestDto2 testDto) {
+		log.info("userId={}", testDto.userId);
+		log.info("one={}", testDto.one);
+		log.info("two={}", testDto.two);
+		return ApiResponse.builder()
+			.success();
+	}
+
+	@Data
+	public static class TestDto2 {
+
+		@LoginUser
+		private Long userId;
+
+		private Integer one;
+		private Double two;
+	}
+
 	public static class TestDto {
 
-		@InjectUserId
-		private long userId;
+		@LoginUser
+		private Long userId;
 
 		@InjectPathVariable(name = "one")
 		private int one;
