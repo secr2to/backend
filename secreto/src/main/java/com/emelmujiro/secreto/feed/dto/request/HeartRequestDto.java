@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class HeartRequestDto {
 
 	private Long feedId;
-	private Long roomId;
 
 	@LoginUser
 	private Long userId;

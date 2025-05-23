@@ -71,7 +71,7 @@ public class FeedController {
 			.success();
 	}
 
-	@PutMapping({"/community/{feedId}", "/rooms/{roomId}/feeds/{feedId}"})
+	@PutMapping("/feeds/{feedId}")
 	public ResponseEntity<?> updateFeed(@RequestBody UpdateFeedRequestDto updateFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.update(updateFeedRequest))
@@ -79,7 +79,7 @@ public class FeedController {
 			.success();
 	}
 
-	@DeleteMapping({"/community/{feedId}", "/rooms/{roomId}/feeds/{feedId}"})
+	@DeleteMapping("/feeds/{feedId}")
 	public ResponseEntity<?> deleteFeed(DeleteFeedRequestDto deleteFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.delete(deleteFeedRequest))
@@ -87,7 +87,7 @@ public class FeedController {
 			.success();
 	}
 
-	@PostMapping({"/community/{feedId}/heart", "/rooms/{roomId}/feeds/{feedId}/heart"})
+	@PostMapping("/feeds/{feedId}/heart")
 	public ResponseEntity<?> heart(HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.heart(heartRequest))
@@ -95,7 +95,7 @@ public class FeedController {
 			.success();
 	}
 
-	@DeleteMapping({"/community/{feedId}/heart", "/rooms/{roomId}/feeds/{feedId}/heart"})
+	@DeleteMapping("/feeds/{feedId}/heart")
 	public ResponseEntity<?> unheart(HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.unheart(heartRequest))
