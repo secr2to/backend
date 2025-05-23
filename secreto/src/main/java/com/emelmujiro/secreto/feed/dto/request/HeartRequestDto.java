@@ -1,5 +1,7 @@
 package com.emelmujiro.secreto.feed.dto.request;
 
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,5 +16,7 @@ public class HeartRequestDto {
 
 	private Long feedId;
 	private Long roomId;
+
+	@LoginUser
 	private Long userId;
 }

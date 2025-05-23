@@ -69,10 +69,12 @@ public class FeedService {
 	private final FeedImageRepository feedImageRepository;
 
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
+		/* TODO: 유저 검증 로직 */
 		return feedQueryRepository.findCommunityFeeds(dto);
 	}
 
 	public GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto) {
+		/* TODO: 유저 검증 로직 */
 		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
 			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
 		List<User> heartUsers = feedHeartRepository.findByFeedIdWithUser(dto.getFeedId())
@@ -83,6 +85,7 @@ public class FeedService {
 	}
 
 	public GetIngameFeedsResponseDto getIngameFeeds(GetIngameFeedsRequestDto dto) {
+		/* TODO: 유저 검증 로직 */
 		GetIngameFeedsResponseDto response = feedQueryRepository.findIngameFeedsWithoutHeartsAndImages(dto);
 		List<IngameFeedResponseDto> content = response.getContent();
 		List<Long> feedIds = content.stream()

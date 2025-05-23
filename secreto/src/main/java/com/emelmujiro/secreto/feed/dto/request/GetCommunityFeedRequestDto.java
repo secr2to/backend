@@ -1,5 +1,7 @@
 package com.emelmujiro.secreto.feed.dto.request;
 
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,5 +15,7 @@ import lombok.NoArgsConstructor;
 public class GetCommunityFeedRequestDto {
 
 	private Long feedId;
+
+	@LoginUser
 	private Long userId;
 }

@@ -5,14 +5,11 @@ import static java.lang.String.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
@@ -30,7 +27,9 @@ import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class FeedController {
@@ -38,7 +37,7 @@ public class FeedController {
 	private final FeedService feedService;
 
 	@GetMapping("/community")
-	public ResponseEntity<?> getCommunity(@ModelAttribute GetCommunityRequestDto getFeedRequest) {
+	public ResponseEntity<?> getCommunity(GetCommunityRequestDto getFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getCommunity(getFeedRequest))
 			.message(format(FeedApiMessage.GET_COMMUNITY_SUCCESS.getMessage(),
@@ -49,24 +48,18 @@ public class FeedController {
 	}
 
 	@GetMapping("/community/{feedId}")
-	public ResponseEntity<?> getCommunityFeed(@PathVariable("feedId") Long feedId, @LoginUser Long userId) {
-		GetCommunityFeedRequestDto getCommunityFeedRequest = new GetCommunityFeedRequestDto(feedId, userId);
+	public ResponseEntity<?> getCommunityFeed(GetCommunityFeedRequestDto getCommunityFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getCommunityFeed(getCommunityFeedRequest))
-			.message(format(FeedApiMessage.GET_COMMUNITY_FEED_SUCCESS.getMessage(), feedId))
+			.message(format(FeedApiMessage.GET_COMMUNITY_FEED_SUCCESS.getMessage(), getCommunityFeedRequest.getFeedId()))
 			.success();
 	}
 
 	@GetMapping("/rooms/{roomId}/feeds")
-	public ResponseEntity<?> getIngameFeeds(
-		@PathVariable("roomId") Long roomId,
-		@ModelAttribute GetIngameFeedsRequestDto getIngameFeedsRequest,
-		@LoginUser Long userId) {
-		getIngameFeedsRequest.setUserId(userId);
-		getIngameFeedsRequest.setRoomId(roomId);
+	public ResponseEntity<?> getIngameFeeds(GetIngameFeedsRequestDto getIngameFeedsRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getIngameFeeds(getIngameFeedsRequest))
-			.message(format(FeedApiMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), roomId))
+			.message(format(FeedApiMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), getIngameFeedsRequest.getRoomId()))
 			.success();
 	}
 
@@ -87,12 +80,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping({"/community/{feedId}", "/rooms/{roomId}/feeds/{feedId}"})
-	public ResponseEntity<?> deleteFeed(
-		@PathVariable("feedId") Long feedId,
-		@PathVariable(value = "roomId", required = false) Long roomId,
-		@LoginUser Long authorId
-	) {
-		DeleteFeedRequestDto deleteFeedRequest = new DeleteFeedRequestDto(feedId, roomId, authorId);
+	public ResponseEntity<?> deleteFeed(DeleteFeedRequestDto deleteFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.delete(deleteFeedRequest))
 			.message(FeedApiMessage.DELETE_FEED_SUCCESS.getMessage())
@@ -100,12 +88,7 @@ public class FeedController {
 	}
 
 	@PostMapping({"/community/{feedId}/heart", "/rooms/{roomId}/feeds/{feedId}/heart"})
-	public ResponseEntity<?> heart(
-		@PathVariable("feedId") Long feedId,
-		@PathVariable(value = "roomId", required = false) Long roomId,
-		@LoginUser Long userId
-	) {
-		HeartRequestDto heartRequest = new HeartRequestDto(feedId, roomId, userId);
+	public ResponseEntity<?> heart(HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.heart(heartRequest))
 			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
@@ -113,12 +96,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping({"/community/{feedId}/heart", "/rooms/{roomId}/feeds/{feedId}/heart"})
-	public ResponseEntity<?> unheart(
-		@PathVariable("feedId") Long feedId,
-		@PathVariable(value = "roomId", required = false) Long roomId,
-		@LoginUser Long userId
-	) {
-		HeartRequestDto heartRequest = new HeartRequestDto(feedId, roomId, userId);
+	public ResponseEntity<?> unheart(HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.unheart(heartRequest))
 			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
@@ -126,14 +104,8 @@ public class FeedController {
 	}
 
 	@GetMapping({"/community/{feedId}/replies", "/rooms/{roomId}/feeds/{feedId}/replies"})
-	public ResponseEntity<?> getReplies(
-		@ModelAttribute GetRepliesRequestDto getRepliesRequest,
-		@PathVariable("feedId") Long feedId,
-		@PathVariable(value = "roomId", required = false) Long roomId,
-		@LoginUser Long userId) {
-		getRepliesRequest.setFeedId(feedId);
-		getRepliesRequest.setRoomId(roomId);
-		getRepliesRequest.setUserId(userId);
+	public ResponseEntity<?> getReplies(GetRepliesRequestDto getRepliesRequest) {
+		Long feedId = getRepliesRequest.getFeedId();
 		Long replyId = getRepliesRequest.getReplyId();
 
 		String message = replyId == null
@@ -163,8 +135,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping("/replies/{replyId}")
-	public ResponseEntity<?> deleteReply(@PathVariable("replyId") Long replyId, @LoginUser Long userId) {
-		DeleteReplyRequestDto deleteReplyRequest = new DeleteReplyRequestDto(replyId, userId);
+	public ResponseEntity<?> deleteReply(DeleteReplyRequestDto deleteReplyRequest) {
 		return ApiResponse.builder()
 			.data(feedService.deleteReply(deleteReplyRequest))
 			.message(FeedApiMessage.DELETE_REPLY_SUCCESS.getMessage())
@@ -172,11 +143,7 @@ public class FeedController {
 	}
 
 	@PostMapping("/replies/{replyId}/heart")
-	public ResponseEntity<?> replyHeart(
-		@PathVariable("replyId") Long replyId,
-		@LoginUser Long userId
-	) {
-		ReplyHeartRequestDto heartRequest = new ReplyHeartRequestDto(replyId, userId);
+	public ResponseEntity<?> replyHeart(ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.replyHeart(heartRequest))
 			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
@@ -184,11 +151,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping("/replies/{replyId}/heart")
-	public ResponseEntity<?> replyUnheart(
-		@PathVariable("replyId") Long replyId,
-		@LoginUser Long userId
-	) {
-		ReplyHeartRequestDto heartRequest = new ReplyHeartRequestDto(replyId, userId);
+	public ResponseEntity<?> replyUnheart(ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.replyUnheart(heartRequest))
 			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())

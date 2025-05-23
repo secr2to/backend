@@ -1,19 +1,22 @@
 package com.emelmujiro.secreto.feed.dto.request;
 
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
+
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class GetIngameFeedsRequestDto {
 
 	private int offset;
 	private Long roomId;
+
+	@LoginUser
 	private Long userId;
 }
