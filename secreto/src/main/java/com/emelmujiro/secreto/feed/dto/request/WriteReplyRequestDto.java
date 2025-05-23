@@ -1,6 +1,6 @@
 package com.emelmujiro.secreto.feed.dto.request;
 
-import com.emelmujiro.secreto.auth.annotation.InjectUserId;
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WriteReplyRequestDto {
 
-	@InjectUserId
+	@LoginUser
 	private Long userId;
 
 	private Long feedId;
