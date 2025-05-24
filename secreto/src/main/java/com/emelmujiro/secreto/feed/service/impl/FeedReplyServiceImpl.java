@@ -44,7 +44,6 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 
 	@Transactional
 	public WriteReplyResponseDto writeReply(WriteReplyRequestDto dto) {
-		/* TODO: 방에 속한 유저인지 검사 */
 		Feed feed = feedService.getFeed(dto.getFeedId());
 		User user = userRepository.findById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
