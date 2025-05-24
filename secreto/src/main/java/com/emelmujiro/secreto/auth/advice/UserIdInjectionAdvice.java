@@ -13,7 +13,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
-import com.emelmujiro.secreto.auth.annotation.InjectUserId;
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
 import com.emelmujiro.secreto.auth.util.SecurityContextUtil;
 
@@ -46,15 +46,15 @@ public class UserIdInjectionAdvice implements RequestBodyAdvice {
 
 	private void injectUserIdIntoAnnotatedFields(Object body, Long userId) {
 		Arrays.stream(body.getClass().getDeclaredFields())
-			.filter(this::isInjectUserIdField)
+			.filter(this::isLoginUserField)
 			.forEach(field -> {
 				ReflectionUtils.makeAccessible(field);
 				ReflectionUtils.setField(field, body, userId);
 			});
 	}
 
-	private boolean isInjectUserIdField(Field field) {
-		boolean hasAnnotation = field.isAnnotationPresent(InjectUserId.class);
+	private boolean isLoginUserField(Field field) {
+		boolean hasAnnotation = field.isAnnotationPresent(LoginUser.class);
 		boolean hasLongType = Long.class.isAssignableFrom(field.getType()) || field.getType() == long.class;
 		return hasAnnotation && hasLongType;
 	}
