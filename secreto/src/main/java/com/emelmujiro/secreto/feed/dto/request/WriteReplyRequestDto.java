@@ -18,7 +18,6 @@ public class WriteReplyRequestDto {
 	private Long userId;
 
 	private Long feedId;
-	private Long roomId;
 	private Long parentReplyId;
 	private String comment;
 	private Long mentionUserId;

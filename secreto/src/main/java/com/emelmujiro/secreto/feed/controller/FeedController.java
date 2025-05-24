@@ -5,6 +5,7 @@ import static java.lang.String.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +40,7 @@ public class FeedController {
 	private final FeedReplyServiceImpl feedReplyService;
 
 	@GetMapping("/community")
-	public ResponseEntity<?> getCommunity(GetCommunityRequestDto getFeedRequest) {
+	public ResponseEntity<?> getCommunity(@ModelAttribute GetCommunityRequestDto getFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getCommunity(getFeedRequest))
 			.message(format(FeedApiMessage.GET_COMMUNITY_SUCCESS.getMessage(),
@@ -50,7 +51,7 @@ public class FeedController {
 	}
 
 	@GetMapping("/community/{feedId}")
-	public ResponseEntity<?> getCommunityFeed(GetCommunityFeedRequestDto getCommunityFeedRequest) {
+	public ResponseEntity<?> getCommunityFeed(@ModelAttribute GetCommunityFeedRequestDto getCommunityFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getCommunityFeed(getCommunityFeedRequest))
 			.message(format(FeedApiMessage.GET_COMMUNITY_FEED_SUCCESS.getMessage(), getCommunityFeedRequest.getFeedId()))
@@ -58,7 +59,7 @@ public class FeedController {
 	}
 
 	@GetMapping("/rooms/{roomId}/feeds")
-	public ResponseEntity<?> getIngameFeeds(GetIngameFeedsRequestDto getIngameFeedsRequest) {
+	public ResponseEntity<?> getIngameFeeds(@ModelAttribute GetIngameFeedsRequestDto getIngameFeedsRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getIngameFeeds(getIngameFeedsRequest))
 			.message(format(FeedApiMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), getIngameFeedsRequest.getRoomId()))
@@ -82,7 +83,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping("/feeds/{feedId}")
-	public ResponseEntity<?> deleteFeed(DeleteFeedRequestDto deleteFeedRequest) {
+	public ResponseEntity<?> deleteFeed(@ModelAttribute DeleteFeedRequestDto deleteFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.delete(deleteFeedRequest))
 			.message(FeedApiMessage.DELETE_FEED_SUCCESS.getMessage())
@@ -90,7 +91,7 @@ public class FeedController {
 	}
 
 	@PostMapping("/feeds/{feedId}/heart")
-	public ResponseEntity<?> heart(HeartRequestDto heartRequest) {
+	public ResponseEntity<?> heart(@ModelAttribute HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.heart(heartRequest))
 			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
@@ -98,7 +99,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping("/feeds/{feedId}/heart")
-	public ResponseEntity<?> unheart(HeartRequestDto heartRequest) {
+	public ResponseEntity<?> unheart(@ModelAttribute HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.unheart(heartRequest))
 			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
@@ -106,7 +107,7 @@ public class FeedController {
 	}
 
 	@GetMapping({"/community/{feedId}/replies", "/rooms/{roomId}/feeds/{feedId}/replies"})
-	public ResponseEntity<?> getReplies(GetRepliesRequestDto getRepliesRequest) {
+	public ResponseEntity<?> getReplies(@ModelAttribute GetRepliesRequestDto getRepliesRequest) {
 		Long feedId = getRepliesRequest.getFeedId();
 		Long replyId = getRepliesRequest.getReplyId();
 
@@ -137,7 +138,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping("/replies/{replyId}")
-	public ResponseEntity<?> deleteReply(DeleteReplyRequestDto deleteReplyRequest) {
+	public ResponseEntity<?> deleteReply(@ModelAttribute DeleteReplyRequestDto deleteReplyRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.deleteReply(deleteReplyRequest))
 			.message(FeedApiMessage.DELETE_REPLY_SUCCESS.getMessage())
@@ -145,7 +146,7 @@ public class FeedController {
 	}
 
 	@PostMapping("/replies/{replyId}/heart")
-	public ResponseEntity<?> replyHeart(ReplyHeartRequestDto heartRequest) {
+	public ResponseEntity<?> replyHeart(@ModelAttribute ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.replyHeart(heartRequest))
 			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
@@ -153,7 +154,7 @@ public class FeedController {
 	}
 
 	@DeleteMapping("/replies/{replyId}/heart")
-	public ResponseEntity<?> replyUnheart(ReplyHeartRequestDto heartRequest) {
+	public ResponseEntity<?> replyUnheart(@ModelAttribute ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.replyUnheart(heartRequest))
 			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
