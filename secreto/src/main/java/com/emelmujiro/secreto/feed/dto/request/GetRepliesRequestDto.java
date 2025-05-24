@@ -16,7 +16,6 @@ public class GetRepliesRequestDto {
 
 	@LoginUser
 	private Long userId;
-
 	private Long feedId;
 	private Long roomId;
 	private Long replyId;

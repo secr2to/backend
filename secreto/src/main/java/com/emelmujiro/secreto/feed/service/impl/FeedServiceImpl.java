@@ -34,7 +34,10 @@ import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
 import com.emelmujiro.secreto.global.dto.response.SuccessResponseDto;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
+import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.user.entity.User;
+import com.emelmujiro.secreto.user.error.UserErrorCode;
+import com.emelmujiro.secreto.user.exception.UserException;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -47,18 +50,17 @@ public class FeedServiceImpl implements FeedService {
 	private final FeedFactory feedFactory;
 	private final UserRepository userRepository;
 	private final RoomRepository roomRepository;
+	private final RoomUserRepository roomUserRepository;
 	private final FeedRepository feedRepository;
 	private final FeedQueryRepository feedQueryRepository;
 	private final FeedHeartRepository feedHeartRepository;
 	private final FeedImageRepository feedImageRepository;
 
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
-		/* TODO: 유저 검증 로직 */
 		return feedQueryRepository.findCommunityFeeds(dto);
 	}
 
 	public GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto) {
-		/* TODO: 유저 검증 로직 */
 		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
 			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
 		List<User> heartUsers = feedHeartRepository.findByFeedIdWithUser(dto.getFeedId())
@@ -69,7 +71,9 @@ public class FeedServiceImpl implements FeedService {
 	}
 
 	public GetIngameFeedsResponseDto getIngameFeeds(GetIngameFeedsRequestDto dto) {
-		/* TODO: 유저 검증 로직 */
+		if (roomUserRepository.findByUserIdAndRoomId(dto.getUserId(), dto.getRoomId()).isEmpty()) {
+			throw new FeedException(FeedErrorCode.FORBIDDEN_FEED_ROOM_ACCESS);
+		}
 		GetIngameFeedsResponseDto response = feedQueryRepository.findIngameFeedsWithoutHeartsAndImages(dto);
 		List<IngameFeedResponseDto> content = response.getContent();
 		List<Long> feedIds = content.stream()
@@ -99,12 +103,12 @@ public class FeedServiceImpl implements FeedService {
 	public CreateFeedResponseDto create(CreateFeedRequestDto dto) {
 		Long roomId = dto.getRoomId();
 		Room room = roomId != null
-			? roomRepository.findById(roomId).orElseThrow(() -> new IllegalArgumentException("invalid room id"))
+			? roomRepository.findById(roomId).orElseThrow(() -> new FeedException(FeedErrorCode.FEED_ROOM_NOT_FOUND))
 			: null;
 
 		Long authorId = dto.getAuthorId();
 		User author = userRepository.findById(authorId)
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 		List<User> tagUsers = getTagUsers(dto.getTags());
 
 		Feed feed = feedFactory.createFeed(room, author, dto);
@@ -146,7 +150,7 @@ public class FeedServiceImpl implements FeedService {
 	public SuccessResponseDto heart(HeartRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId());
 		User user = userRepository.findById(dto.getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		boolean success = false;
 		if (feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId()).isEmpty()) {
@@ -161,7 +165,7 @@ public class FeedServiceImpl implements FeedService {
 	public SuccessResponseDto unheart(HeartRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId());
 		User user = userRepository.findById(dto.getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		FeedHeart heart = feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId())
 			.orElse(null);

@@ -21,6 +21,8 @@ import com.emelmujiro.secreto.feed.repository.FeedReplyRepository;
 import com.emelmujiro.secreto.feed.service.FeedReplyService;
 import com.emelmujiro.secreto.global.dto.response.SuccessResponseDto;
 import com.emelmujiro.secreto.user.entity.User;
+import com.emelmujiro.secreto.user.error.UserErrorCode;
+import com.emelmujiro.secreto.user.exception.UserException;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -45,10 +47,10 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 		/* TODO: 방에 속한 유저인지 검사 */
 		Feed feed = feedService.getFeed(dto.getFeedId());
 		User user = userRepository.findById(dto.getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("user not found"));
+			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 		User mentionedUser = dto.getMentionUserId() != null
 			? userRepository.findById(dto.getMentionUserId())
-			.orElseThrow(() -> new IllegalArgumentException("user not found"))
+			.orElseThrow(() -> new FeedException(FeedErrorCode.MENTIONED_USER_NOT_FOUND))
 			: null;
 
 		validateNotSelfMention(user, mentionedUser);
@@ -100,7 +102,7 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 	public SuccessResponseDto replyHeart(ReplyHeartRequestDto dto) {
 		FeedReply reply = getReply(dto.getReplyId());
 		User user = userRepository.findById(dto.getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		boolean success = false;
 		if (feedReplyHeartRepository.findByReplyIdAndUserId(dto.getReplyId(), user.getId()).isEmpty()) {
@@ -115,7 +117,7 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 	public SuccessResponseDto replyUnheart(ReplyHeartRequestDto dto) {
 		FeedReply reply = getReply(dto.getReplyId());
 		User user = userRepository.findById(dto.getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
+			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		FeedReplyHeart heart = feedReplyHeartRepository.findByReplyIdAndUserId(reply.getId(), user.getId())
 			.orElse(null);
