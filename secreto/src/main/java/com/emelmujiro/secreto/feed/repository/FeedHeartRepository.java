@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.emelmujiro.secreto.feed.entity.FeedHeart;
-import com.emelmujiro.secreto.user.entity.User;
 
 public interface FeedHeartRepository extends JpaRepository<FeedHeart, Long> {
 

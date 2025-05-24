@@ -17,8 +17,11 @@ public enum FeedErrorCode implements ErrorCode {
 	REPLY_NOT_FOUND_OR_FORBIDDEN(HttpStatus.NOT_FOUND, "해당 댓글이 존재하지 않거나 권한이 없습니다."),
 	PARENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "상위 댓글이 존재하지 않습니다."),
 	SELF_MENTION_NOT_ALLOW(HttpStatus.BAD_REQUEST, "본인을 멘션할 수 없습니다."),
+	MENTIONED_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "멘션할 유저를 찾을 수 없습니다."),
 	IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "최소 1장 이상의 이미지를 첨부해주세요."),
 	UNMATCHED_FEED_TYPE(HttpStatus.BAD_REQUEST, "게시글 타입이 일치하지 않습니다."),
+	FORBIDDEN_FEED_ROOM_ACCESS(HttpStatus.FORBIDDEN, "해당 게시글이 속한 방에 참여한 사용자만 접근할 수 있습니다."),
+	FEED_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 작성하려는 방이 존재하지 않습니다."),
 	;
 
 	private final HttpStatus httpStatus;

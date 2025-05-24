@@ -31,7 +31,7 @@ import jakarta.persistence.EntityManager;
 @Repository
 public class FeedQueryRepository {
 
-	@Value("${feed.page-size}")
+	@Value("${feed.feed-paging-size}")
 	private int pageSize;
 
 	private final JPAQueryFactory query;
