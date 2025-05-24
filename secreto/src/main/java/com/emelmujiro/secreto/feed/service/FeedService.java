@@ -1,15 +1,7 @@
 package com.emelmujiro.secreto.feed.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
-import com.emelmujiro.secreto.feed.dto.request.FeedTagRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
@@ -19,167 +11,23 @@ import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetIngameFeedsResponseDto;
-import com.emelmujiro.secreto.feed.dto.response.IngameFeedResponseDto;
-import com.emelmujiro.secreto.feed.entity.Feed;
-import com.emelmujiro.secreto.feed.entity.FeedHeart;
-import com.emelmujiro.secreto.feed.entity.FeedImage;
-import com.emelmujiro.secreto.feed.error.FeedErrorCode;
-import com.emelmujiro.secreto.feed.exception.FeedException;
-import com.emelmujiro.secreto.feed.repository.FeedHeartRepository;
-import com.emelmujiro.secreto.feed.repository.FeedImageRepository;
-import com.emelmujiro.secreto.feed.repository.FeedQueryRepository;
-import com.emelmujiro.secreto.feed.repository.FeedRepository;
-import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
-import com.emelmujiro.secreto.room.entity.Room;
-import com.emelmujiro.secreto.room.repository.RoomRepository;
-import com.emelmujiro.secreto.user.entity.User;
-import com.emelmujiro.secreto.user.repository.UserRepository;
+import com.emelmujiro.secreto.global.dto.response.SuccessResponseDto;
 
-import lombok.RequiredArgsConstructor;
+public interface FeedService {
 
-@Service
-@Transactional(readOnly = true)
-@RequiredArgsConstructor
-public class FeedService {
+	GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto);
 
-	private final FeedFactory feedFactory;
-	private final UserRepository userRepository;
-	private final RoomRepository roomRepository;
-	private final FeedRepository feedRepository;
-	private final FeedQueryRepository feedQueryRepository;
-	private final FeedHeartRepository feedHeartRepository;
-	private final FeedImageRepository feedImageRepository;
+	GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto);
 
-	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
-		/* TODO: 유저 검증 로직 */
-		return feedQueryRepository.findCommunityFeeds(dto);
-	}
+	GetIngameFeedsResponseDto getIngameFeeds(GetIngameFeedsRequestDto dto);
 
-	public GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto) {
-		/* TODO: 유저 검증 로직 */
-		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
-			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
-		List<User> heartUsers = feedHeartRepository.findByFeedIdWithUser(dto.getFeedId())
-			.stream()
-			.map(FeedHeart::getUser)
-			.toList();
-		return GetCommunityFeedResponseDto.from(feed, heartUsers, dto.getUserId());
-	}
+	CreateFeedResponseDto create(CreateFeedRequestDto dto);
 
-	public GetIngameFeedsResponseDto getIngameFeeds(GetIngameFeedsRequestDto dto) {
-		/* TODO: 유저 검증 로직 */
-		GetIngameFeedsResponseDto response = feedQueryRepository.findIngameFeedsWithoutHeartsAndImages(dto);
-		List<IngameFeedResponseDto> content = response.getContent();
-		List<Long> feedIds = content.stream()
-			.map(IngameFeedResponseDto::getFeedId)
-			.toList();
+	SuccessResponseDto update(UpdateFeedRequestDto dto);
 
-		Map<Long, List<User>> heartUsersMap = feedHeartRepository.findAllByFeedIdInWithUser(feedIds)
-			.stream()
-			.collect(Collectors.groupingBy(
-				heart -> heart.getFeed().getId(),
-				Collectors.mapping(FeedHeart::getUser, Collectors.toList())
-			));
-		Map<Long, List<FeedImage>> imagesMap = feedImageRepository.findAllByFeedIdIn(feedIds)
-			.stream()
-			.collect(Collectors.groupingBy(
-				image -> image.getFeed().getId()
-			));
+	SuccessResponseDto delete(DeleteFeedRequestDto dto);
 
-		content.forEach(feedDto -> {
-			feedDto.applyImages(imagesMap.getOrDefault(feedDto.getFeedId(), List.of()));
-			feedDto.applyHearts(heartUsersMap.getOrDefault(feedDto.getFeedId(), List.of()), dto.getUserId());
-		});
-		return response;
-	}
+	SuccessResponseDto heart(HeartRequestDto dto);
 
-	@Transactional
-	public CreateFeedResponseDto create(CreateFeedRequestDto dto) {
-		Long roomId = dto.getRoomId();
-		Room room = roomId != null
-			? roomRepository.findById(roomId).orElseThrow(() -> new IllegalArgumentException("invalid room id"))
-			: null;
-
-		Long authorId = dto.getAuthorId();
-		User author = userRepository.findById(authorId)
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
-		List<User> tagUsers = getTagUsers(dto.getTags());
-
-		Feed feed = feedFactory.createFeed(room, author, dto);
-		feedFactory.syncImages(feed, dto.getImages());
-		feedFactory.syncTags(feed, tagUsers);
-		Feed savedFeed = feedRepository.save(feed);
-		return CreateFeedResponseDto.from(savedFeed);
-	}
-
-	@Transactional
-	public Map<String, Object> update(UpdateFeedRequestDto dto) {
-		Feed feed = getFeed(dto.getFeedId(), dto.getAuthorId());
-		List<User> tagUsers = getTagUsers(dto.getTags());
-
-		feed.update(dto.getTitle(), dto.getContent());
-		feedFactory.syncImages(feed, dto.getImages());
-		feedFactory.syncTags(feed, tagUsers);
-		return Map.of("success", true);
-	}
-
-	private List<User> getTagUsers(List<FeedTagRequestDto> tags) {
-		if (tags == null)
-			return List.of();
-
-		List<Long> tagUserIds = tags
-			.stream()
-			.map(FeedTagRequestDto::getUserId)
-			.toList();
-		return userRepository.findAllById(tagUserIds);
-	}
-
-	@Transactional
-	public Map<String, Object> delete(DeleteFeedRequestDto dto) {
-		Feed feed = getFeed(dto.getFeedId(), dto.getAuthorId());
-		return Map.of("success", feed.delete());
-	}
-
-	@Transactional
-	public Map<String, Object> heart(HeartRequestDto dto) {
-		Feed feed = getFeed(dto.getFeedId());
-		User user = userRepository.findById(dto.getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
-
-		boolean success = false;
-		if (feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId()).isEmpty()) {
-			FeedHeart heart = feedHeartRepository.save(new FeedHeart(feed, user));
-			feed.addHeart(heart);
-			success = true;
-		}
-		return Map.of("success", success);
-	}
-
-	@Transactional
-	public Map<String, Object> unheart(HeartRequestDto dto) {
-		Feed feed = getFeed(dto.getFeedId());
-		User user = userRepository.findById(dto.getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("invalid user."));
-
-		FeedHeart heart = feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId())
-			.orElse(null);
-
-		boolean success = false;
-		if (heart != null) {
-			feed.removeHeart(heart);
-			feedHeartRepository.delete(heart);
-			success = true;
-		}
-		return Map.of("success", success);
-	}
-
-	Feed getFeed(Long feedId) {
-		return feedRepository.findActiveById(feedId)
-			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
-	}
-
-	Feed getFeed(Long feedId, Long authorId) {
-		return feedRepository.findByIdAndAuthorId(feedId, authorId)
-			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND_OR_FORBIDDEN));
-	}
+	SuccessResponseDto unheart(HeartRequestDto dto);
 }

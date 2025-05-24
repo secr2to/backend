@@ -12,8 +12,8 @@ import com.emelmujiro.secreto.feed.dto.request.FeedImageRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
-import com.emelmujiro.secreto.feed.service.FeedReplyService;
-import com.emelmujiro.secreto.feed.service.FeedService;
+import com.emelmujiro.secreto.feed.service.impl.FeedReplyServiceImpl;
+import com.emelmujiro.secreto.feed.service.impl.FeedServiceImpl;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomReqDto;
 import com.emelmujiro.secreto.room.dto.response.CreateRoomResDto;
 import com.emelmujiro.secreto.room.service.RoomService;
@@ -45,9 +45,9 @@ public class InitDb {
 	static class InitService {
 
 		private final UserRepository userRepository;
-		private final FeedService feedService;
+		private final FeedServiceImpl feedService;
 		private final RoomService roomService;
-		private final FeedReplyService feedReplyService;
+		private final FeedReplyServiceImpl feedReplyService;
 
 		public void feedInit() {
 			User user = userRepository.save(
