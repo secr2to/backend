@@ -27,7 +27,4 @@ public class UpdateFeedRequestDto {
 	private String content;
 	private List<FeedImageRequestDto> images;
 	private List<FeedTagRequestDto> tags;
-
-	@InjectPathVariable(required = false)
-	private Long roomId;
 }

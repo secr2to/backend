@@ -23,6 +23,7 @@ import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.message.FeedApiMessage;
+import com.emelmujiro.secreto.feed.service.FeedReplyService;
 import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 
@@ -35,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FeedController {
 
 	private final FeedService feedService;
+	private final FeedReplyService feedReplyService;
 
 	@GetMapping("/community")
 	public ResponseEntity<?> getCommunity(GetCommunityRequestDto getFeedRequest) {
@@ -113,7 +115,7 @@ public class FeedController {
 			: format(FeedApiMessage.GET_NESTED_REPLIES_SUCCESS.getMessage(), feedId, replyId);
 
 		return ApiResponse.builder()
-			.data(feedService.getReplies(getRepliesRequest))
+			.data(feedReplyService.getReplies(getRepliesRequest))
 			.message(message)
 			.success();
 	}
@@ -121,7 +123,7 @@ public class FeedController {
 	@PostMapping("/replies")
 	public ResponseEntity<?> writeReply(@RequestBody WriteReplyRequestDto writeReplyRequest) {
 		return ApiResponse.builder()
-			.data(feedService.writeReply(writeReplyRequest))
+			.data(feedReplyService.writeReply(writeReplyRequest))
 			.message(FeedApiMessage.WRITE_REPLY_SUCCESS.getMessage())
 			.success();
 	}
@@ -129,7 +131,7 @@ public class FeedController {
 	@PutMapping("/replies/{replyId}")
 	public ResponseEntity<?> updateReply(@RequestBody UpdateReplyRequestDto updateReplyRequest) {
 		return ApiResponse.builder()
-			.data(feedService.updateReply(updateReplyRequest))
+			.data(feedReplyService.updateReply(updateReplyRequest))
 			.message(FeedApiMessage.UPDATE_REPLY_SUCCESS.getMessage())
 			.success();
 	}
@@ -137,7 +139,7 @@ public class FeedController {
 	@DeleteMapping("/replies/{replyId}")
 	public ResponseEntity<?> deleteReply(DeleteReplyRequestDto deleteReplyRequest) {
 		return ApiResponse.builder()
-			.data(feedService.deleteReply(deleteReplyRequest))
+			.data(feedReplyService.deleteReply(deleteReplyRequest))
 			.message(FeedApiMessage.DELETE_REPLY_SUCCESS.getMessage())
 			.success();
 	}
@@ -145,7 +147,7 @@ public class FeedController {
 	@PostMapping("/replies/{replyId}/heart")
 	public ResponseEntity<?> replyHeart(ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
-			.data(feedService.replyHeart(heartRequest))
+			.data(feedReplyService.replyHeart(heartRequest))
 			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
 			.success();
 	}
@@ -153,7 +155,7 @@ public class FeedController {
 	@DeleteMapping("/replies/{replyId}/heart")
 	public ResponseEntity<?> replyUnheart(ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
-			.data(feedService.replyUnheart(heartRequest))
+			.data(feedReplyService.replyUnheart(heartRequest))
 			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
 			.success();
 	}

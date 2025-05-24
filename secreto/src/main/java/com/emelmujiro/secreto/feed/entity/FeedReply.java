@@ -55,12 +55,12 @@ public class FeedReply extends TimestampedEntity {
 
     @Builder
     public FeedReply(Feed feed, User replier, String comment, FeedReply parent, User mentionedUser) {
-        this.feed = feed;
+        setFeed(feed);
         this.replier = replier;
         this.parent = parent;
         if (parent != null) {
             this.nestedReplyYn = true;
-            this.parent.nestedReplyList.add(this);
+            this.parent.addNestedReply(this);
         }
         this.comment = comment;
         this.mentionedUser = mentionedUser;

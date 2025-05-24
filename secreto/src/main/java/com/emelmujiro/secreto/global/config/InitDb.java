@@ -12,6 +12,7 @@ import com.emelmujiro.secreto.feed.dto.request.FeedImageRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
+import com.emelmujiro.secreto.feed.service.FeedReplyService;
 import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomReqDto;
 import com.emelmujiro.secreto.room.dto.response.CreateRoomResDto;
@@ -46,6 +47,7 @@ public class InitDb {
 		private final UserRepository userRepository;
 		private final FeedService feedService;
 		private final RoomService roomService;
+		private final FeedReplyService feedReplyService;
 
 		public void feedInit() {
 			User user = userRepository.save(
@@ -80,7 +82,7 @@ public class InitDb {
 						.comment("reply" + i + "..." + j)
 						.userId(user.getId())
 						.build();
-					WriteReplyResponseDto replyResponse = feedService.writeReply(replyDto);
+					WriteReplyResponseDto replyResponse = feedReplyService.writeReply(replyDto);
 					Long replyId = replyResponse.getReplyId();
 					if (j > 1)
 						continue;
@@ -91,7 +93,7 @@ public class InitDb {
 							.userId(user.getId())
 							.parentReplyId(replyId)
 							.build();
-						feedService.writeReply(nestedReplyDto);
+						feedReplyService.writeReply(nestedReplyDto);
 					}
 				}
 			}

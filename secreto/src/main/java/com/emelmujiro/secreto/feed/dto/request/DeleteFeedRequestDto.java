@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class DeleteFeedRequestDto {
 
 	private Long feedId;
-	private Long roomId;
 
 	@LoginUser
 	private Long authorId;
