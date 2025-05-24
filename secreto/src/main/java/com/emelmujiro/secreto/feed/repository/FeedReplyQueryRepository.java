@@ -13,7 +13,6 @@ import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QReplyResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.ReplyResponseDto;
-import com.emelmujiro.secreto.feed.entity.QFeedReplyHeart;
 import com.emelmujiro.secreto.room.dto.response.QRoomUserProfileResponseDto;
 import com.emelmujiro.secreto.user.dto.response.QUserProfileResponseDto;
 import com.emelmujiro.secreto.user.dto.response.UserProfileResponseDto;

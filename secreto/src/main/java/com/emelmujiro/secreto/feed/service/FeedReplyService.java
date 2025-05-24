@@ -1,7 +1,5 @@
 package com.emelmujiro.secreto.feed.service;
 
-import java.util.Map;
-
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.ReplyHeartRequestDto;

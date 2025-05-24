@@ -1,6 +1,5 @@
 package com.emelmujiro.secreto.feed.dto.request;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
