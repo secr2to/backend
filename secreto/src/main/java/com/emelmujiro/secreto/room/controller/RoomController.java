@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -115,7 +116,7 @@ public class RoomController {
     * 방 생성 api
     * */
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Object>> createRoom(@RequestBody CreateRoomRequestDto params) {
+    public ResponseEntity<ApiResponse<Object>> createRoom(@ModelAttribute CreateRoomRequestDto params) {
 
         CreateRoomResponseDto result = roomService.createRoom(params);
 
@@ -176,6 +177,35 @@ public class RoomController {
                 .success();
     }
 
+    /*
+    * 방 코드 입력 및 조회
+    * */
+    @PostMapping("/code")
+    public ResponseEntity<ApiResponse<Object>> enterRoomByCode(@RequestBody EnterRoomByCodeRequestDto params) {
+
+        EnterRoomByCodeResponseDto result = roomService.enterRoomByCode(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방 코드를 통해 방을 조회하였습니다.")
+                .success();
+    }
+
+    /*
+    * 인게임 프로필 정보 수정 api
+    * */
+    @PostMapping("/{roomId}/profile")
+    public ResponseEntity<ApiResponse<Object>> createRoomUserProfile(@RequestBody UpdateRoomUserProfileRequestDto params) {
+
+        UpdateRoomUserProfileResponseDto result = roomService.createRoomUserProfile(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("인게임 프로필 정보를 생성하였습니다.")
+                .success();
+    }
 
 }
 

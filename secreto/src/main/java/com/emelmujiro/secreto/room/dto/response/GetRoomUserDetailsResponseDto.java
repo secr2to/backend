@@ -16,8 +16,7 @@ public class GetRoomUserDetailsResponseDto {
     private Boolean useProfileYn;
     private String selfIntroduction;
     private String profileUrl;
-    private String skinColorRgb;
-    private String clothesColorRgb;
+    private String roomCharacterUrl;
 
     public static GetRoomUserDetailsResponseDto from(RoomUser roomUser) {
 
@@ -29,8 +28,7 @@ public class GetRoomUserDetailsResponseDto {
                 .useProfileYn(roomUser.getUseProfileYn())
                 .selfIntroduction(roomUser.getSelfIntroduction())
                 .profileUrl(roomUser.getRoomProfile().getUrl())
-                .skinColorRgb(roomUser.getRoomCharacter().getSkinColorRgb())
-                .clothesColorRgb(roomUser.getRoomCharacter().getClothesColorRgb())
+                .roomCharacterUrl(roomUser.getRoomCharacter().getUrl())
                 .build();
     }
 }

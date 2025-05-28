@@ -4,16 +4,18 @@ import com.emelmujiro.secreto.auth.annotation.InjectUserId;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class UpdateRoomDetailsRequestDto {
+public class UpdateRoomUserProfileRequestDto {
 
-    private LocalDateTime endDate;
-    private Integer missionPeriod;
+    private String nickname;
+    private Boolean useProfileYn;
+    private String selfIntroduction;
+    private String profileUrl;
+    private String skinColorRgb;
+    private String clothesColorRgb;
 
     @InjectPathVariable(name = "roomId")
     private Long roomId;

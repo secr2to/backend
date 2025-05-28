@@ -21,4 +21,9 @@ public interface RoomService {
     UpdateRoomStatusStartResponseDto updateRoomStatusStart(UpdateRoomStatusStartRequestDto params);
 
     void updateRoomStatusEnd(UpdateRoomStatusEndRequestDto params);
+
+    EnterRoomByCodeResponseDto enterRoomByCode(EnterRoomByCodeRequestDto params);
+
+    UpdateRoomUserProfileResponseDto createRoomUserProfile(UpdateRoomUserProfileRequestDto params);
+
 }

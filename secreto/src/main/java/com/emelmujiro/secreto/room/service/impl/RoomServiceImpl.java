@@ -1,18 +1,17 @@
 package com.emelmujiro.secreto.room.service.impl;
 
+import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
-import com.emelmujiro.secreto.room.entity.Room;
-import com.emelmujiro.secreto.room.entity.RoomStatus;
-import com.emelmujiro.secreto.room.entity.RoomUser;
+import com.emelmujiro.secreto.room.entity.*;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
 import com.emelmujiro.secreto.room.repository.RoomMissionRepository;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.service.RoomService;
-import com.emelmujiro.secreto.room.utils.GenerateRandomCodeUtil;
+import com.emelmujiro.secreto.room.util.GenerateRandomCodeUtil;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -30,6 +29,7 @@ public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final RoomMissionRepository roomMissionRepository;
+    private final SystemCharacterColorRepository systemCharacterColorRepository;
 
     private final RoomAuthorizationService roomAuthorizationService;
 
@@ -48,6 +48,7 @@ public class RoomServiceImpl implements RoomService {
                                 .startDate(room.getStartDate())
                                 .endDate(room.getEndDate())
                                 .missionPeriod(room.getMissionPeriod())
+                                .status(room.getRoomStatus())
                                 .build())
                 .toList();
 
@@ -79,8 +80,7 @@ public class RoomServiceImpl implements RoomService {
                         .useProfileYn(roomUser.getUseProfileYn())
                         .selfIntroduction(roomUser.getSelfIntroduction())
                         .profileUrl(roomUser.getRoomProfile().getUrl())
-                        .skinColorRGB(roomUser.getRoomCharacter().getSkinColorRgb())
-                        .clothesColorRGB(roomUser.getRoomCharacter().getClothesColorRgb())
+                        .roomCharacterUrl(roomUser.getRoomCharacter().getUrl())
                         .build())
                 .toList();
 
@@ -95,6 +95,8 @@ public class RoomServiceImpl implements RoomService {
 
         RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfile(params.getRoomUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
+
+
 
         return GetRoomUserDetailsResponseDto.from(findRoomUser);
     }
@@ -121,8 +123,27 @@ public class RoomServiceImpl implements RoomService {
                 .roomStatus(RoomStatus.WAITING)
                 .build();
 
-        User findUser = userRepository.findById(params.getManagerId()).orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
-        newRoom.addRoomUser(findUser);
+        // TODO : UserException 생성 시 변경
+        User findUser = userRepository.findById(params.getManagerId())
+                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
+
+        RoomUser newRoomUser = newRoom.addManagerUser(findUser, params);
+
+        if(newRoomUser.getUseProfileYn()) {
+            // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
+            RoomProfile newRoomProfile = RoomProfile.builder()
+                    .url("https://lh3.googleusercontent.com/a/ACg8ocLf01QnzSan4U_Ye3pgspSvZV0YFQF4cHyLx9jf7rFj1nINZw=s96-c")
+                    .build();
+            newRoomUser.setRoomProfile(newRoomProfile);
+
+        } else {
+            RoomCharacter newRoomCharacter = RoomCharacter.builder()
+                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
+                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                            .getUrl())
+                    .build();
+            newRoomUser.setRoomProfile(newRoomCharacter);
+        }
 
         roomRepository.save(newRoom);
 
@@ -192,4 +213,50 @@ public class RoomServiceImpl implements RoomService {
         // TODO: 방 히스토리 저장, 필요없는 잔여 데이터 삭제
 
     }
+
+    @Override
+    public EnterRoomByCodeResponseDto enterRoomByCode(EnterRoomByCodeRequestDto params) {
+
+        Room findRoom = roomRepository.findByCode(params.getCode())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_CODE));
+
+        if(roomUserRepository.findByUserIdAndRoomId(params.getUserId(), findRoom.getId()).isPresent()) {
+            throw new RoomException(RoomErrorCode.ALREADY_IN_ROOM);
+        }
+
+        return EnterRoomByCodeResponseDto.from(findRoom);
+    }
+
+    @Override
+    public UpdateRoomUserProfileResponseDto createRoomUserProfile(UpdateRoomUserProfileRequestDto params) {
+
+        // TODO
+        User findUser = userRepository.findById(params.getUserId())
+                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
+
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
+        RoomUser newRoomUser = findRoom.addRoomUser(findUser);
+
+        if(params.getUseProfileYn()) {
+            RoomProfile newRoomProfile = RoomProfile.builder()
+                    .url(params.getProfileUrl())
+                    .build();
+
+            newRoomUser.setRoomProfile(newRoomProfile);
+
+        } else {
+            RoomCharacter newRoomCharacter = RoomCharacter.builder()
+                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesColorRgb(), params.getSkinColorRgb())
+                            .orElseThrow(() -> new RuntimeException("해당 컬러 아이디가 없습니다.")).getUrl())
+                    .build();
+
+            newRoomUser.setRoomProfile(newRoomCharacter);
+        }
+
+        return UpdateRoomUserProfileResponseDto.from(newRoomUser);
+    }
+
+
 }

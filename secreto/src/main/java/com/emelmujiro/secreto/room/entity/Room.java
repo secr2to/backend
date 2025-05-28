@@ -4,6 +4,7 @@ import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.mission.entity.RoomMissionHistory;
 import com.emelmujiro.secreto.notification.entity.Notification;
+import com.emelmujiro.secreto.room.dto.request.CreateRoomRequestDto;
 import com.emelmujiro.secreto.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -59,16 +60,33 @@ public class Room {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<Notification> notificationList = new ArrayList<>();
 
-    public void addRoomUser(User user) {
+    public RoomUser addManagerUser(User user, CreateRoomRequestDto params) {
 
         RoomUser newRoomUser = RoomUser.builder()
+                .useProfileYn(params.getUseProfileYn())
                 .managerYn(true)
                 .standbyYn(false)
                 .room(this)
                 .user(user)
+                .selfIntroduction(params.getSelfIntroduction())
+                .nickname(params.getNickname())
                 .build();
 
         this.roomUserList.add(newRoomUser);
+
+        return newRoomUser;
+    }
+
+    public RoomUser addRoomUser(User user) {
+
+        RoomUser newRoomUser = RoomUser.builder()
+                .managerYn(false)
+                .standbyYn(true)
+                .room(this)
+                .user(user)
+                .build();
+
+        return newRoomUser;
     }
 
     public void updateRoomInfo(LocalDateTime endDate, Integer missionPeriod) {

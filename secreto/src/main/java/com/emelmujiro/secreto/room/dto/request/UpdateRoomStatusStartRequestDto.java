@@ -15,8 +15,8 @@ public class UpdateRoomStatusStartRequestDto {
     private List<String> missionList;
 
     @InjectPathVariable(name = "roomId")
-    private long roomId;
+    private Long roomId;
 
     @InjectUserId
-    private long userId;
+    private Long userId;
 }

@@ -16,11 +16,13 @@ public class RoomCharacter {
     @Column(name = "room_character_id")
     private Long id;
 
-    private String skinColorRgb;
-
-    private String clothesColorRgb;
+    private String url;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_user_id")
     private RoomUser roomUser;
+
+    public void changeRoomUser(RoomUser newRoomUser) {
+        this.roomUser = newRoomUser;
+    }
 }

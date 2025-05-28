@@ -8,13 +8,17 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "character_skin_color")
-public class CharacterSkinColor {
+@Table(name = "system_character_color")
+public class SystemCharacterColor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "character_skin_color_id")
+    @Column(name = "system_character_color_id")
     private Long id;
 
-    private String rgbCode;
+    private String clothesRgbCode;
+
+    private String skinRgbCode;
+
+    private String url;
 }

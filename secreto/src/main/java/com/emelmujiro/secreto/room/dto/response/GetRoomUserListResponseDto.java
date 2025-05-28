@@ -15,6 +15,5 @@ public class GetRoomUserListResponseDto {
     private boolean useProfileYn;
     private String selfIntroduction;
     private String profileUrl;
-    private String skinColorRGB;
-    private String clothesColorRGB;
+    private String roomCharacterUrl;
 }

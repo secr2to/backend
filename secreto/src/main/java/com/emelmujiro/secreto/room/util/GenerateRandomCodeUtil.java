@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.room.utils;
+package com.emelmujiro.secreto.room.util;
 
 import java.util.Random;
 
