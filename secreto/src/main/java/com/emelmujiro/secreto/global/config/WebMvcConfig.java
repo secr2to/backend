@@ -7,6 +7,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.emelmujiro.secreto.auth.argumentresolver.LoginUserArgumentResolver;
+import com.emelmujiro.secreto.auth.argumentresolver.LoginUserModelAttributeProcessor;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +17,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+		resolvers.add(new LoginUserModelAttributeProcessor(true));
+		resolvers.add(new LoginUserModelAttributeProcessor(false));
 		resolvers.add(new LoginUserArgumentResolver());
 	}
 }
