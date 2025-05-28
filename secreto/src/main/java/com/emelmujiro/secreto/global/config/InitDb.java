@@ -12,9 +12,10 @@ import com.emelmujiro.secreto.feed.dto.request.FeedImageRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.WriteReplyResponseDto;
-import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomRequestDto;
 import com.emelmujiro.secreto.room.dto.response.CreateRoomResponseDto;
+import com.emelmujiro.secreto.feed.service.impl.FeedReplyServiceImpl;
+import com.emelmujiro.secreto.feed.service.impl.FeedServiceImpl;
 import com.emelmujiro.secreto.room.service.RoomService;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
@@ -44,8 +45,9 @@ public class InitDb {
 	static class InitService {
 
 		private final UserRepository userRepository;
-		private final FeedService feedService;
+		private final FeedServiceImpl feedService;
 		private final RoomService roomService;
+		private final FeedReplyServiceImpl feedReplyService;
 
 		public void feedInit() {
 			User user = userRepository.save(
@@ -64,34 +66,34 @@ public class InitDb {
 				.build());
 
 			for (int i = 0; i < 3; ++i) {
-				CreateFeedRequestDto dto = new CreateFeedRequestDto();
-				dto.setTitle("title");
-				dto.setContent("content");
-				dto.setAuthorId(user.getId());
-				if (i == 2)
-					dto.setRoomId(roomResponse.getRoomId());
-				dto.setImages(
-					new ArrayList<>(List.of(new FeedImageRequestDto("image.url")))
-				);
+				CreateFeedRequestDto dto = CreateFeedRequestDto.builder()
+					.title("title")
+					.content("content")
+					.authorId(user.getId())
+					.roomId(i == 2 ? roomResponse.getRoomId() : null)
+					.images(new ArrayList<>(List.of(new FeedImageRequestDto("image.url"))))
+					.build();
 				CreateFeedResponseDto feedResponse = feedService.create(dto);
 
 				Long feedId = feedResponse.getFeedId();
 				for (int j = 0; j < 100; ++j) {
-					WriteReplyRequestDto replyDto = new WriteReplyRequestDto();
-					replyDto.setFeedId(feedId);
-					replyDto.setComment("reply" + i + "..." + j);
-					replyDto.setUserId(user.getId());
-					WriteReplyResponseDto replyResponse = feedService.writeReply(replyDto);
+					WriteReplyRequestDto replyDto = WriteReplyRequestDto.builder()
+						.feedId(feedId)
+						.comment("reply" + i + "..." + j)
+						.userId(user.getId())
+						.build();
+					WriteReplyResponseDto replyResponse = feedReplyService.writeReply(replyDto);
 					Long replyId = replyResponse.getReplyId();
 					if (j > 1)
 						continue;
 					for (int k = 0; k < 100; ++k) {
-						WriteReplyRequestDto nestedReplyDto = new WriteReplyRequestDto();
-						nestedReplyDto.setFeedId(feedId);
-						nestedReplyDto.setComment("nested reply" + i + "..." + j + "..." + k);
-						nestedReplyDto.setUserId(user.getId());
-						nestedReplyDto.setParentReplyId(replyId);
-						feedService.writeReply(nestedReplyDto);
+						WriteReplyRequestDto nestedReplyDto = WriteReplyRequestDto.builder()
+							.feedId(feedId)
+							.comment("nested reply" + i + "..." + j + "..." + k)
+							.userId(user.getId())
+							.parentReplyId(replyId)
+							.build();
+						feedReplyService.writeReply(nestedReplyDto);
 					}
 				}
 			}
