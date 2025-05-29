@@ -6,6 +6,8 @@ import com.emelmujiro.secreto.mission.entity.RoomMissionHistory;
 import com.emelmujiro.secreto.notification.entity.Notification;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomRequestDto;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomUserProfileRequestDto;
+import com.emelmujiro.secreto.room.error.RoomErrorCode;
+import com.emelmujiro.secreto.room.exception.RoomException;
 import com.emelmujiro.secreto.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -105,6 +107,9 @@ public class Room {
 
     public void startRoom() {
 
+        if(this.roomStatus == RoomStatus.PROGRESS || this.roomStatus == RoomStatus.TERMINATED) {
+            throw new RoomException(RoomErrorCode.ALREADY_STARTED_OR_TERMINATED);
+        }
         this.roomStatus = RoomStatus.PROGRESS;
         this.startDate = LocalDateTime.now();
     }

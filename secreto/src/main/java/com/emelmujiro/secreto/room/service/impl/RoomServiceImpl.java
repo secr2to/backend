@@ -1,5 +1,12 @@
 package com.emelmujiro.secreto.room.service.impl;
 
+import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
+import com.emelmujiro.secreto.chatting.entity.ChattingParticipateType;
+import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
+import com.emelmujiro.secreto.chatting.repository.ChattingParticipateRepository;
+import com.emelmujiro.secreto.chatting.repository.ChattingRoomRepository;
+import com.emelmujiro.secreto.game.entity.Matching;
+import com.emelmujiro.secreto.game.repository.MatchingRepository;
 import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.room.dto.request.*;
@@ -18,6 +25,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,8 +39,11 @@ public class RoomServiceImpl implements RoomService {
     private final UserRepository userRepository;
     private final RoomMissionRepository roomMissionRepository;
     private final SystemCharacterColorRepository systemCharacterColorRepository;
+    private final MatchingRepository matchingRepository;
 
     private final RoomAuthorizationService roomAuthorizationService;
+    private final ChattingRoomRepository chattingRoomRepository;
+    private final ChattingParticipateRepository chattingParticipateRepository;
 
     @Override
     public List<GetRoomListResponseDto> getRoomList(GetRoomListRequestDto params) {
@@ -172,15 +184,21 @@ public class RoomServiceImpl implements RoomService {
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
-        // 대기상태인 방 유저들 삭제
-        List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYnFalse(params.getRoomId());
-        roomUserRepository.deleteAll(findRoomUserNotAcceptedList);
+        // 수락 인원이 3명 이하인 경우 시작 불가
+        List<RoomUser> acceptedRoomUserList = roomUserRepository.findAllByRoomIdAndStandbyYnFalse(params.getRoomId());
+        if(acceptedRoomUserList.size() < 3) {
+            throw new RoomException(RoomErrorCode.NOT_ENOUGH_USER_TO_START_ROOM);
+        }
 
         // 방 시작
         Room findRoom = roomRepository.findById(params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
 
         findRoom.startRoom();
+
+        // 대기상태인 방 유저들 삭제
+        List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYnTrue(params.getRoomId());
+        roomUserRepository.deleteAll(findRoomUserNotAcceptedList);
 
         // 미션 리스트 생성
         List<RoomMission> newRoomMissionList = params.getMissionList().stream()
@@ -193,9 +211,81 @@ public class RoomServiceImpl implements RoomService {
 
         roomMissionRepository.saveAll(newRoomMissionList);
 
-        // TODO: 남아있는 방 유저들간 마니또, 마니띠 관계 매칭
+        // 마니또, 마니띠 매칭 관계 설정
+        Collections.shuffle(acceptedRoomUserList);
+        List<Matching> matchingList = new ArrayList<>();
+        for(int i=0, size=acceptedRoomUserList.size(); i<size; i++) {
 
-        // TODO: 방 유저들 간 채팅 생성
+            Matching newMatching;
+            if(i == 0) {
+
+
+                newMatching = Matching.builder()
+                        .roomUser(acceptedRoomUserList.get(i))
+                        .matchingManitoId(acceptedRoomUserList.get(size-1).getId())
+                        .matchingManitiId(acceptedRoomUserList.get(i+1).getId())
+                        .build();
+            }
+            else if(i == size-1) {
+                newMatching = Matching.builder()
+                        .roomUser(acceptedRoomUserList.get(i))
+                        .matchingManitoId(acceptedRoomUserList.get(i-1).getId())
+                        .matchingManitiId(acceptedRoomUserList.get(0).getId())
+                        .build();
+            }
+            else {
+                newMatching = Matching.builder()
+                        .roomUser(acceptedRoomUserList.get(i))
+                        .matchingManitoId(acceptedRoomUserList.get(i-1).getId())
+                        .matchingManitiId(acceptedRoomUserList.get(i+1).getId())
+                        .build();
+            }
+
+            matchingList.add(newMatching);
+        }
+
+        matchingRepository.saveAll(matchingList);
+
+        // 방 유저들 간 채팅 생성
+        List<ChattingRoom> chattingRoomList = new ArrayList<>();
+        ChattingRoom allChattingRoom = ChattingRoom.builder().build();
+        chattingRoomList.add(allChattingRoom);
+
+        List<ChattingParticipate> chattingParticipateList = new ArrayList<>();
+        for(RoomUser roomUser : acceptedRoomUserList) {
+            ChattingRoom newChattingRoom = ChattingRoom.builder()
+                    .build();
+
+            Matching matchingInfo = matchingRepository.findByRoomUserId(roomUser.getId());
+
+            ChattingParticipate manitoChattingParticipate = ChattingParticipate.builder()
+                    .chattingUserType(ChattingParticipateType.MANITO)
+                    .chattingRoom(newChattingRoom)
+                    .roomUser(roomUserRepository.findById(matchingInfo.getMatchingManitoId())
+                            .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER)))
+                    .build();
+
+            ChattingParticipate manitiChattingParticipate = ChattingParticipate.builder()
+                    .chattingUserType(ChattingParticipateType.MANITI)
+                    .chattingRoom(newChattingRoom)
+                    .roomUser(roomUserRepository.findById(matchingInfo.getMatchingManitiId())
+                            .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER)))
+                    .build();
+
+            ChattingParticipate allChattingParticipate = ChattingParticipate.builder()
+                    .chattingUserType(ChattingParticipateType.ALL)
+                    .chattingRoom(allChattingRoom)
+                    .roomUser(roomUser)
+                    .build();
+
+            chattingRoomList.add(newChattingRoom);
+            chattingParticipateList.add(manitoChattingParticipate);
+            chattingParticipateList.add(manitiChattingParticipate);
+            chattingParticipateList.add(allChattingParticipate);
+        }
+
+        chattingRoomRepository.saveAll(chattingRoomList);
+        chattingParticipateRepository.saveAll(chattingParticipateList);
 
         return UpdateRoomStatusStartResponseDto.from(findRoom);
     }
