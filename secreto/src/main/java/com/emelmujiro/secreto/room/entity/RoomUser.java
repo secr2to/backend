@@ -4,7 +4,6 @@ import com.emelmujiro.secreto.chatting.entity.ChattingMessage;
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
 import com.emelmujiro.secreto.game.entity.Matching;
 import com.emelmujiro.secreto.game.entity.Reasoning;
-import com.emelmujiro.secreto.room.dto.request.UpdateRoomUserProfileRequestDto;
 import com.emelmujiro.secreto.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.emelmujiro.secreto.room.dto.request;
 
-import com.emelmujiro.secreto.auth.annotation.InjectUserId;
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import lombok.*;
 
@@ -18,6 +18,6 @@ public class UpdateRoomDetailsRequestDto {
     @InjectPathVariable(name = "roomId")
     private Long roomId;
 
-    @InjectUserId
+    @LoginUser
     private Long userId;
 }

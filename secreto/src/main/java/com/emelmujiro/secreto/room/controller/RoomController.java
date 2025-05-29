@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -118,6 +117,8 @@ public class RoomController {
     @PostMapping("")
     public ResponseEntity<ApiResponse<Object>> createRoom(@ModelAttribute CreateRoomRequestDto params) {
 
+        System.out.println("params : " + params);
+
         CreateRoomResponseDto result = roomService.createRoom(params);
 
         return ApiResponse.builder()
@@ -193,12 +194,12 @@ public class RoomController {
     }
 
     /*
-    * 인게임 프로필 정보 수정 api
+    * 인게임 프로필 정보 생성 api
     * */
     @PostMapping("/{roomId}/profile")
-    public ResponseEntity<ApiResponse<Object>> createRoomUserProfile(@RequestBody UpdateRoomUserProfileRequestDto params) {
+    public ResponseEntity<ApiResponse<Object>> createRoomUserProfile(@ModelAttribute CreateRoomUserProfileRequestDto params) {
 
-        UpdateRoomUserProfileResponseDto result = roomService.createRoomUserProfile(params);
+        CreateRoomUserProfileResponseDto result = roomService.createRoomUserProfile(params);
 
         return ApiResponse.builder()
                 .data(result)

@@ -17,6 +17,7 @@ public class GetRoomUserDetailsResponseDto {
     private String selfIntroduction;
     private String profileUrl;
     private String roomCharacterUrl;
+    private String searchId;
 
     public static GetRoomUserDetailsResponseDto from(RoomUser roomUser) {
 
@@ -27,8 +28,9 @@ public class GetRoomUserDetailsResponseDto {
                 .nickname(roomUser.getNickname())
                 .useProfileYn(roomUser.getUseProfileYn())
                 .selfIntroduction(roomUser.getSelfIntroduction())
-                .profileUrl(roomUser.getRoomProfile().getUrl())
-                .roomCharacterUrl(roomUser.getRoomCharacter().getUrl())
+                .profileUrl(roomUser.getRoomProfile() != null ? roomUser.getRoomProfile().getUrl() : null)
+                .roomCharacterUrl(roomUser.getRoomCharacter() != null ? roomUser.getRoomCharacter().getUrl() : null)
+                .searchId(roomUser.getUser().getSearchId())
                 .build();
     }
 }

@@ -24,6 +24,6 @@ public interface RoomService {
 
     EnterRoomByCodeResponseDto enterRoomByCode(EnterRoomByCodeRequestDto params);
 
-    UpdateRoomUserProfileResponseDto createRoomUserProfile(UpdateRoomUserProfileRequestDto params);
+    CreateRoomUserProfileResponseDto createRoomUserProfile(CreateRoomUserProfileRequestDto params);
 
 }

@@ -1,6 +1,6 @@
 package com.emelmujiro.secreto.room.dto.request;
 
-import com.emelmujiro.secreto.auth.annotation.InjectUserId;
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import lombok.*;
 
 @Builder
@@ -11,6 +11,6 @@ public class EnterRoomByCodeRequestDto {
 
     private String code;
 
-    @InjectUserId
+    @LoginUser
     private Long userId;
 }

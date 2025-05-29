@@ -5,6 +5,7 @@ import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.mission.entity.RoomMissionHistory;
 import com.emelmujiro.secreto.notification.entity.Notification;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomRequestDto;
+import com.emelmujiro.secreto.room.dto.request.CreateRoomUserProfileRequestDto;
 import com.emelmujiro.secreto.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -77,13 +78,16 @@ public class Room {
         return newRoomUser;
     }
 
-    public RoomUser addRoomUser(User user) {
+    public RoomUser addRoomUser(User user, CreateRoomUserProfileRequestDto params) {
 
         RoomUser newRoomUser = RoomUser.builder()
                 .managerYn(false)
                 .standbyYn(true)
                 .room(this)
                 .user(user)
+                .nickname(params.getNickname())
+                .selfIntroduction(params.getSelfIntroduction())
+                .useProfileYn(params.getUseProfileYn())
                 .build();
 
         return newRoomUser;

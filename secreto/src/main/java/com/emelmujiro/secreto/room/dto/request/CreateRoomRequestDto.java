@@ -1,14 +1,15 @@
 package com.emelmujiro.secreto.room.dto.request;
 
-import com.emelmujiro.secreto.auth.annotation.InjectUserId;
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
-@Builder
+@ToString
+@Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 public class CreateRoomRequestDto {
 
@@ -22,6 +23,6 @@ public class CreateRoomRequestDto {
     private String skinRgbCode;
     private MultipartFile profileImage;
 
-    @InjectUserId
+    @LoginUser
     private Long managerId;
 }

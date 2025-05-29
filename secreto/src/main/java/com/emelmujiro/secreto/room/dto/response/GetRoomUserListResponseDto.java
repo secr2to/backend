@@ -8,12 +8,13 @@ import lombok.*;
 @Getter
 public class GetRoomUserListResponseDto {
 
-    private long roomUserId;
-    private boolean managerYn;
-    private boolean standbyYn;
+    private Long roomUserId;
+    private Boolean managerYn;
+    private Boolean standbyYn;
     private String nickname;
-    private boolean useProfileYn;
+    private Boolean useProfileYn;
     private String selfIntroduction;
     private String profileUrl;
     private String roomCharacterUrl;
+    private String searchId;
 }

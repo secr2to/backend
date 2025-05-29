@@ -1,25 +1,26 @@
 package com.emelmujiro.secreto.room.dto.request;
 
-import com.emelmujiro.secreto.auth.annotation.InjectUserId;
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
-@Builder
+@Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class UpdateRoomUserProfileRequestDto {
+public class CreateRoomUserProfileRequestDto {
 
     private String nickname;
     private Boolean useProfileYn;
     private String selfIntroduction;
-    private String profileUrl;
-    private String skinColorRgb;
-    private String clothesColorRgb;
+    private MultipartFile profileImage;
+    private String skinRgbCode;
+    private String ClothesRgbCode;
 
     @InjectPathVariable(name = "roomId")
     private Long roomId;
 
-    @InjectUserId
+    @LoginUser
     private Long userId;
 }

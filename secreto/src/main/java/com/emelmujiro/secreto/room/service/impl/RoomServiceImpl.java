@@ -71,7 +71,7 @@ public class RoomServiceImpl implements RoomService {
         // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
-        List<GetRoomUserListResponseDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfile(params.getRoomId()).stream()
+        List<GetRoomUserListResponseDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomId()).stream()
                 .map(roomUser -> GetRoomUserListResponseDto.builder()
                         .roomUserId(roomUser.getId())
                         .managerYn(roomUser.getManagerYn())
@@ -79,8 +79,9 @@ public class RoomServiceImpl implements RoomService {
                         .nickname(roomUser.getNickname())
                         .useProfileYn(roomUser.getUseProfileYn())
                         .selfIntroduction(roomUser.getSelfIntroduction())
-                        .profileUrl(roomUser.getRoomProfile().getUrl())
-                        .roomCharacterUrl(roomUser.getRoomCharacter().getUrl())
+                        .profileUrl(roomUser.getRoomProfile() != null ? roomUser.getRoomProfile().getUrl() : null)
+                        .roomCharacterUrl(roomUser.getRoomCharacter() != null ? roomUser.getRoomCharacter().getUrl() : null)
+                        .searchId(roomUser.getUser().getSearchId())
                         .build())
                 .toList();
 
@@ -93,7 +94,7 @@ public class RoomServiceImpl implements RoomService {
         // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
-        RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfile(params.getRoomUserId(), params.getRoomId())
+        RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
 
 
@@ -129,7 +130,7 @@ public class RoomServiceImpl implements RoomService {
 
         RoomUser newRoomUser = newRoom.addManagerUser(findUser, params);
 
-        if(newRoomUser.getUseProfileYn()) {
+        if(params.getUseProfileYn()) {
             // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
             RoomProfile newRoomProfile = RoomProfile.builder()
                     .url("https://lh3.googleusercontent.com/a/ACg8ocLf01QnzSan4U_Ye3pgspSvZV0YFQF4cHyLx9jf7rFj1nINZw=s96-c")
@@ -228,34 +229,39 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public UpdateRoomUserProfileResponseDto createRoomUserProfile(UpdateRoomUserProfileRequestDto params) {
+    public CreateRoomUserProfileResponseDto createRoomUserProfile(CreateRoomUserProfileRequestDto params) {
 
-        // TODO
+        if(roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId()).isPresent()) {
+            throw new RoomException(RoomErrorCode.ALREADY_IN_ROOM);
+        }
+
         User findUser = userRepository.findById(params.getUserId())
-                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다.")); // TODO
 
         Room findRoom = roomRepository.findById(params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
 
-        RoomUser newRoomUser = findRoom.addRoomUser(findUser);
+        RoomUser newRoomUser = findRoom.addRoomUser(findUser, params);
 
         if(params.getUseProfileYn()) {
+            // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
             RoomProfile newRoomProfile = RoomProfile.builder()
-                    .url(params.getProfileUrl())
+                    .url("https://lh3.googleusercontent.com/a/ACg8ocLf01QnzSan4U_Ye3pgspSvZV0YFQF4cHyLx9jf7rFj1nINZw=s96-c")
                     .build();
-
             newRoomUser.setRoomProfile(newRoomProfile);
 
         } else {
             RoomCharacter newRoomCharacter = RoomCharacter.builder()
-                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesColorRgb(), params.getSkinColorRgb())
-                            .orElseThrow(() -> new RuntimeException("해당 컬러 아이디가 없습니다.")).getUrl())
+                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
+                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                            .getUrl())
                     .build();
-
             newRoomUser.setRoomProfile(newRoomCharacter);
         }
 
-        return UpdateRoomUserProfileResponseDto.from(newRoomUser);
+        roomUserRepository.save(newRoomUser);
+
+        return CreateRoomUserProfileResponseDto.from(newRoomUser);
     }
 
 
