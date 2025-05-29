@@ -74,5 +74,9 @@ public class RoomUser {
         roomCharacter.changeRoomUser(this);
     }
 
+    public void changeSelfIntroduction(String selfIntroduction) {
+        this.selfIntroduction = selfIntroduction;
+    }
+
 }
 

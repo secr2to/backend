@@ -354,5 +354,16 @@ public class RoomServiceImpl implements RoomService {
         return CreateRoomUserProfileResponseDto.from(newRoomUser);
     }
 
+    @Override
+    public UpdateRoomUserSelfIntroductionResponseDto updateRoomUserSelfIntroduction(UpdateRoomUserSelfIntroductionRequestDto params) {
+
+        // 방에 소속된 유저인지 확인
+        RoomUser findRoomUser = roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        findRoomUser.changeSelfIntroduction(params.getSelfIntroduction());
+
+        return UpdateRoomUserSelfIntroductionResponseDto.from(findRoomUser);
+    }
+
 
 }

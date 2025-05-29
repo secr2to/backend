@@ -208,6 +208,21 @@ public class RoomController {
                 .success();
     }
 
+    /*
+    * 인게임 프로필 자기소개 수정 api
+    * */
+    @PutMapping("/{roomId}/profile/{roomUserId}")
+    public ResponseEntity<ApiResponse<Object>> updateRoomUserSelfIntroduction(@RequestBody UpdateRoomUserSelfIntroductionRequestDto params) {
+
+        UpdateRoomUserSelfIntroductionResponseDto result = roomService.updateRoomUserSelfIntroduction(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("자기소개를 수정하였습니다.")
+                .success();
+    }
+
 }
 
 
