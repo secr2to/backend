@@ -3,7 +3,6 @@ package com.emelmujiro.secreto.feed.dto.request;
 import java.util.List;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

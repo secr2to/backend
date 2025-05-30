@@ -24,8 +24,8 @@ import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
 import com.emelmujiro.secreto.feed.message.FeedApiMessage;
-import com.emelmujiro.secreto.feed.service.impl.FeedReplyServiceImpl;
-import com.emelmujiro.secreto.feed.service.impl.FeedServiceImpl;
+import com.emelmujiro.secreto.feed.service.FeedReplyService;
+import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -36,8 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class FeedController {
 
-	private final FeedServiceImpl feedService;
-	private final FeedReplyServiceImpl feedReplyService;
+	private final FeedService feedService;
+	private final FeedReplyService feedReplyService;
 
 	@GetMapping("/community")
 	public ResponseEntity<?> getCommunity(@ModelAttribute GetCommunityRequestDto getFeedRequest) {
