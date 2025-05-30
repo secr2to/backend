@@ -16,8 +16,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.emelmujiro.secreto.room.dto.request.GetRoomListReqDto;
-import com.emelmujiro.secreto.room.dto.response.GetRoomListResDto;
+import com.emelmujiro.secreto.room.dto.request.GetRoomListRequestDto;
+import com.emelmujiro.secreto.room.dto.response.GetRoomListResponseDto;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
 import com.emelmujiro.secreto.room.service.RoomService;
 
@@ -34,12 +34,12 @@ class RoomControllerTest {
     void getRoomList_success() throws Exception {
 
         // given
-        GetRoomListReqDto param = GetRoomListReqDto.builder()
+        GetRoomListRequestDto param = GetRoomListRequestDto.builder()
                 .userId(1L)
                 .status(RoomStatus.PROGRESS)
                 .build();
 
-        GetRoomListResDto room1 = GetRoomListResDto.builder()
+        GetRoomListResponseDto room1 = GetRoomListResponseDto.builder()
                 .roomId(1L)
                 .name("싸피 13반 방")
                 .code("YYSDFD")
@@ -49,7 +49,7 @@ class RoomControllerTest {
                 .status(RoomStatus.PROGRESS)
                 .build();
 
-        GetRoomListResDto room2 = GetRoomListResDto.builder()
+        GetRoomListResponseDto room2 = GetRoomListResponseDto.builder()
                 .roomId(2L)
                 .name("마니또할 사람")
                 .code("YYYSDK")
@@ -59,9 +59,9 @@ class RoomControllerTest {
                 .status(RoomStatus.PROGRESS)
                 .build();
 
-        List<GetRoomListResDto> mockList = Arrays.asList(room1, room2);
+        List<GetRoomListResponseDto> mockList = Arrays.asList(room1, room2);
 
-        when(roomService.getRoomList(any(GetRoomListReqDto.class))).thenReturn(mockList);
+        when(roomService.getRoomList(any(GetRoomListRequestDto.class))).thenReturn(mockList);
 
         // when, then
         mockMvc.perform(get("/rooms?status=PROGRESS"))

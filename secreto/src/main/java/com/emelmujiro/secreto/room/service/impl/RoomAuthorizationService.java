@@ -37,4 +37,5 @@ public class RoomAuthorizationService {
 
         return findRoomUser;
     }
+
 }

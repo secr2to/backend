@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @RequestMapping("/rooms")
 @RequiredArgsConstructor
@@ -32,12 +31,12 @@ public class RoomController {
         try {
             RoomStatus roomStatus = RoomStatus.fromString(status);
 
-            GetRoomListReqDto params = GetRoomListReqDto.builder()
+            GetRoomListRequestDto params = GetRoomListRequestDto.builder()
                     .status(roomStatus)
                     .userId(userId)
                     .build();
 
-            List<GetRoomListResDto> resultList = roomService.getRoomList(params);
+            List<GetRoomListResponseDto> resultList = roomService.getRoomList(params);
 
             return ApiResponse.builder()
                     .data(resultList)
@@ -57,12 +56,12 @@ public class RoomController {
     @GetMapping("/{roomId}")
     public ResponseEntity<ApiResponse<Object>> getRoomDetails(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 
-        GetRoomDetailsReqDto params = GetRoomDetailsReqDto.builder()
+        GetRoomDetailsRequestDto params = GetRoomDetailsRequestDto.builder()
                 .roomId(roomId)
                 .userId(userId)
                 .build();
 
-        GetRoomDetailsResDto result = roomService.getRoomDetails(params);
+        GetRoomDetailsResponseDto result = roomService.getRoomDetails(params);
 
         return ApiResponse.builder()
                 .data(result)
@@ -77,12 +76,12 @@ public class RoomController {
     @GetMapping("/{roomId}/users")
     public ResponseEntity<ApiResponse<Object>> getRoomUserList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 
-        GetRoomUserListReqDto params = GetRoomUserListReqDto.builder()
+        GetRoomUserListRequestDto params = GetRoomUserListRequestDto.builder()
                 .roomId(roomId)
                 .userId(userId)
                 .build();
 
-        List<GetRoomUserListResDto> resultList = roomService.getRoomUserList(params);
+        List<GetRoomUserListResponseDto> resultList = roomService.getRoomUserList(params);
 
         return ApiResponse.builder()
                 .data(resultList)
@@ -97,13 +96,13 @@ public class RoomController {
     @GetMapping("/{roomId}/users/{roomUserId}")
     public ResponseEntity<ApiResponse<Object>> getRoomUserDetails(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
 
-        GetRoomUserDetailsReqDto params = GetRoomUserDetailsReqDto.builder()
+        GetRoomUserDetailsRequestDto params = GetRoomUserDetailsRequestDto.builder()
                 .roomId(roomId)
                 .roomUserId(roomUserId)
                 .userId(userId)
                 .build();
 
-        GetRoomUserDetailsResDto result = roomService.getRoomUserDetails(params);
+        GetRoomUserDetailsResponseDto result = roomService.getRoomUserDetails(params);
 
         return ApiResponse.builder()
                 .data(result)
@@ -116,11 +115,11 @@ public class RoomController {
     * 방 생성 api
     * */
     @PostMapping("")
-    public ResponseEntity<ApiResponse<Object>> createRoom(@RequestBody CreateRoomReqDto params, @LoginUser Long userId) {
+    public ResponseEntity<ApiResponse<Object>> createRoom(@ModelAttribute CreateRoomRequestDto params) {
 
-        params.setManagerId(userId);
+        System.out.println("params : " + params);
 
-        CreateRoomResDto result = roomService.createRoom(params);
+        CreateRoomResponseDto result = roomService.createRoom(params);
 
         return ApiResponse.builder()
                 .data(result)
@@ -133,12 +132,9 @@ public class RoomController {
     * 방 정보 변경 api
     * */
     @PutMapping("/{roomId}/details")
-    public ResponseEntity<ApiResponse<Object>> updateRoomDetails(@PathVariable("roomId") Long roomId, @RequestBody UpdateRoomDetailsReqDto params, @LoginUser Long userId) {
+    public ResponseEntity<ApiResponse<Object>> updateRoomDetails(@RequestBody UpdateRoomDetailsRequestDto params) {
 
-        params.setRoomId(roomId);
-        params.setUserId(userId);
-
-        UpdateRoomDetailsResDto result = roomService.updateRoomDetails(params);
+        UpdateRoomDetailsResponseDto result = roomService.updateRoomDetails(params);
 
         return ApiResponse.builder()
                 .data(result)
@@ -151,12 +147,9 @@ public class RoomController {
     * 방 시작 api
     * */
     @PutMapping("/{roomId}/start")
-    public ResponseEntity<ApiResponse<Object>> updateRoomStatusStart(@PathVariable("roomId") Long roomId, @RequestBody UpdateRoomStatusStartReqDto params, @LoginUser Long userId) {
+    public ResponseEntity<ApiResponse<Object>> updateRoomStatusStart(@RequestBody UpdateRoomStatusStartRequestDto params) {
 
-        params.setRoomId(roomId);
-        params.setUserId(userId);
-
-        UpdateRoomStatusStartResDto result = roomService.updateRoomStatusStart(params);
+        UpdateRoomStatusStartResponseDto result = roomService.updateRoomStatusStart(params);
 
         return ApiResponse.builder()
                 .data(result)
@@ -171,7 +164,7 @@ public class RoomController {
     @PutMapping("/{roomId}/end")
     public ResponseEntity<ApiResponse<Object>> updateRoomStatusEnd(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 
-        UpdateRoomStatusEndReqDto params = UpdateRoomStatusEndReqDto.builder()
+        UpdateRoomStatusEndRequestDto params = UpdateRoomStatusEndRequestDto.builder()
                 .roomId(roomId)
                 .userId(userId)
                 .build();
@@ -185,6 +178,50 @@ public class RoomController {
                 .success();
     }
 
+    /*
+    * 방 코드 입력 및 조회
+    * */
+    @PostMapping("/code")
+    public ResponseEntity<ApiResponse<Object>> enterRoomByCode(@RequestBody EnterRoomByCodeRequestDto params) {
+
+        EnterRoomByCodeResponseDto result = roomService.enterRoomByCode(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방 코드를 통해 방을 조회하였습니다.")
+                .success();
+    }
+
+    /*
+    * 인게임 프로필 정보 생성 api
+    * */
+    @PostMapping("/{roomId}/profile")
+    public ResponseEntity<ApiResponse<Object>> createRoomUserProfile(@ModelAttribute CreateRoomUserProfileRequestDto params) {
+
+        CreateRoomUserProfileResponseDto result = roomService.createRoomUserProfile(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("인게임 프로필 정보를 생성하였습니다.")
+                .success();
+    }
+
+    /*
+    * 인게임 프로필 자기소개 수정 api
+    * */
+    @PutMapping("/{roomId}/profile/{roomUserId}")
+    public ResponseEntity<ApiResponse<Object>> updateRoomUserSelfIntroduction(@RequestBody UpdateRoomUserSelfIntroductionRequestDto params) {
+
+        UpdateRoomUserSelfIntroductionResponseDto result = roomService.updateRoomUserSelfIntroduction(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("자기소개를 수정하였습니다.")
+                .success();
+    }
 
 }
 

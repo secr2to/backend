@@ -1,18 +1,24 @@
 package com.emelmujiro.secreto.room.service.impl;
 
+import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
+import com.emelmujiro.secreto.chatting.entity.ChattingParticipateType;
+import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
+import com.emelmujiro.secreto.chatting.repository.ChattingParticipateRepository;
+import com.emelmujiro.secreto.chatting.repository.ChattingRoomRepository;
+import com.emelmujiro.secreto.game.entity.Matching;
+import com.emelmujiro.secreto.game.repository.MatchingRepository;
+import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
-import com.emelmujiro.secreto.room.entity.Room;
-import com.emelmujiro.secreto.room.entity.RoomStatus;
-import com.emelmujiro.secreto.room.entity.RoomUser;
+import com.emelmujiro.secreto.room.entity.*;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
 import com.emelmujiro.secreto.room.repository.RoomMissionRepository;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.service.RoomService;
-import com.emelmujiro.secreto.room.utils.GenerateRandomCodeUtil;
+import com.emelmujiro.secreto.room.util.GenerateRandomCodeUtil;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,9 +26,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 
 @RequiredArgsConstructor
 @Transactional
@@ -33,24 +38,29 @@ public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final RoomMissionRepository roomMissionRepository;
+    private final SystemCharacterColorRepository systemCharacterColorRepository;
+    private final MatchingRepository matchingRepository;
 
     private final RoomAuthorizationService roomAuthorizationService;
+    private final ChattingRoomRepository chattingRoomRepository;
+    private final ChattingParticipateRepository chattingParticipateRepository;
 
     @Override
-    public List<GetRoomListResDto> getRoomList(GetRoomListReqDto params) {
+    public List<GetRoomListResponseDto> getRoomList(GetRoomListRequestDto params) {
 
         List<Long> roomIdList = roomUserRepository.findAllByUserId(params.getUserId()).stream()
                 .map(roomUser -> roomUser.getRoom().getId())
                 .toList();
 
-        List<GetRoomListResDto> resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
-                .map(room -> GetRoomListResDto.builder()
+        List<GetRoomListResponseDto> resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
+                .map(room -> GetRoomListResponseDto.builder()
                                 .roomId(room.getId())
                                 .name(room.getName())
                                 .code(room.getCode())
                                 .startDate(room.getStartDate())
                                 .endDate(room.getEndDate())
                                 .missionPeriod(room.getMissionPeriod())
+                                .status(room.getRoomStatus())
                                 .build())
                 .toList();
 
@@ -58,32 +68,32 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public GetRoomDetailsResDto getRoomDetails(GetRoomDetailsReqDto params) {
+    public GetRoomDetailsResponseDto getRoomDetails(GetRoomDetailsRequestDto params) {
 
         Room findRoom = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
                 .map(RoomUser::getRoom)
                 .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
-        return GetRoomDetailsResDto.from(findRoom);
+        return GetRoomDetailsResponseDto.from(findRoom);
     }
 
     @Override
-    public List<GetRoomUserListResDto> getRoomUserList(GetRoomUserListReqDto params) {
+    public List<GetRoomUserListResponseDto> getRoomUserList(GetRoomUserListRequestDto params) {
 
         // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
-        List<GetRoomUserListResDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfile(params.getRoomId()).stream()
-                .map(roomUser -> GetRoomUserListResDto.builder()
+        List<GetRoomUserListResponseDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomId()).stream()
+                .map(roomUser -> GetRoomUserListResponseDto.builder()
                         .roomUserId(roomUser.getId())
                         .managerYn(roomUser.getManagerYn())
                         .standbyYn(roomUser.getStandbyYn())
                         .nickname(roomUser.getNickname())
                         .useProfileYn(roomUser.getUseProfileYn())
                         .selfIntroduction(roomUser.getSelfIntroduction())
-                        .profileUrl(roomUser.getRoomProfile().getUrl())
-                        .skinColorRGB(roomUser.getRoomCharacter().getSkinColorRgb())
-                        .clothesColorRGB(roomUser.getRoomCharacter().getClothesColorRgb())
+                        .profileUrl(roomUser.getRoomProfile() != null ? roomUser.getRoomProfile().getUrl() : null)
+                        .roomCharacterUrl(roomUser.getRoomCharacter() != null ? roomUser.getRoomCharacter().getUrl() : null)
+                        .searchId(roomUser.getUser().getSearchId())
                         .build())
                 .toList();
 
@@ -91,19 +101,21 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public GetRoomUserDetailsResDto getRoomUserDetails(GetRoomUserDetailsReqDto params) {
+    public GetRoomUserDetailsResponseDto getRoomUserDetails(GetRoomUserDetailsRequestDto params) {
 
         // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
-        RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfile(params.getRoomUserId(), params.getRoomId())
+        RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
 
-        return GetRoomUserDetailsResDto.from(findRoomUser);
+
+
+        return GetRoomUserDetailsResponseDto.from(findRoomUser);
     }
 
     @Override
-    public CreateRoomResDto createRoom(CreateRoomReqDto params) {
+    public CreateRoomResponseDto createRoom(CreateRoomRequestDto params) {
 
         String generatedcode = "";
         boolean isCodeExists = true;
@@ -124,16 +136,35 @@ public class RoomServiceImpl implements RoomService {
                 .roomStatus(RoomStatus.WAITING)
                 .build();
 
-        User findUser = userRepository.findById(params.getManagerId()).orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
-        newRoom.addRoomUser(findUser);
+        // TODO : UserException 생성 시 변경
+        User findUser = userRepository.findById(params.getManagerId())
+                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
+
+        RoomUser newRoomUser = newRoom.addManagerUser(findUser, params);
+
+        if(params.getUseProfileYn()) {
+            // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
+            RoomProfile newRoomProfile = RoomProfile.builder()
+                    .url("https://lh3.googleusercontent.com/a/ACg8ocLf01QnzSan4U_Ye3pgspSvZV0YFQF4cHyLx9jf7rFj1nINZw=s96-c")
+                    .build();
+            newRoomUser.setRoomProfile(newRoomProfile);
+
+        } else {
+            RoomCharacter newRoomCharacter = RoomCharacter.builder()
+                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
+                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                            .getUrl())
+                    .build();
+            newRoomUser.setRoomProfile(newRoomCharacter);
+        }
 
         roomRepository.save(newRoom);
 
-        return CreateRoomResDto.from(newRoom);
+        return CreateRoomResponseDto.from(newRoom);
     }
 
     @Override
-    public UpdateRoomDetailsResDto updateRoomDetails(UpdateRoomDetailsReqDto params) {
+    public UpdateRoomDetailsResponseDto updateRoomDetails(UpdateRoomDetailsRequestDto params) {
 
         // 방장인지 권한 확인
         RoomUser findRoomUser = roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
@@ -144,24 +175,30 @@ public class RoomServiceImpl implements RoomService {
 
         findRoom.updateRoomInfo(params.getEndDate(), params.getMissionPeriod());
 
-        return UpdateRoomDetailsResDto.from(findRoom);
+        return UpdateRoomDetailsResponseDto.from(findRoom);
     }
 
     @Override
-    public UpdateRoomStatusStartResDto updateRoomStatusStart(UpdateRoomStatusStartReqDto params) {
+    public UpdateRoomStatusStartResponseDto updateRoomStatusStart(UpdateRoomStatusStartRequestDto params) {
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
-        // 대기상태인 방 유저들 삭제
-        List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYnFalse(params.getRoomId());
-        roomUserRepository.deleteAll(findRoomUserNotAcceptedList);
+        // 수락 인원이 3명 이하인 경우 시작 불가
+        List<RoomUser> acceptedRoomUserList = roomUserRepository.findAllByRoomIdAndStandbyYnFalse(params.getRoomId());
+        if(acceptedRoomUserList.size() < 3) {
+            throw new RoomException(RoomErrorCode.NOT_ENOUGH_USER_TO_START_ROOM);
+        }
 
         // 방 시작
         Room findRoom = roomRepository.findById(params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
 
         findRoom.startRoom();
+
+        // 대기상태인 방 유저들 삭제
+        List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYnTrue(params.getRoomId());
+        roomUserRepository.deleteAll(findRoomUserNotAcceptedList);
 
         // 미션 리스트 생성
         List<RoomMission> newRoomMissionList = params.getMissionList().stream()
@@ -174,15 +211,87 @@ public class RoomServiceImpl implements RoomService {
 
         roomMissionRepository.saveAll(newRoomMissionList);
 
-        // TODO: 남아있는 방 유저들간 마니또, 마니띠 관계 매칭
+        // 마니또, 마니띠 매칭 관계 설정
+        Collections.shuffle(acceptedRoomUserList);
+        List<Matching> matchingList = new ArrayList<>();
+        for(int i=0, size=acceptedRoomUserList.size(); i<size; i++) {
 
-        // TODO: 방 유저들 간 채팅 생성
+            Matching newMatching;
+            if(i == 0) {
 
-        return UpdateRoomStatusStartResDto.from(findRoom);
+
+                newMatching = Matching.builder()
+                        .roomUser(acceptedRoomUserList.get(i))
+                        .matchingManitoId(acceptedRoomUserList.get(size-1).getId())
+                        .matchingManitiId(acceptedRoomUserList.get(i+1).getId())
+                        .build();
+            }
+            else if(i == size-1) {
+                newMatching = Matching.builder()
+                        .roomUser(acceptedRoomUserList.get(i))
+                        .matchingManitoId(acceptedRoomUserList.get(i-1).getId())
+                        .matchingManitiId(acceptedRoomUserList.get(0).getId())
+                        .build();
+            }
+            else {
+                newMatching = Matching.builder()
+                        .roomUser(acceptedRoomUserList.get(i))
+                        .matchingManitoId(acceptedRoomUserList.get(i-1).getId())
+                        .matchingManitiId(acceptedRoomUserList.get(i+1).getId())
+                        .build();
+            }
+
+            matchingList.add(newMatching);
+        }
+
+        matchingRepository.saveAll(matchingList);
+
+        // 방 유저들 간 채팅 생성
+        List<ChattingRoom> chattingRoomList = new ArrayList<>();
+        ChattingRoom allChattingRoom = ChattingRoom.builder().build();
+        chattingRoomList.add(allChattingRoom);
+
+        List<ChattingParticipate> chattingParticipateList = new ArrayList<>();
+        for(RoomUser roomUser : acceptedRoomUserList) {
+            ChattingRoom newChattingRoom = ChattingRoom.builder()
+                    .build();
+
+            Matching matchingInfo = matchingRepository.findByRoomUserId(roomUser.getId());
+
+            ChattingParticipate manitoChattingParticipate = ChattingParticipate.builder()
+                    .chattingUserType(ChattingParticipateType.MANITO)
+                    .chattingRoom(newChattingRoom)
+                    .roomUser(roomUserRepository.findById(matchingInfo.getMatchingManitoId())
+                            .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER)))
+                    .build();
+
+            ChattingParticipate manitiChattingParticipate = ChattingParticipate.builder()
+                    .chattingUserType(ChattingParticipateType.MANITI)
+                    .chattingRoom(newChattingRoom)
+                    .roomUser(roomUserRepository.findById(matchingInfo.getMatchingManitiId())
+                            .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER)))
+                    .build();
+
+            ChattingParticipate allChattingParticipate = ChattingParticipate.builder()
+                    .chattingUserType(ChattingParticipateType.ALL)
+                    .chattingRoom(allChattingRoom)
+                    .roomUser(roomUser)
+                    .build();
+
+            chattingRoomList.add(newChattingRoom);
+            chattingParticipateList.add(manitoChattingParticipate);
+            chattingParticipateList.add(manitiChattingParticipate);
+            chattingParticipateList.add(allChattingParticipate);
+        }
+
+        chattingRoomRepository.saveAll(chattingRoomList);
+        chattingParticipateRepository.saveAll(chattingParticipateList);
+
+        return UpdateRoomStatusStartResponseDto.from(findRoom);
     }
 
     @Override
-    public void updateRoomStatusEnd(UpdateRoomStatusEndReqDto params) {
+    public void updateRoomStatusEnd(UpdateRoomStatusEndRequestDto params) {
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
@@ -195,4 +304,66 @@ public class RoomServiceImpl implements RoomService {
         // TODO: 방 히스토리 저장, 필요없는 잔여 데이터 삭제
 
     }
+
+    @Override
+    public EnterRoomByCodeResponseDto enterRoomByCode(EnterRoomByCodeRequestDto params) {
+
+        Room findRoom = roomRepository.findByCode(params.getCode())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_CODE));
+
+        if(roomUserRepository.findByUserIdAndRoomId(params.getUserId(), findRoom.getId()).isPresent()) {
+            throw new RoomException(RoomErrorCode.ALREADY_IN_ROOM);
+        }
+
+        return EnterRoomByCodeResponseDto.from(findRoom);
+    }
+
+    @Override
+    public CreateRoomUserProfileResponseDto createRoomUserProfile(CreateRoomUserProfileRequestDto params) {
+
+        if(roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId()).isPresent()) {
+            throw new RoomException(RoomErrorCode.ALREADY_IN_ROOM);
+        }
+
+        User findUser = userRepository.findById(params.getUserId())
+                .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다.")); // TODO
+
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
+        RoomUser newRoomUser = findRoom.addRoomUser(findUser, params);
+
+        if(params.getUseProfileYn()) {
+            // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
+            RoomProfile newRoomProfile = RoomProfile.builder()
+                    .url("https://lh3.googleusercontent.com/a/ACg8ocLf01QnzSan4U_Ye3pgspSvZV0YFQF4cHyLx9jf7rFj1nINZw=s96-c")
+                    .build();
+            newRoomUser.setRoomProfile(newRoomProfile);
+
+        } else {
+            RoomCharacter newRoomCharacter = RoomCharacter.builder()
+                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
+                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                            .getUrl())
+                    .build();
+            newRoomUser.setRoomProfile(newRoomCharacter);
+        }
+
+        roomUserRepository.save(newRoomUser);
+
+        return CreateRoomUserProfileResponseDto.from(newRoomUser);
+    }
+
+    @Override
+    public UpdateRoomUserSelfIntroductionResponseDto updateRoomUserSelfIntroduction(UpdateRoomUserSelfIntroductionRequestDto params) {
+
+        // 방에 소속된 유저인지 확인
+        RoomUser findRoomUser = roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        findRoomUser.changeSelfIntroduction(params.getSelfIntroduction());
+
+        return UpdateRoomUserSelfIntroductionResponseDto.from(findRoomUser);
+    }
+
+
 }

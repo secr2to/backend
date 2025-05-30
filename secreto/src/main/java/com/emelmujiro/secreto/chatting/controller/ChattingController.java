@@ -1,14 +1,14 @@
 package com.emelmujiro.secreto.chatting.controller;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.chatting.dto.request.CreateChattingReqDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListReqDto;
-import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusReqDto;
-import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingListReqDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResDto;
-import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResDto;
+import com.emelmujiro.secreto.chatting.dto.request.CreateChattingRequestDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListRequestDto;
+import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusRequestDto;
+import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResponseDto;
+import com.emelmujiro.secreto.chatting.dto.request.GetChattingListRequestDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResponseDto;
+import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResponseDto;
+import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResponseDto;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +30,11 @@ public class ChattingController {
     * 채팅 작성 api
     * */
     @PostMapping("/chattings/{chattingRoomId}/messages")
-    public ResponseEntity<?> createChatting(@PathVariable("chattingRoomId") Long chattingRoomId, @RequestBody CreateChattingReqDto params) {
+    public ResponseEntity<?> createChatting(@RequestBody CreateChattingRequestDto params) {
 
-        params.setChattingRoomId(chattingRoomId);
+        CreateChattingResponseDto result = chattingService.createChatting(params);
 
-        CreateChattingResDto result = chattingService.createChatting(params);
-
-        messagingTemplate.convertAndSend("/sub/" + chattingRoomId, result);
+        messagingTemplate.convertAndSend("/sub/" + params.getChattingRoomId(), result);
 
         return ApiResponse.builder()
                 .data(result)
@@ -51,13 +49,13 @@ public class ChattingController {
     @GetMapping("/rooms/{roomId}/chattings/{type}/messages")
     public ResponseEntity<?> getChattingList(@PathVariable("roomId") Long roomId, @PathVariable("type") String type, @LoginUser Long userId) {
 
-        GetChattingListReqDto params = GetChattingListReqDto.builder()
+        GetChattingListRequestDto params = GetChattingListRequestDto.builder()
                 .roomId(roomId)
                 .userId(userId)
                 .type(type)
                 .build();
 
-        List<GetChattingListResDto> resultList = chattingService.getChattingList(params);
+        List<GetChattingListResponseDto> resultList = chattingService.getChattingList(params);
 
         return ApiResponse.builder()
                 .data(resultList)
@@ -73,12 +71,12 @@ public class ChattingController {
     @GetMapping("/rooms/{roomId}/chattings/participation")
     public ResponseEntity<?> getChattingParticipationList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 
-        GetChattingParticipationListReqDto params = GetChattingParticipationListReqDto.builder()
+        GetChattingParticipationListRequestDto params = GetChattingParticipationListRequestDto.builder()
                 .roomId(roomId)
                 .userId(userId)
                 .build();
 
-        List<GetChattingParticipationListResDto> resultList = chattingService.getChattingParticipationList(params);
+        List<GetChattingParticipationListResponseDto> resultList = chattingService.getChattingParticipationList(params);
 
         return ApiResponse.builder()
                 .data(resultList)
@@ -91,11 +89,9 @@ public class ChattingController {
     * 채팅 읽음 처리 api
     * */
     @PostMapping("/chattings/{chattingRoomId}/messages/read")
-    public ResponseEntity<?> updateChattingReadStatus(@PathVariable("chattingRoomId") Long chattingRoomId, @RequestBody UpdateChattingReadStatusReqDto params) {
+    public ResponseEntity<?> updateChattingReadStatus(@RequestBody UpdateChattingReadStatusRequestDto params) {
 
-        params.setChattingRoomId(chattingRoomId);
-
-        List<UpdateChattingReadStatusResDto> resultList = chattingService.updateChattingReadStatus(params);
+        List<UpdateChattingReadStatusResponseDto> resultList = chattingService.updateChattingReadStatus(params);
 
         return ApiResponse.builder()
                 .data(resultList)

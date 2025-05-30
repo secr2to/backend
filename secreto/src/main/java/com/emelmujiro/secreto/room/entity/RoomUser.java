@@ -58,10 +58,25 @@ public class RoomUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private RoomCharacter roomCharacter;
 
-    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private RoomProfile roomProfile;
+
+    public void setRoomProfile(RoomProfile roomProfile) {
+        this.roomProfile = roomProfile;
+        roomProfile.changeRoomUser(this);
+    }
+
+    public void setRoomProfile(RoomCharacter roomCharacter) {
+        this.roomCharacter = roomCharacter;
+        roomCharacter.changeRoomUser(this);
+    }
+
+    public void changeSelfIntroduction(String selfIntroduction) {
+        this.selfIntroduction = selfIntroduction;
+    }
+
 }
 

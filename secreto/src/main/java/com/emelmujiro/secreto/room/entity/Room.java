@@ -4,6 +4,10 @@ import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.mission.entity.RoomMissionHistory;
 import com.emelmujiro.secreto.notification.entity.Notification;
+import com.emelmujiro.secreto.room.dto.request.CreateRoomRequestDto;
+import com.emelmujiro.secreto.room.dto.request.CreateRoomUserProfileRequestDto;
+import com.emelmujiro.secreto.room.error.RoomErrorCode;
+import com.emelmujiro.secreto.room.exception.RoomException;
 import com.emelmujiro.secreto.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -59,16 +63,36 @@ public class Room {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<Notification> notificationList = new ArrayList<>();
 
-    public void addRoomUser(User user) {
+    public RoomUser addManagerUser(User user, CreateRoomRequestDto params) {
 
         RoomUser newRoomUser = RoomUser.builder()
+                .useProfileYn(params.getUseProfileYn())
                 .managerYn(true)
                 .standbyYn(false)
                 .room(this)
                 .user(user)
+                .selfIntroduction(params.getSelfIntroduction())
+                .nickname(params.getNickname())
                 .build();
 
         this.roomUserList.add(newRoomUser);
+
+        return newRoomUser;
+    }
+
+    public RoomUser addRoomUser(User user, CreateRoomUserProfileRequestDto params) {
+
+        RoomUser newRoomUser = RoomUser.builder()
+                .managerYn(false)
+                .standbyYn(true)
+                .room(this)
+                .user(user)
+                .nickname(params.getNickname())
+                .selfIntroduction(params.getSelfIntroduction())
+                .useProfileYn(params.getUseProfileYn())
+                .build();
+
+        return newRoomUser;
     }
 
     public void updateRoomInfo(LocalDateTime endDate, Integer missionPeriod) {
@@ -83,6 +107,9 @@ public class Room {
 
     public void startRoom() {
 
+        if(this.roomStatus == RoomStatus.PROGRESS || this.roomStatus == RoomStatus.TERMINATED) {
+            throw new RoomException(RoomErrorCode.ALREADY_STARTED_OR_TERMINATED);
+        }
         this.roomStatus = RoomStatus.PROGRESS;
         this.startDate = LocalDateTime.now();
     }
