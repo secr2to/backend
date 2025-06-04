@@ -80,6 +80,8 @@ public class User {
     @Column(nullable = false, name = "role")
     private UserRole role;
 
+    private boolean deletedYn;
+
     @Builder(builderMethodName = "oauthUserBuilder")
     public User(String oAuthProvider, String username, String searchId, String email, String profileUrl) {
         this.oAuthProvider = oAuthProvider;
@@ -97,5 +99,10 @@ public class User {
         }
         this.searchId = searchId;
         return true;
+    }
+
+    public boolean delete() {
+        if (this.deletedYn) return false;
+        return this.deletedYn = true;
     }
 }

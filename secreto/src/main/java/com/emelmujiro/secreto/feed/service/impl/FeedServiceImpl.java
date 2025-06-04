@@ -111,7 +111,7 @@ public class FeedServiceImpl implements FeedService {
 			: null;
 
 		Long authorId = dto.getAuthorId();
-		User author = userRepository.findById(authorId)
+		User author = userRepository.findActiveById(authorId)
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 		List<User> tagUsers = getTagUsers(dto.getTags());
 
@@ -156,7 +156,7 @@ public class FeedServiceImpl implements FeedService {
 	@Transactional
 	public SuccessResponseDto heart(HeartRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId());
-		User user = userRepository.findById(dto.getUserId())
+		User user = userRepository.findActiveById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		boolean success = false;
@@ -172,7 +172,7 @@ public class FeedServiceImpl implements FeedService {
 	@Transactional
 	public SuccessResponseDto unheart(HeartRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId());
-		User user = userRepository.findById(dto.getUserId())
+		User user = userRepository.findActiveById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		FeedHeart heart = feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId())

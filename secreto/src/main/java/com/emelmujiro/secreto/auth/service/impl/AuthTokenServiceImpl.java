@@ -110,7 +110,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 			throw new AuthException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		}
 
-		User user = userRepository.findById(userId)
+		User user = userRepository.findActiveById(userId)
 			.orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_USER_MISSING));
 
 		return jwtTokenUtil.generateAccessToken(user);

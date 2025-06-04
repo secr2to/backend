@@ -1,7 +1,9 @@
 package com.emelmujiro.secreto.user.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
 import com.emelmujiro.secreto.auth.util.SecurityContextUtil;
 import com.emelmujiro.secreto.global.response.ApiResponse;
+import com.emelmujiro.secreto.user.dto.request.DeleteUserRequestDto;
 import com.emelmujiro.secreto.user.dto.request.UpdateSearchIdRequestDto;
 import com.emelmujiro.secreto.user.message.UserMessage;
 import com.emelmujiro.secreto.user.service.UserService;
@@ -38,6 +41,14 @@ public class UserController {
 		return ApiResponse.builder()
 			.data(userService.updateSearchId(updateSearchIdRequest))
 			.message(UserMessage.UPDATE_SEARCH_ID_SUCCESS.getMessage())
+			.success();
+	}
+
+	@DeleteMapping("/{userId}")
+	public ResponseEntity<?> deleteUser(@ModelAttribute DeleteUserRequestDto deleteUserRequest) {
+		return ApiResponse.builder()
+			.data(userService.delete(deleteUserRequest))
+			.message(UserMessage.DELETE_USER_SUCCESS.getMessage())
 			.success();
 	}
 }

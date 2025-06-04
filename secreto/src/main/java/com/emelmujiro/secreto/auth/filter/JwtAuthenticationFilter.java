@@ -16,8 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
-import com.emelmujiro.secreto.auth.exception.AuthException;
 import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
+import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 
@@ -45,8 +45,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 		Long userId = jwtTokenUtil.getUserId(authorization);
-		User findUser = userRepository.findById(userId)
-			.orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_USER_MISSING));
+		User findUser = userRepository.findActiveById(userId).orElse(null);
+
+		if (findUser == null) {
+			FilterResponseWriter.of(response)
+				.errorCode(AuthErrorCode.TOKEN_USER_MISSING).send();
+			return;
+		}
 
 		SecurityContextUser contextUser = SecurityContextUser.of(findUser);
 		Authentication authentication = getAuthentication(contextUser);
