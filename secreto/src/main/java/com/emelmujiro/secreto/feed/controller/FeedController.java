@@ -23,9 +23,9 @@ import com.emelmujiro.secreto.feed.dto.request.ReplyHeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateReplyRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.WriteReplyRequestDto;
-import com.emelmujiro.secreto.feed.message.FeedApiMessage;
-import com.emelmujiro.secreto.feed.service.impl.FeedReplyServiceImpl;
-import com.emelmujiro.secreto.feed.service.impl.FeedServiceImpl;
+import com.emelmujiro.secreto.feed.message.FeedMessage;
+import com.emelmujiro.secreto.feed.service.FeedReplyService;
+import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -36,14 +36,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class FeedController {
 
-	private final FeedServiceImpl feedService;
-	private final FeedReplyServiceImpl feedReplyService;
+	private final FeedService feedService;
+	private final FeedReplyService feedReplyService;
 
 	@GetMapping("/community")
 	public ResponseEntity<?> getCommunity(@ModelAttribute GetCommunityRequestDto getFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getCommunity(getFeedRequest))
-			.message(format(FeedApiMessage.GET_COMMUNITY_SUCCESS.getMessage(),
+			.message(format(FeedMessage.GET_COMMUNITY_SUCCESS.getMessage(),
 				getFeedRequest.getOffset(),
 				getFeedRequest.getKeyword())
 			)
@@ -54,7 +54,7 @@ public class FeedController {
 	public ResponseEntity<?> getCommunityFeed(@ModelAttribute GetCommunityFeedRequestDto getCommunityFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getCommunityFeed(getCommunityFeedRequest))
-			.message(format(FeedApiMessage.GET_COMMUNITY_FEED_SUCCESS.getMessage(), getCommunityFeedRequest.getFeedId()))
+			.message(format(FeedMessage.GET_COMMUNITY_FEED_SUCCESS.getMessage(), getCommunityFeedRequest.getFeedId()))
 			.success();
 	}
 
@@ -62,7 +62,7 @@ public class FeedController {
 	public ResponseEntity<?> getIngameFeeds(@ModelAttribute GetIngameFeedsRequestDto getIngameFeedsRequest) {
 		return ApiResponse.builder()
 			.data(feedService.getIngameFeeds(getIngameFeedsRequest))
-			.message(format(FeedApiMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), getIngameFeedsRequest.getRoomId()))
+			.message(format(FeedMessage.GET_INGAME_FEEDS_SUCCESS.getMessage(), getIngameFeedsRequest.getRoomId()))
 			.success();
 	}
 
@@ -70,7 +70,7 @@ public class FeedController {
 	public ResponseEntity<?> createFeed(@RequestBody CreateFeedRequestDto createFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.create(createFeedRequest))
-			.message(FeedApiMessage.CREATE_FEED_SUCCESS.getMessage())
+			.message(FeedMessage.CREATE_FEED_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -78,7 +78,7 @@ public class FeedController {
 	public ResponseEntity<?> updateFeed(@RequestBody UpdateFeedRequestDto updateFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.update(updateFeedRequest))
-			.message(FeedApiMessage.UPDATE_FEED_SUCCESS.getMessage())
+			.message(FeedMessage.UPDATE_FEED_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -86,7 +86,7 @@ public class FeedController {
 	public ResponseEntity<?> deleteFeed(@ModelAttribute DeleteFeedRequestDto deleteFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.delete(deleteFeedRequest))
-			.message(FeedApiMessage.DELETE_FEED_SUCCESS.getMessage())
+			.message(FeedMessage.DELETE_FEED_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -94,7 +94,7 @@ public class FeedController {
 	public ResponseEntity<?> heart(@ModelAttribute HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.heart(heartRequest))
-			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
+			.message(FeedMessage.HEART_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -102,7 +102,7 @@ public class FeedController {
 	public ResponseEntity<?> unheart(@ModelAttribute HeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedService.unheart(heartRequest))
-			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
+			.message(FeedMessage.UNHEART_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -112,8 +112,8 @@ public class FeedController {
 		Long replyId = getRepliesRequest.getReplyId();
 
 		String message = replyId == null
-			? format(FeedApiMessage.GET_REPLIES_SUCCESS.getMessage(), feedId)
-			: format(FeedApiMessage.GET_NESTED_REPLIES_SUCCESS.getMessage(), feedId, replyId);
+			? format(FeedMessage.GET_REPLIES_SUCCESS.getMessage(), feedId)
+			: format(FeedMessage.GET_NESTED_REPLIES_SUCCESS.getMessage(), feedId, replyId);
 
 		return ApiResponse.builder()
 			.data(feedReplyService.getReplies(getRepliesRequest))
@@ -125,7 +125,7 @@ public class FeedController {
 	public ResponseEntity<?> writeReply(@RequestBody WriteReplyRequestDto writeReplyRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.writeReply(writeReplyRequest))
-			.message(FeedApiMessage.WRITE_REPLY_SUCCESS.getMessage())
+			.message(FeedMessage.WRITE_REPLY_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -133,7 +133,7 @@ public class FeedController {
 	public ResponseEntity<?> updateReply(@RequestBody UpdateReplyRequestDto updateReplyRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.updateReply(updateReplyRequest))
-			.message(FeedApiMessage.UPDATE_REPLY_SUCCESS.getMessage())
+			.message(FeedMessage.UPDATE_REPLY_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -141,7 +141,7 @@ public class FeedController {
 	public ResponseEntity<?> deleteReply(@ModelAttribute DeleteReplyRequestDto deleteReplyRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.deleteReply(deleteReplyRequest))
-			.message(FeedApiMessage.DELETE_REPLY_SUCCESS.getMessage())
+			.message(FeedMessage.DELETE_REPLY_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -149,7 +149,7 @@ public class FeedController {
 	public ResponseEntity<?> replyHeart(@ModelAttribute ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.replyHeart(heartRequest))
-			.message(FeedApiMessage.HEART_SUCCESS.getMessage())
+			.message(FeedMessage.HEART_SUCCESS.getMessage())
 			.success();
 	}
 
@@ -157,7 +157,7 @@ public class FeedController {
 	public ResponseEntity<?> replyUnheart(@ModelAttribute ReplyHeartRequestDto heartRequest) {
 		return ApiResponse.builder()
 			.data(feedReplyService.replyUnheart(heartRequest))
-			.message(FeedApiMessage.UNHEART_SUCCESS.getMessage())
+			.message(FeedMessage.UNHEART_SUCCESS.getMessage())
 			.success();
 	}
 }
