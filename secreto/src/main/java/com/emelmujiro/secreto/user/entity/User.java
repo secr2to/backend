@@ -90,4 +90,12 @@ public class User {
         this.profileUrl = profileUrl;
         this.role = UserRole.ROLE_USER;
     }
+
+    public boolean updateSearchId(String searchId) {
+        if (this.searchId.equals(searchId)) {
+            return false;
+        }
+        this.searchId = searchId;
+        return true;
+    }
 }
