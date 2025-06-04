@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.emelmujiro.secreto.auth.filter.JwtAuthenticationFilter;
 import com.emelmujiro.secreto.auth.handler.CustomAuthenticationFailureHandler;
 import com.emelmujiro.secreto.auth.handler.CustomAuthenticationSuccessHandler;
+import com.emelmujiro.secreto.auth.handler.CustomLogoutSuccessHandler;
+import com.emelmujiro.secreto.auth.handler.RefreshTokenRevokeHandler;
 import com.emelmujiro.secreto.auth.handler.RestAuthenticationEntryPoint;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,8 @@ public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+	private final RefreshTokenRevokeHandler refreshTokenRevokeHandler;
 	private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
 	@Bean
@@ -54,6 +58,9 @@ public class SecurityConfig {
 				.failureHandler(customAuthenticationFailureHandler)
 				.successHandler(customAuthenticationSuccessHandler)
 			)
+			.logout(logout -> logout
+				.addLogoutHandler(refreshTokenRevokeHandler)
+				.logoutSuccessHandler(customLogoutSuccessHandler))
 			.exceptionHandling(exception -> exception
 				.authenticationEntryPoint(restAuthenticationEntryPoint));
 
