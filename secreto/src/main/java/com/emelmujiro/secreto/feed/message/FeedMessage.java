@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum FeedApiMessage {
+public enum FeedMessage {
 
 	GET_COMMUNITY_SUCCESS("커뮤니티 게시글 목록을 조회하였습니다. offset=%d, keyword='%s'"),
 	GET_COMMUNITY_FEED_SUCCESS("커뮤니티 게시글을 조회하였습니다. id=%s"),
