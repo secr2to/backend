@@ -56,10 +56,12 @@ public class FeedServiceImpl implements FeedService {
 	private final FeedHeartRepository feedHeartRepository;
 	private final FeedImageRepository feedImageRepository;
 
+	@Override
 	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
 		return feedQueryRepository.findCommunityFeeds(dto);
 	}
 
+	@Override
 	public GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto) {
 		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
 			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
@@ -70,6 +72,7 @@ public class FeedServiceImpl implements FeedService {
 		return GetCommunityFeedResponseDto.from(feed, heartUsers, dto.getUserId());
 	}
 
+	@Override
 	public GetIngameFeedsResponseDto getIngameFeeds(GetIngameFeedsRequestDto dto) {
 		if (roomUserRepository.findByUserIdAndRoomId(dto.getUserId(), dto.getRoomId()).isEmpty()) {
 			throw new FeedException(FeedErrorCode.FORBIDDEN_FEED_ROOM_ACCESS);
@@ -99,6 +102,7 @@ public class FeedServiceImpl implements FeedService {
 		return response;
 	}
 
+	@Override
 	@Transactional
 	public CreateFeedResponseDto create(CreateFeedRequestDto dto) {
 		Long roomId = dto.getRoomId();
@@ -107,7 +111,7 @@ public class FeedServiceImpl implements FeedService {
 			: null;
 
 		Long authorId = dto.getAuthorId();
-		User author = userRepository.findById(authorId)
+		User author = userRepository.findActiveById(authorId)
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 		List<User> tagUsers = getTagUsers(dto.getTags());
 
@@ -118,6 +122,7 @@ public class FeedServiceImpl implements FeedService {
 		return CreateFeedResponseDto.from(savedFeed);
 	}
 
+	@Override
 	@Transactional
 	public SuccessResponseDto update(UpdateFeedRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId(), dto.getAuthorId());
@@ -140,16 +145,18 @@ public class FeedServiceImpl implements FeedService {
 		return userRepository.findAllById(tagUserIds);
 	}
 
+	@Override
 	@Transactional
 	public SuccessResponseDto delete(DeleteFeedRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId(), dto.getAuthorId());
 		return SuccessResponseDto.of(feed.delete());
 	}
 
+	@Override
 	@Transactional
 	public SuccessResponseDto heart(HeartRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId());
-		User user = userRepository.findById(dto.getUserId())
+		User user = userRepository.findActiveById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		boolean success = false;
@@ -161,10 +168,11 @@ public class FeedServiceImpl implements FeedService {
 		return SuccessResponseDto.of(success);
 	}
 
+	@Override
 	@Transactional
 	public SuccessResponseDto unheart(HeartRequestDto dto) {
 		Feed feed = getFeed(dto.getFeedId());
-		User user = userRepository.findById(dto.getUserId())
+		User user = userRepository.findActiveById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		FeedHeart heart = feedHeartRepository.findByFeedIdAndUserId(feed.getId(), user.getId())

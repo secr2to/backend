@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 public enum UserErrorCode implements ErrorCode {
 
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
+	DUPLICATE_SEARCH_ID(HttpStatus.CONFLICT, "이미 존재하는 검색 ID입니다."),
 	;
 
 	private final HttpStatus httpStatus;

@@ -29,17 +29,19 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-		log.info("loadUser");
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService = new DefaultOAuth2UserService();
 		OAuth2User oAuth2User = oAuth2UserService.loadUser(request);
 
 		log.info("oAuthUser={}", oAuth2User);
-
 		final String provider = request.getClientRegistration().getRegistrationId();
 
 		Map<String, Object> attributes = oAuth2User.getAttributes();
 		OAuthUserAttributes userAttributes = new OAuthUserAttributes(provider, attributes);
 		final String username = userAttributes.getUsername();
+
+		while (userRepository.findBySearchId(userAttributes.getSearchId()).isPresent()) {
+			userAttributes.randomizeSearchId();
+		}
 
 		boolean isNewUser = false;
 		User user = userRepository.findOAuthUserByUsername(provider, username).orElse(null);

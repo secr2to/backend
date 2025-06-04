@@ -137,7 +137,7 @@ public class RoomServiceImpl implements RoomService {
                 .build();
 
         // TODO : UserException 생성 시 변경
-        User findUser = userRepository.findById(params.getManagerId())
+        User findUser = userRepository.findActiveById(params.getManagerId())
                 .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다."));
 
         RoomUser newRoomUser = newRoom.addManagerUser(findUser, params);
@@ -325,7 +325,7 @@ public class RoomServiceImpl implements RoomService {
             throw new RoomException(RoomErrorCode.ALREADY_IN_ROOM);
         }
 
-        User findUser = userRepository.findById(params.getUserId())
+        User findUser = userRepository.findActiveById(params.getUserId())
                 .orElseThrow(() -> new RuntimeException("해당 유저가 존재하지 않습니다.")); // TODO
 
         Room findRoom = roomRepository.findById(params.getRoomId())

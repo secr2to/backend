@@ -45,10 +45,10 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 	@Transactional
 	public WriteReplyResponseDto writeReply(WriteReplyRequestDto dto) {
 		Feed feed = feedService.getFeed(dto.getFeedId());
-		User user = userRepository.findById(dto.getUserId())
+		User user = userRepository.findActiveById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 		User mentionedUser = dto.getMentionUserId() != null
-			? userRepository.findById(dto.getMentionUserId())
+			? userRepository.findActiveById(dto.getMentionUserId())
 			.orElseThrow(() -> new FeedException(FeedErrorCode.MENTIONED_USER_NOT_FOUND))
 			: null;
 
@@ -100,7 +100,7 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 	@Transactional
 	public SuccessResponseDto replyHeart(ReplyHeartRequestDto dto) {
 		FeedReply reply = getReply(dto.getReplyId());
-		User user = userRepository.findById(dto.getUserId())
+		User user = userRepository.findActiveById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		boolean success = false;
@@ -115,7 +115,7 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 	@Transactional
 	public SuccessResponseDto replyUnheart(ReplyHeartRequestDto dto) {
 		FeedReply reply = getReply(dto.getReplyId());
-		User user = userRepository.findById(dto.getUserId())
+		User user = userRepository.findActiveById(dto.getUserId())
 			.orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
 		FeedReplyHeart heart = feedReplyHeartRepository.findByReplyIdAndUserId(reply.getId(), user.getId())
