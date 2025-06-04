@@ -5,7 +5,6 @@ import static com.emelmujiro.secreto.auth.config.SecurityConfig.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +18,6 @@ import com.emelmujiro.secreto.auth.dto.SecurityContextUser;
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.exception.AuthException;
 import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
-import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 
@@ -42,30 +40,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(
 		HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
 	) throws ServletException, IOException {
-
-		String authorization;
-		try {
-			authorization = jwtTokenUtil.resolveAuthorization(request);
-		} catch (AuthException e) {
-			FilterResponseWriter.of(response)
-				.errorCode(e.getErrorCode()).send();
+		String authorization = jwtTokenUtil.validateAccessToken(request, response);
+		if (authorization == null) {
 			return;
 		}
-
-		if (!jwtTokenUtil.verifyToken(authorization)) {
-			FilterResponseWriter.of(response)
-				.data(Map.of("tokenType", "accessToken"))
-				.errorCode(AuthErrorCode.ACCESS_TOKEN_EXPIRED).send();
-			return;
-		}
-		if (!jwtTokenUtil.isAccessToken(authorization)) {
-			FilterResponseWriter.of(response).errorCode(AuthErrorCode.WRONG_TOKEN_TYPE).send();
-			return;
-		}
-
 		Long userId = jwtTokenUtil.getUserId(authorization);
 		User findUser = userRepository.findById(userId)
-			.orElseThrow(IllegalStateException::new); /* TODO: User Exception 생성 필요 */
+			.orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_USER_MISSING));
 
 		SecurityContextUser contextUser = SecurityContextUser.of(findUser);
 		Authentication authentication = getAuthentication(contextUser);

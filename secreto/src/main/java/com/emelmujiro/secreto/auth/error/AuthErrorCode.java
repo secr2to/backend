@@ -21,6 +21,8 @@ public enum AuthErrorCode implements ErrorCode {
 	SESSION_INVALID(HttpStatus.BAD_REQUEST, "세션에 유효한 데이터가 없습니다."),
 	KEY_UUID_INVALID(HttpStatus.BAD_REQUEST, "UUID에 해당하는 토큰을 찾을 수 없습니다."),
 	DATA_CONVERSION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "인증 과정에서 데이터 변환에 실패하였습니다."),
+	TOKEN_USER_MISSING(HttpStatus.UNAUTHORIZED, "토큰의 유저 정보가 유효하지 않습니다."),
+	LOGOUT_FAILURE(HttpStatus.UNAUTHORIZED, "로그아웃에 실패하였습니다."),
 	;
 
 	private final HttpStatus httpStatus;

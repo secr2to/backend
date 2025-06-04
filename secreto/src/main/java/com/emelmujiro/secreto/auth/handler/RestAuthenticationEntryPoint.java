@@ -20,6 +20,7 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException, ServletException {
 
+		exception.printStackTrace();
 		FilterResponseWriter.of(response)
 			.errorCode(CommonErrorCode.INTERNAL_SERVER_ERROR)
 			.send();
