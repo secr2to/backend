@@ -1,5 +1,6 @@
 package com.emelmujiro.secreto.auth.util;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.emelmujiro.secreto.auth.dto.AuthToken;
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.exception.AuthException;
+import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 import com.emelmujiro.secreto.user.entity.User;
 
 import io.jsonwebtoken.Claims;
@@ -24,6 +26,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -128,6 +131,26 @@ public class JwtTokenUtil {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	public String validateAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String authorization = null;
+		try {
+			authorization = resolveAuthorization(request);
+		} catch (AuthException e) {
+			FilterResponseWriter.of(response)
+				.errorCode(e.getErrorCode()).send();
+		}
+
+		if (!verifyToken(authorization)) {
+			FilterResponseWriter.of(response)
+				.data(Map.of("tokenType", "accessToken"))
+				.errorCode(AuthErrorCode.ACCESS_TOKEN_EXPIRED).send();
+		}
+		if (!isAccessToken(authorization)) {
+			FilterResponseWriter.of(response).errorCode(AuthErrorCode.WRONG_TOKEN_TYPE).send();
+		}
+		return authorization;
 	}
 
 	public Long getUserId(String token) {

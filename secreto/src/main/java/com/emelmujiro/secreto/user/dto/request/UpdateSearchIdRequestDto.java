@@ -1,6 +1,4 @@
-package com.emelmujiro.secreto.feed.dto.request;
-
-import java.util.List;
+package com.emelmujiro.secreto.user.dto.request;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 
@@ -14,15 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class CreateFeedRequestDto {
+public class UpdateSearchIdRequestDto {
 
 	@LoginUser
-	private Long authorId;
+	private Long userId;
 
-	private String title;
-	private String content;
-	private List<FeedImageRequestDto> images;
-	private List<FeedTagRequestDto> tags;
-
-	private Long roomId;
+	private String searchId;
 }

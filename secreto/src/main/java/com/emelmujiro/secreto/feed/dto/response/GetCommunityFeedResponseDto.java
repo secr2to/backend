@@ -7,7 +7,7 @@ import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.feed.entity.FeedType;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
-import com.emelmujiro.secreto.feed.message.FeedApiMessage;
+import com.emelmujiro.secreto.feed.message.FeedMessage;
 import com.emelmujiro.secreto.user.dto.response.UserProfileResponseDto;
 import com.emelmujiro.secreto.user.entity.User;
 
@@ -50,9 +50,9 @@ public class GetCommunityFeedResponseDto {
 		if (heartCount == 0) {
 			heartMessage = "";
 		} else if (heartCount == 1) {
-			heartMessage = String.format(FeedApiMessage.HEART_MESSAGE_ONE.getMessage(), heartUsers.get(0).getSearchId());
+			heartMessage = String.format(FeedMessage.HEART_MESSAGE_ONE.getMessage(), heartUsers.get(0).getSearchId());
 		} else {
-			heartMessage = String.format(FeedApiMessage.HEART_MESSAGE.getMessage(),
+			heartMessage = String.format(FeedMessage.HEART_MESSAGE.getMessage(),
 				heartUsers.get(0).getSearchId(),
 				heartUsers.size() - 1);
 		}

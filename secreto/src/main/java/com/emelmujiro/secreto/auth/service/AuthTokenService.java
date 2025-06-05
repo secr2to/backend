@@ -12,4 +12,6 @@ public interface AuthTokenService {
 
 	String reissueAccessToken(String refreshToken);
 
+	void deleteRefreshToken(Long userId);
+
 }

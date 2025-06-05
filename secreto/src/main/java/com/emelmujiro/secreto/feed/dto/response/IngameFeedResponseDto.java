@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.emelmujiro.secreto.feed.entity.FeedImage;
-import com.emelmujiro.secreto.feed.message.FeedApiMessage;
+import com.emelmujiro.secreto.feed.message.FeedMessage;
 import com.emelmujiro.secreto.room.dto.response.RoomUserProfileResponseDto;
 import com.emelmujiro.secreto.user.entity.User;
 import com.querydsl.core.annotations.QueryProjection;
@@ -54,9 +54,9 @@ public class IngameFeedResponseDto {
 		if (heartCount == 0) {
 			this.heartMessage = "";
 		} else if (heartCount == 1) {
-			this.heartMessage = String.format(FeedApiMessage.HEART_MESSAGE_ONE.getMessage(), heartUsers.get(0).getSearchId());
+			this.heartMessage = String.format(FeedMessage.HEART_MESSAGE_ONE.getMessage(), heartUsers.get(0).getSearchId());
 		} else {
-			this.heartMessage = String.format(FeedApiMessage.HEART_MESSAGE.getMessage(),
+			this.heartMessage = String.format(FeedMessage.HEART_MESSAGE.getMessage(),
 				heartUsers.get(0).getSearchId(),
 				heartUsers.size() - 1);
 		}

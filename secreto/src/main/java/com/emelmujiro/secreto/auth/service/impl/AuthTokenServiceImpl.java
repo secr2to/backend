@@ -95,6 +95,10 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 		);
 	}
 
+	public void deleteRefreshToken(Long userId) {
+		refreshTokenRedisTemplate.delete(String.valueOf(userId));
+	}
+
 	public String reissueAccessToken(String refreshToken) {
 		if (!jwtTokenUtil.isRefreshToken(refreshToken)) {
 			throw new AuthException(AuthErrorCode.WRONG_TOKEN_TYPE);
@@ -106,11 +110,8 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 			throw new AuthException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
 		}
 
-		/**
-		 * TODO: User Exception 생성 필요
-		 */
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("user not found"));
+		User user = userRepository.findActiveById(userId)
+			.orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_USER_MISSING));
 
 		return jwtTokenUtil.generateAccessToken(user);
 	}

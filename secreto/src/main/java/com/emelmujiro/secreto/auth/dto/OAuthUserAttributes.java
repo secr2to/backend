@@ -3,6 +3,7 @@ package com.emelmujiro.secreto.auth.dto;
 import java.util.Map;
 
 import com.emelmujiro.secreto.user.entity.User;
+import com.emelmujiro.secreto.user.util.RandomStringGenerator;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -25,13 +26,13 @@ public class OAuthUserAttributes {
 			case "google" -> mapUserAttributeOfGoogle(attributes);
 			default -> throw new IllegalStateException("Unexpected value: " + provider);
 		}
+		randomizeSearchId();
 	}
 
 	private void mapUserAttributesOfNaver(Map<String, Object> attributes) {
 		Map<String, Object> userInfo = getUserInfo(provider, attributes);
 		this.email = getString(userInfo, "email");
 		this.username = getString(userInfo, "id");
-		this.searchId = getString(userInfo, "nickname");
 		this.profileUrl = getString(userInfo, "profile_image");
 	}
 
@@ -41,7 +42,6 @@ public class OAuthUserAttributes {
 		Map<String, Object> profileInfo = (Map<String, Object>) userInfo.get("profile");
 		this.email = getString(userInfo, "email");
 		this.username = String.valueOf(getLong(attributes, "id"));
-		this.searchId = getString(profileInfo, "nickname");
 		this.profileUrl = getString(profileInfo, "profile_image_url");
 	}
 
@@ -49,8 +49,11 @@ public class OAuthUserAttributes {
 		Map<String, Object> userInfo = getUserInfo(provider, attributes);
 		this.email = getString(userInfo, "email");
 		this.username = getString(userInfo, "sub");
-		this.searchId = getString(userInfo, "name");
 		this.profileUrl = getString(userInfo, "picture");
+	}
+
+	public void randomizeSearchId() {
+		this.searchId = RandomStringGenerator.generate(10);
 	}
 
 	public User toEntity() {
