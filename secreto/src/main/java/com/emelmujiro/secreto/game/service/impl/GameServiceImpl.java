@@ -19,8 +19,8 @@ public class GameServiceImpl implements GameService {
     public void createSystemCharacter(CreateSystemCharacterRequestDto params) {
 
         SystemCharacterColor newSystemCharacterColor = SystemCharacterColor.builder()
-                .clothesRgbCode(params.getClothesRgbCode())
-                .skinRgbCode(params.getSkinRgbCode())
+                .clothesColor(params.getClothesColor())
+                .skinColor(params.getSkinColor())
                 .url(params.getUrl())
                 .build();
 

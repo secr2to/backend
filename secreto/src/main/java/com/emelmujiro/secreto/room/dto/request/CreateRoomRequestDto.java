@@ -19,8 +19,8 @@ public class CreateRoomRequestDto {
     private Boolean useProfileYn;
     private String nickname;
     private String selfIntroduction;
-    private String clothesRgbCode;
-    private String skinRgbCode;
+    private String clothesColor;
+    private String skinColor;
     private MultipartFile profileImage;
 
     @LoginUser

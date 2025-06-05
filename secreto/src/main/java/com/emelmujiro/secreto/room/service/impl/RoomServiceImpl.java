@@ -6,6 +6,8 @@ import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
 import com.emelmujiro.secreto.chatting.repository.ChattingParticipateRepository;
 import com.emelmujiro.secreto.chatting.repository.ChattingRoomRepository;
 import com.emelmujiro.secreto.game.entity.Matching;
+import com.emelmujiro.secreto.game.error.GameErrorCode;
+import com.emelmujiro.secreto.game.exception.GameException;
 import com.emelmujiro.secreto.game.repository.MatchingRepository;
 import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
@@ -151,8 +153,8 @@ public class RoomServiceImpl implements RoomService {
 
         } else {
             RoomCharacter newRoomCharacter = RoomCharacter.builder()
-                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
-                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                    .url(systemCharacterColorRepository.findByClothesColorAndSkinColor(params.getClothesColor(), params.getSkinColor())
+                            .orElseThrow(() -> new GameException(GameErrorCode.INVALID_COLOR))
                             .getUrl())
                     .build();
             newRoomUser.setRoomProfile(newRoomCharacter);
@@ -342,8 +344,8 @@ public class RoomServiceImpl implements RoomService {
 
         } else {
             RoomCharacter newRoomCharacter = RoomCharacter.builder()
-                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
-                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                    .url(systemCharacterColorRepository.findByClothesColorAndSkinColor(params.getClothesColor(), params.getSkinColor())
+                            .orElseThrow(() -> new GameException(GameErrorCode.INVALID_COLOR))
                             .getUrl())
                     .build();
             newRoomUser.setRoomProfile(newRoomCharacter);

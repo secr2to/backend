@@ -15,8 +15,8 @@ public class CreateRoomUserProfileRequestDto {
     private Boolean useProfileYn;
     private String selfIntroduction;
     private MultipartFile profileImage;
-    private String skinRgbCode;
-    private String ClothesRgbCode;
+    private String skinColor;
+    private String clothesColor;
 
     @InjectPathVariable(name = "roomId")
     private Long roomId;

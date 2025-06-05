@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 public class CreateSystemCharacterRequestDto {
 
-    private String clothesRgbCode;
-    private String skinRgbCode;
+    private String clothesColor;
+    private String skinColor;
     private String url;
 }

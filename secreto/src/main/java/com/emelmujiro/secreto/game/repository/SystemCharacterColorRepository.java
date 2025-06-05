@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface SystemCharacterColorRepository extends JpaRepository<SystemCharacterColor, Long> {
 
-    @Query("select scc from SystemCharacterColor scc where scc.clothesRgbCode = :clothesColorRgb and scc.skinRgbCode = :skinColorRgb")
-    Optional<SystemCharacterColor> findByClothesRgbCodeAndSkinRgbCode(@Param("clothesColorRgb") String clothesColorRgb, @Param("skinColorRgb") String skinColorRgb);
+    @Query("select scc from SystemCharacterColor scc where scc.clothesColor = :clothesColor and scc.skinColor = :skinColor")
+    Optional<SystemCharacterColor> findByClothesColorAndSkinColor(@Param("clothesColor") String clothesColorRgb, @Param("skinColor") String skinColor);
 }
