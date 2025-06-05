@@ -60,10 +60,10 @@ public class RoomUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private RoomCharacter roomCharacter;
 
-    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private RoomProfile roomProfile;
 
     public void setRoomProfile(RoomProfile roomProfile) {

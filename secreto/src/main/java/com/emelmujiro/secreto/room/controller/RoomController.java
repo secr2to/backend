@@ -242,6 +242,27 @@ public class RoomController {
                 .success();
     }
 
+    /*
+    * 방 유저 거절 api
+    * */
+    @DeleteMapping("/{roomId}/deny/{roomUserId}")
+    public ResponseEntity<ApiResponse<Object>> deleteRoomUserDenied(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
+
+        DeleteRoomUserDeniedRequestDto params = DeleteRoomUserDeniedRequestDto.builder()
+                .userId(userId)
+                .roomId(roomId)
+                .roomUserId(roomUserId)
+                .build();
+
+        roomService.deleteRoomUserDenied(params);
+
+        return ApiResponse.builder()
+                .data(null)
+                .status(HttpStatus.OK)
+                .message("유저를 거절하였습니다.")
+                .success();
+    }
+
 }
 
 
