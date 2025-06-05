@@ -4,6 +4,8 @@ import com.emelmujiro.secreto.chatting.entity.ChattingMessage;
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
 import com.emelmujiro.secreto.game.entity.Matching;
 import com.emelmujiro.secreto.game.entity.Reasoning;
+import com.emelmujiro.secreto.room.error.RoomErrorCode;
+import com.emelmujiro.secreto.room.exception.RoomException;
 import com.emelmujiro.secreto.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -72,6 +74,14 @@ public class RoomUser {
     public void setRoomProfile(RoomCharacter roomCharacter) {
         this.roomCharacter = roomCharacter;
         roomCharacter.changeRoomUser(this);
+    }
+
+    public void acceptedIntoRoom() {
+        if(!this.standbyYn) {
+            throw new RoomException(RoomErrorCode.ALREADY_ACCEPTED_ROOM_USER);
+        }
+
+        this.standbyYn = false;
     }
 
     public void changeSelfIntroduction(String selfIntroduction) {

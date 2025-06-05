@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
-@ToString
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor

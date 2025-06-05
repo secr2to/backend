@@ -367,5 +367,19 @@ public class RoomServiceImpl implements RoomService {
         return UpdateRoomUserSelfIntroductionResponseDto.from(findRoomUser);
     }
 
+    @Override
+    public UpdateRoomUserStatusAcceptedResponseDto updateRoomUserStatusAccepted(UpdateRoomUserStatusAcceptedRequestDto params) {
+
+        // 방장인지 권한 확인
+        roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
+
+        RoomUser findRoomUser = roomUserRepository.findById(params.getRoomUserId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER));
+
+        findRoomUser.acceptedIntoRoom();
+
+        return UpdateRoomUserStatusAcceptedResponseDto.from(findRoomUser);
+    }
+
 
 }
