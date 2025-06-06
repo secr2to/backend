@@ -1,6 +1,9 @@
 package com.emelmujiro.secreto.mission.service.impl;
 
+import com.emelmujiro.secreto.mission.dto.request.CreateSystemMissionRequestDto;
+import com.emelmujiro.secreto.mission.dto.response.CreateSystemMissionResponseDto;
 import com.emelmujiro.secreto.mission.dto.response.GetSystemMissionListResponseDto;
+import com.emelmujiro.secreto.mission.entity.SystemMission;
 import com.emelmujiro.secreto.mission.repository.SystemMissionRepository;
 import com.emelmujiro.secreto.mission.service.MissionService;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +27,17 @@ public class MissionServiceImpl implements MissionService {
                         .systemMissionId(systemMission.getId())
                         .content(systemMission.getContent())
                         .build()).toList();
+    }
+
+    @Override
+    public CreateSystemMissionResponseDto createSystemMission(CreateSystemMissionRequestDto params) {
+
+        SystemMission newSystemMission = SystemMission.builder()
+                .content(params.getContent())
+                .build();
+
+        SystemMission findSystemMission = systemMissionRepository.save(newSystemMission);
+
+        return CreateSystemMissionResponseDto.from(findSystemMission);
     }
 }
