@@ -6,6 +6,8 @@ import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
 import com.emelmujiro.secreto.chatting.repository.ChattingParticipateRepository;
 import com.emelmujiro.secreto.chatting.repository.ChattingRoomRepository;
 import com.emelmujiro.secreto.game.entity.Matching;
+import com.emelmujiro.secreto.game.error.GameErrorCode;
+import com.emelmujiro.secreto.game.exception.GameException;
 import com.emelmujiro.secreto.game.repository.MatchingRepository;
 import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
@@ -21,9 +23,9 @@ import com.emelmujiro.secreto.room.service.RoomService;
 import com.emelmujiro.secreto.room.util.GenerateRandomCodeUtil;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +47,7 @@ public class RoomServiceImpl implements RoomService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final ChattingParticipateRepository chattingParticipateRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetRoomListResponseDto> getRoomList(GetRoomListRequestDto params) {
 
@@ -67,6 +70,7 @@ public class RoomServiceImpl implements RoomService {
         return resultList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetRoomDetailsResponseDto getRoomDetails(GetRoomDetailsRequestDto params) {
 
@@ -77,6 +81,7 @@ public class RoomServiceImpl implements RoomService {
         return GetRoomDetailsResponseDto.from(findRoom);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetRoomUserListResponseDto> getRoomUserList(GetRoomUserListRequestDto params) {
 
@@ -100,6 +105,7 @@ public class RoomServiceImpl implements RoomService {
         return resultList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetRoomUserDetailsResponseDto getRoomUserDetails(GetRoomUserDetailsRequestDto params) {
 
@@ -151,8 +157,8 @@ public class RoomServiceImpl implements RoomService {
 
         } else {
             RoomCharacter newRoomCharacter = RoomCharacter.builder()
-                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
-                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                    .url(systemCharacterColorRepository.findByClothesColorAndSkinColor(params.getClothesColor(), params.getSkinColor())
+                            .orElseThrow(() -> new GameException(GameErrorCode.INVALID_COLOR))
                             .getUrl())
                     .build();
             newRoomUser.setRoomProfile(newRoomCharacter);
@@ -305,6 +311,7 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public EnterRoomByCodeResponseDto enterRoomByCode(EnterRoomByCodeRequestDto params) {
 
@@ -342,8 +349,8 @@ public class RoomServiceImpl implements RoomService {
 
         } else {
             RoomCharacter newRoomCharacter = RoomCharacter.builder()
-                    .url(systemCharacterColorRepository.findByClothesRgbCodeAndSkinRgbCode(params.getClothesRgbCode(), params.getSkinRgbCode())
-                            .orElseThrow(() -> new RuntimeException("해당 rgb를 가진 캐릭터 url이 존재하지 않습니다."))
+                    .url(systemCharacterColorRepository.findByClothesColorAndSkinColor(params.getClothesColor(), params.getSkinColor())
+                            .orElseThrow(() -> new GameException(GameErrorCode.INVALID_COLOR))
                             .getUrl())
                     .build();
             newRoomUser.setRoomProfile(newRoomCharacter);
@@ -363,6 +370,36 @@ public class RoomServiceImpl implements RoomService {
         findRoomUser.changeSelfIntroduction(params.getSelfIntroduction());
 
         return UpdateRoomUserSelfIntroductionResponseDto.from(findRoomUser);
+    }
+
+    @Override
+    public UpdateRoomUserStatusAcceptedResponseDto updateRoomUserStatusAccepted(UpdateRoomUserStatusAcceptedRequestDto params) {
+
+        // 방장인지 권한 확인
+        roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
+
+        RoomUser findRoomUser = roomUserRepository.findById(params.getRoomUserId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER));
+
+        findRoomUser.acceptedIntoRoom();
+
+        return UpdateRoomUserStatusAcceptedResponseDto.from(findRoomUser);
+    }
+
+    @Override
+    public void deleteRoomUserDenied(DeleteRoomUserDeniedRequestDto params) {
+
+        // 방장인지 권한 확인
+        roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
+
+        RoomUser findRoomUser = roomUserRepository.findById(params.getRoomUserId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER));
+
+        if(!findRoomUser.getStandbyYn()) {
+            throw new RoomException(RoomErrorCode.CANNOT_DENY_ROOM_USER);
+        }
+
+        roomUserRepository.delete(findRoomUser);
     }
 
 

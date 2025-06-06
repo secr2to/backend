@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
-@ToString
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
@@ -19,8 +18,8 @@ public class CreateRoomRequestDto {
     private Boolean useProfileYn;
     private String nickname;
     private String selfIntroduction;
-    private String clothesRgbCode;
-    private String skinRgbCode;
+    private String clothesColor;
+    private String skinColor;
     private MultipartFile profileImage;
 
     @LoginUser

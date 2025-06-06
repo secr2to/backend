@@ -16,9 +16,9 @@ public class SystemCharacterColor {
     @Column(name = "system_character_color_id")
     private Long id;
 
-    private String clothesRgbCode;
+    private String clothesColor;
 
-    private String skinRgbCode;
+    private String skinColor;
 
     private String url;
 }

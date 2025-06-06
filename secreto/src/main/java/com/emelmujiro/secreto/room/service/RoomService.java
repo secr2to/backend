@@ -27,4 +27,8 @@ public interface RoomService {
     CreateRoomUserProfileResponseDto createRoomUserProfile(CreateRoomUserProfileRequestDto params);
 
     UpdateRoomUserSelfIntroductionResponseDto updateRoomUserSelfIntroduction(UpdateRoomUserSelfIntroductionRequestDto params);
+
+    UpdateRoomUserStatusAcceptedResponseDto updateRoomUserStatusAccepted(UpdateRoomUserStatusAcceptedRequestDto params);
+
+    void deleteRoomUserDenied(DeleteRoomUserDeniedRequestDto params);
 }

@@ -18,7 +18,9 @@ public enum RoomErrorCode implements ErrorCode {
     INVAILD_AUTHORITY(HttpStatus.NOT_ACCEPTABLE, "해당 방 유저는 수행 권한이 없습니다."),
     ALREADY_IN_ROOM(HttpStatus.NOT_ACCEPTABLE, "이미 입장한 방입니다."),
     NOT_ENOUGH_USER_TO_START_ROOM(HttpStatus.NOT_ACCEPTABLE, "최소 3인 이상부터 게임을 시작할 수 있습니다."),
-    ALREADY_STARTED_OR_TERMINATED(HttpStatus.BAD_REQUEST, "이미 시작한 방이거나 끝난 방입니다.")
+    ALREADY_STARTED_OR_TERMINATED(HttpStatus.BAD_REQUEST, "이미 시작한 방이거나 끝난 방입니다."),
+    ALREADY_ACCEPTED_ROOM_USER(HttpStatus.NOT_ACCEPTABLE, "이미 수락된 유저입니다."),
+    CANNOT_DENY_ROOM_USER(HttpStatus.BAD_REQUEST, "이미 수락된 유저는 거절할 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

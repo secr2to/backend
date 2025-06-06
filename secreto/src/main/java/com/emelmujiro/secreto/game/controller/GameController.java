@@ -28,5 +28,6 @@ public class GameController {
                 .status(HttpStatus.CREATED)
                 .message("시스템 캐릭터 색상 정보를 등록하였습니다.")
                 .success();
+
     }
 }

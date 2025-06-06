@@ -117,8 +117,6 @@ public class RoomController {
     @PostMapping("")
     public ResponseEntity<ApiResponse<Object>> createRoom(@ModelAttribute CreateRoomRequestDto params) {
 
-        System.out.println("params : " + params);
-
         CreateRoomResponseDto result = roomService.createRoom(params);
 
         return ApiResponse.builder()
@@ -220,6 +218,48 @@ public class RoomController {
                 .data(result)
                 .status(HttpStatus.OK)
                 .message("자기소개를 수정하였습니다.")
+                .success();
+    }
+
+    /*
+    * 방 유저 수락 api
+    * */
+    @PutMapping("/{roomId}/accept/{roomUserId}")
+    public ResponseEntity<ApiResponse<Object>> updateRoomUserStatusAccepted(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
+
+        UpdateRoomUserStatusAcceptedRequestDto params = UpdateRoomUserStatusAcceptedRequestDto.builder()
+                .roomId(roomId)
+                .roomUserId(roomUserId)
+                .userId(userId)
+                .build();
+
+        UpdateRoomUserStatusAcceptedResponseDto result = roomService.updateRoomUserStatusAccepted(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("유저를 수락하였습니다.")
+                .success();
+    }
+
+    /*
+    * 방 유저 거절 api
+    * */
+    @DeleteMapping("/{roomId}/deny/{roomUserId}")
+    public ResponseEntity<ApiResponse<Object>> deleteRoomUserDenied(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
+
+        DeleteRoomUserDeniedRequestDto params = DeleteRoomUserDeniedRequestDto.builder()
+                .userId(userId)
+                .roomId(roomId)
+                .roomUserId(roomUserId)
+                .build();
+
+        roomService.deleteRoomUserDenied(params);
+
+        return ApiResponse.builder()
+                .data(null)
+                .status(HttpStatus.OK)
+                .message("유저를 거절하였습니다.")
                 .success();
     }
 
