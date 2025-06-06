@@ -1,11 +1,14 @@
 package com.emelmujiro.secreto.mission.service.impl;
 
 import com.emelmujiro.secreto.mission.dto.request.CreateSystemMissionRequestDto;
+import com.emelmujiro.secreto.mission.dto.request.GetRoomMissionHistoryListRequestDto;
 import com.emelmujiro.secreto.mission.dto.request.GetRoomMissionListRequestDto;
 import com.emelmujiro.secreto.mission.dto.response.CreateSystemMissionResponseDto;
+import com.emelmujiro.secreto.mission.dto.response.GetRoomMissionHistoryListResponseDto;
 import com.emelmujiro.secreto.mission.dto.response.GetRoomMissionListResponseDto;
 import com.emelmujiro.secreto.mission.dto.response.GetSystemMissionListResponseDto;
 import com.emelmujiro.secreto.mission.entity.SystemMission;
+import com.emelmujiro.secreto.mission.repository.RoomMissionHistoryRepository;
 import com.emelmujiro.secreto.mission.repository.SystemMissionRepository;
 import com.emelmujiro.secreto.mission.service.MissionService;
 import com.emelmujiro.secreto.room.repository.RoomMissionRepository;
@@ -23,9 +26,9 @@ import java.util.List;
 public class MissionServiceImpl implements MissionService {
 
     private final SystemMissionRepository systemMissionRepository;
-    private final RoomUserRepository roomUserRepository;
     private final RoomAuthorizationService roomAuthorizationService;
     private final RoomMissionRepository roomMissionRepository;
+    private final RoomMissionHistoryRepository roomMissionHistoryRepository;
 
     @Override
     public List<GetSystemMissionListResponseDto> getSystemMissionList() {
@@ -52,7 +55,6 @@ public class MissionServiceImpl implements MissionService {
     @Override
     public List<GetRoomMissionListResponseDto> getRoomMissionList(GetRoomMissionListRequestDto params) {
 
-        // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
         return roomMissionRepository.findAll().stream()
@@ -60,6 +62,20 @@ public class MissionServiceImpl implements MissionService {
                         .roomId(roomMission.getRoom().getId())
                         .content(roomMission.getContent())
                         .executeYn(roomMission.getExecuteYn())
+                        .build()).toList();
+    }
+
+    @Override
+    public List<GetRoomMissionHistoryListResponseDto> getRoomMissionHistoryList(GetRoomMissionHistoryListRequestDto params) {
+
+        roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        return roomMissionHistoryRepository.findAll().stream()
+                .map(roomMissionHistory -> GetRoomMissionHistoryListResponseDto.builder()
+                        .roomId(roomMissionHistory.getRoom().getId())
+                        .content(roomMissionHistory.getContent())
+                        .createDate(roomMissionHistory.getCreateDate())
+                        .completeYn(roomMissionHistory.getCompleteYn())
                         .build()).toList();
     }
 }

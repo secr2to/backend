@@ -1,9 +1,11 @@
 package com.emelmujiro.secreto.mission.controller;
 
 import com.emelmujiro.secreto.global.response.ApiResponse;
+import com.emelmujiro.secreto.mission.dto.request.GetRoomMissionHistoryListRequestDto;
 import com.emelmujiro.secreto.mission.dto.request.CreateSystemMissionRequestDto;
 import com.emelmujiro.secreto.mission.dto.request.GetRoomMissionListRequestDto;
 import com.emelmujiro.secreto.mission.dto.response.CreateSystemMissionResponseDto;
+import com.emelmujiro.secreto.mission.dto.response.GetRoomMissionHistoryListResponseDto;
 import com.emelmujiro.secreto.mission.dto.response.GetRoomMissionListResponseDto;
 import com.emelmujiro.secreto.mission.dto.response.GetSystemMissionListResponseDto;
 import com.emelmujiro.secreto.mission.service.MissionService;
@@ -60,8 +62,23 @@ public class MissionController {
 
         return ApiResponse.builder()
                 .data(resultList)
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .message("방의 미션 리스트를 조회하였습니다.")
+                .success();
+    }
+
+    /*
+     * 방 별 미션 히스토리 리스트 조회 api
+     * */
+    @GetMapping("/rooms/{roomId}/mission-historys")
+    public ResponseEntity<ApiResponse<Object>> getRoomMissionHistoryList(@ModelAttribute GetRoomMissionHistoryListRequestDto params) {
+
+        List<GetRoomMissionHistoryListResponseDto> resultList = missionService.getRoomMissionHistoryList(params);
+
+        return ApiResponse.builder()
+                .data(resultList)
+                .status(HttpStatus.OK)
+                .message("방의 미션 히스토리 리스트를 조회하였습니다.")
                 .success();
     }
 
