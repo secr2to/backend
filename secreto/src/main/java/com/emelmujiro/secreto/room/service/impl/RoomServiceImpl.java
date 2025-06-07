@@ -10,6 +10,8 @@ import com.emelmujiro.secreto.game.error.GameErrorCode;
 import com.emelmujiro.secreto.game.exception.GameException;
 import com.emelmujiro.secreto.game.repository.MatchingRepository;
 import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
+import com.emelmujiro.secreto.global.service.S3DirectoryName;
+import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
@@ -24,6 +26,7 @@ import com.emelmujiro.secreto.room.util.GenerateRandomCodeUtil;
 import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,9 @@ import java.util.List;
 @Service
 public class RoomServiceImpl implements RoomService {
 
+    @Value("${s3.access-minute}")
+    private int accessMinute;
+
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
@@ -46,6 +52,8 @@ public class RoomServiceImpl implements RoomService {
     private final RoomAuthorizationService roomAuthorizationService;
     private final ChattingRoomRepository chattingRoomRepository;
     private final ChattingParticipateRepository chattingParticipateRepository;
+
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     @Override
@@ -96,7 +104,7 @@ public class RoomServiceImpl implements RoomService {
                         .nickname(roomUser.getNickname())
                         .useProfileYn(roomUser.getUseProfileYn())
                         .selfIntroduction(roomUser.getSelfIntroduction())
-                        .profileUrl(roomUser.getRoomProfile() != null ? roomUser.getRoomProfile().getUrl() : null)
+                        .profileUrl(roomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(roomUser.getRoomProfile().getImageKey(), accessMinute) : null)
                         .roomCharacterUrl(roomUser.getRoomCharacter() != null ? roomUser.getRoomCharacter().getUrl() : null)
                         .searchId(roomUser.getUser().getSearchId())
                         .build())
@@ -115,9 +123,17 @@ public class RoomServiceImpl implements RoomService {
         RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
 
-
-
-        return GetRoomUserDetailsResponseDto.from(findRoomUser);
+        return GetRoomUserDetailsResponseDto.builder()
+                .roomUserId(findRoomUser.getId())
+                .managerYn(findRoomUser.getManagerYn())
+                .standbyYn(findRoomUser.getStandbyYn())
+                .nickname(findRoomUser.getNickname())
+                .useProfileYn(findRoomUser.getUseProfileYn())
+                .selfIntroduction(findRoomUser.getSelfIntroduction())
+                .profileUrl(findRoomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(findRoomUser.getRoomProfile().getImageKey(), accessMinute) : null)
+                .roomCharacterUrl(findRoomUser.getRoomCharacter() != null ? findRoomUser.getRoomCharacter().getUrl() : null)
+                .searchId(findRoomUser.getUser().getSearchId())
+                .build();
     }
 
     @Override
@@ -149,9 +165,16 @@ public class RoomServiceImpl implements RoomService {
         RoomUser newRoomUser = newRoom.addManagerUser(findUser, params);
 
         if(params.getUseProfileYn()) {
-            // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
+            String key;
+            try {
+                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(params.getManagerId()), S3DirectoryName.ROOMPROFILE.getValue());
+            }
+            catch (Exception e) {
+                throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
+            }
+
             RoomProfile newRoomProfile = RoomProfile.builder()
-                    .url("https://lh3.googleusercontent.com/a/ACg8ocLf01QnzSan4U_Ye3pgspSvZV0YFQF4cHyLx9jf7rFj1nINZw=s96-c")
+                    .imageKey(key)
                     .build();
             newRoomUser.setRoomProfile(newRoomProfile);
 
@@ -341,9 +364,17 @@ public class RoomServiceImpl implements RoomService {
         RoomUser newRoomUser = findRoom.addRoomUser(findUser, params);
 
         if(params.getUseProfileYn()) {
+
+            String key;
+            try {
+                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(newRoomUser.getId()), S3DirectoryName.ROOMPROFILE.getValue());
+            }
+            catch (Exception e) {
+                throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
+            }
             // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
             RoomProfile newRoomProfile = RoomProfile.builder()
-                    .url("https://lh3.googleusercontent.com/a/ACg8ocLf01QnzSan4U_Ye3pgspSvZV0YFQF4cHyLx9jf7rFj1nINZw=s96-c")
+                    .imageKey(key)
                     .build();
             newRoomUser.setRoomProfile(newRoomProfile);
 

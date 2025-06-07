@@ -16,7 +16,7 @@ public class RoomProfile {
     @Column(name = "room_profile_id")
     private Long id;
 
-    private String url;
+    private String imageKey;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_user_id")
