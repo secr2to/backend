@@ -2,6 +2,8 @@ package com.emelmujiro.secreto.auth.handler;
 
 import java.util.Map;
 
+import com.emelmujiro.secreto.auth.exception.AuthException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,9 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class AuthExceptionHandler {
 
-	@ExceptionHandler(ApiException.class)
-	public ResponseEntity<ApiResponse<?>> handleCustomException(ApiException e) {
-		log.info("auth exception!! code={}", e.getErrorCode());
+	@ExceptionHandler(AuthException.class)
+	public ResponseEntity<ApiResponse<?>> handleCustomException(AuthException e, HttpServletRequest request) {
+		log.error("========== [AUTH EXCEPTION] ==========\n" +
+						"RequestURI: {}\nMessage: {}\n",
+				request.getRequestURI(),
+				e.getErrorCode().getMessage(), e);
 
 		Map<String, Object> data = null;
 		if (e.getErrorCode() == AuthErrorCode.REFRESH_TOKEN_EXPIRED) {

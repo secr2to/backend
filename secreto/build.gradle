@@ -36,7 +36,6 @@ dependencies {
 
 	implementation platform('software.amazon.awssdk:bom:2.25.34')
 	implementation 'software.amazon.awssdk:s3'
-	implementation 'software.amazon.awssdk:s3-presigner'
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
 
