@@ -1,12 +1,13 @@
 FROM gradle:7.4-jdk17 AS builder
 
 USER root
-WORKDIR /home/gradle
-RUN mkdir -p /home/gradle/build && \
-    chown -R gradle:gradle /home/gradle/build
 
-USER gradle
+# gradle 홈 디렉토리와 빌드 디렉토리 생성 및 권한 재설정
+RUN mkdir -p /home/gradle/.gradle \
+    && chown -R gradle:gradle /home/gradle
+
 WORKDIR /home/gradle/build
+USER gradle
 
 # 의존성 캐싱
 COPY build.gradle settings.gradle ./
