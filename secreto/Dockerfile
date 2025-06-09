@@ -1,29 +1,30 @@
-FROM gradle:7.4-jdk17 AS builder
+FROM gradle:8.7-jdk17 AS builder
+WORKDIR /build
 
-USER root
+# 그래들 파일이 변경되었을 때만 새롭게 의존패키지 다운로드 받게함.
+COPY build.gradle settings.gradle /build/
+RUN gradle build -x test --parallel --continue > /dev/null 2>&1 || true
 
-# 홈 및 빌드 디렉터리와 모든 하위 디렉토리 생성 후 권한 재설정
-RUN mkdir -p /home/gradle/build && \
-    chown -R gradle:gradle /home/gradle
+# 빌더 이미지에서 애플리케이션 빌드
+COPY . /build
+RUN gradle build -x test --parallel
 
-USER gradle
-WORKDIR /home/gradle/build
-
-# (디버깅용) 디렉토리 권한/구조 확인
-RUN ls -al /home/gradle
-RUN ls -al /home/gradle/build
-
-# 의존성 캐싱
-COPY build.gradle settings.gradle ./
-RUN gradle dependencies --no-daemon
-
-# 전체 소스 복사 및 빌드
-COPY . .
-RUN gradle build -x test --no-daemon --parallel
-
-FROM openjdk:17-slim
+# APP
+FROM openjdk:17-ea-4-jdk-slim
 WORKDIR /app
-COPY --from=builder /home/gradle/build/build/libs/docker-0.0.1-SNAPSHOT.jar .
+
+# 빌더 이미지에서 jar 파일만 복사
+# COPY --from=builder /build/build/libs/*-SNAPSHOT.jar ./app.jar
+COPY --from=builder /build/build/libs/mybatis-gradle-0.0.1-SNAPSHOT.jar .
+
 EXPOSE 8080
+
+# root 대신 nobody 권한으로 실행
 USER nobody
-ENTRYPOINT ["java", "-jar", "-Djava.security.egd=file:/dev/./urandom", "-Dsun.net.inetaddr.ttl=0", "docker-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT [                                                \
+   "java",                                                 \
+   "-jar",                                                 \
+   "-Djava.security.egd=file:/dev/./urandom",              \
+   "-Dsun.net.inetaddr.ttl=0",                             \
+   "mybatis-gradle-0.0.1-SNAPSHOT.jar"                             \
+]
