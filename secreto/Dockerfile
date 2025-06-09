@@ -1,5 +1,10 @@
 FROM gradle:7.4-jdk17 AS builder
 
+USER root
+WORKDIR /home/gradle
+RUN mkdir -p /home/gradle/build && \
+    chown -R gradle:gradle /home/gradle/build
+
 USER gradle
 WORKDIR /home/gradle/build
 
