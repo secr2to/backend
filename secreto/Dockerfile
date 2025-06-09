@@ -1,35 +1,26 @@
-FROM gradle:7.4-jdk17 as builder
+FROM gradle:7.4-jdk17 AS builder
 
-USER root
-RUN mkdir -p /home/gradle/.gradle && chown -R gradle:gradle /home/gradle/.gradle
 USER gradle
+WORKDIR /home/gradle/build
 
-WORKDIR /build
+# 의존성 캐싱
+COPY build.gradle settings.gradle ./
+RUN gradle dependencies --no-daemon
 
-# 그래들 파일이 변경되었을 때만 새롭게 의존패키지 다운로드 받게함.
-COPY build.gradle settings.gradle /build/
-RUN gradle build -x test --parallel --continue > /dev/null 2>&1 || true
+# 전체 소스 복사 및 빌드
+COPY . .
+RUN gradle build -x test --no-daemon --parallel
 
-# 빌더 이미지에서 애플리케이션 빌드
-COPY . /build
-RUN gradle build -x test --parallel
-
-# APP
-FROM openjdk:17-ea-4-jdk-slim
+FROM openjdk:17-slim
 WORKDIR /app
-
-# 빌더 이미지에서 jar 파일만 복사
-# COPY --from=builder /build/build/libs/*-SNAPSHOT.jar ./app.jar
-COPY --from=builder /build/build/libs/docker-0.0.1-SNAPSHOT.jar .
+COPY --from=builder /home/gradle/build/build/libs/docker-0.0.1-SNAPSHOT.jar .
 
 EXPOSE 8080
-
-# root 대신 nobody 권한으로 실행
 USER nobody
-ENTRYPOINT [                                                \
-   "java",                                                 \
-   "-jar",                                                 \
-   "-Djava.security.egd=file:/dev/./urandom",              \
-   "-Dsun.net.inetaddr.ttl=0",                             \
-   "docker-0.0.1-SNAPSHOT.jar"                             \
+ENTRYPOINT [
+   "java",
+   "-jar",
+   "-Djava.security.egd=file:/dev/./urandom",
+   "-Dsun.net.inetaddr.ttl=0",
+   "docker-0.0.1-SNAPSHOT.jar"
 ]
