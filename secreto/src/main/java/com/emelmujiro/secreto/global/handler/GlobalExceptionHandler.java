@@ -20,7 +20,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(ApiException.class)
 	public ResponseEntity<ApiResponse<?>> handleCustomException(ApiException e, HttpServletRequest request) {
-		log.error("========== [GLOBAL EXCEPTION] ==========\n" +
+		log.info("========== [GLOBAL EXCEPTION] ==========\n" +
 						"RequestURI: {}\nMessage: {}\n",
 				request.getRequestURI(),
 				e.getErrorCode().getMessage(), e);
