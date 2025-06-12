@@ -11,5 +11,5 @@ public class GetRoomListRequestDto {
 
     private RoomStatus status;
 
-    private long userId;
+    private Long userId;
 }

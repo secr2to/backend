@@ -18,4 +18,7 @@ public class GetRoomListResponseDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private int missionPeriod;
+    private String imageUrl;
+    private Integer roomUserCount;
+    private String nickname;
 }
