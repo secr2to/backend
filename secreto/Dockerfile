@@ -14,7 +14,7 @@ FROM openjdk:17-ea-4-jdk-slim
 WORKDIR /secreto
 
 # 로그 디렉터리 생성 (nobody가 쓸 수 있게 소유권 변경)
-RUN mkdir -p /secreto/logs && chown nobody:nogroup /app/logs
+RUN mkdir -p /secreto/logs && chown nobody:nogroup /secreto/logs
 
 # 빌더 이미지에서 jar 파일만 복사 (아래 경로에 jar가 생성됨을 염두, JAR 이름/경로 필요시 맞게 수정 필요)
 COPY --from=builder /build/build/libs/secreto-0.0.1-SNAPSHOT.jar .
