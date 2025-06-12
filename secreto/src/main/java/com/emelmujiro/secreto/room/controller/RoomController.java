@@ -26,10 +26,10 @@ public class RoomController {
     * 방 목록 조회 api
     * */
     @GetMapping("")
-    public ResponseEntity<ApiResponse<Object>> getRoomList(@RequestParam("status") String status, @LoginUser Long userId) {
+    public ResponseEntity<ApiResponse<Object>> getRoomList(@RequestParam(value = "status", required = false) String status, @LoginUser Long userId) {
 
         try {
-            RoomStatus roomStatus = RoomStatus.fromString(status);
+            RoomStatus roomStatus = status != null ? RoomStatus.fromString(status) : null;
 
             GetRoomListRequestDto params = GetRoomListRequestDto.builder()
                     .status(roomStatus)

@@ -17,4 +17,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Query("select r from Room r where r.code = :code")
     Optional<Room> findByCode(@Param("code") String code);
+
+    @Query("select r from Room r where r.id in :roomIdList")
+    List<Room> findAllByIds(@Param("roomIdList") List<Long> roomIdList);
 }

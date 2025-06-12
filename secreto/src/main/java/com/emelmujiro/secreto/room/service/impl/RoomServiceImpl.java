@@ -63,19 +63,64 @@ public class RoomServiceImpl implements RoomService {
                 .map(roomUser -> roomUser.getRoom().getId())
                 .toList();
 
-        List<GetRoomListResponseDto> resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
-                .map(room -> GetRoomListResponseDto.builder()
-                                .roomId(room.getId())
-                                .name(room.getName())
-                                .code(room.getCode())
-                                .startDate(room.getStartDate())
-                                .endDate(room.getEndDate())
-                                .missionPeriod(room.getMissionPeriod())
-                                .status(room.getRoomStatus())
-                                .build())
-                .toList();
+        List<Room> rooms;
+        if (params.getStatus() == null) {
+            rooms = roomRepository.findAllByIds(roomIdList);
+        } else {
+            rooms = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus());
+        }
+
+        List<GetRoomListResponseDto> resultList = rooms.stream()
+                .map(room -> {
+                    int roomUserCount = roomUserRepository.countByRoomIdAndStandbyYn(room.getId(), false);
+                    RoomUser ownerUser = roomUserRepository.findByRoomIdAndManagerYn(room.getId(), true);
+
+                    return GetRoomListResponseDto.builder()
+                            .roomId(room.getId())
+                            .name(room.getName())
+                            .code(room.getCode())
+                            .startDate(room.getStartDate())
+                            .endDate(room.getEndDate())
+                            .missionPeriod(room.getMissionPeriod())
+                            .status(room.getRoomStatus())
+                            .imageUrl(room.getImageUrl())
+                            .roomUserCount(roomUserCount)
+                            .nickname(ownerUser.getNickname())
+                            .build();
+                }).toList();
 
         return resultList;
+
+//        List<GetRoomListResponseDto> resultList;
+//
+//        if(params.getStatus() == null) {
+//             resultList = roomRepository.findAllByIds(roomIdList).stream()
+//                    .map(room -> GetRoomListResponseDto.builder()
+//                            .roomId(room.getId())
+//                            .name(room.getName())
+//                            .code(room.getCode())
+//                            .startDate(room.getStartDate())
+//                            .endDate(room.getEndDate())
+//                            .missionPeriod(room.getMissionPeriod())
+//                            .status(room.getRoomStatus())
+//                            .build())
+//                    .toList();
+//        }
+//        else {
+//             resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
+//                    .map(room -> GetRoomListResponseDto.builder()
+//                                    .roomId(room.getId())
+//                                    .name(room.getName())
+//                                    .code(room.getCode())
+//                                    .startDate(room.getStartDate())
+//                                    .endDate(room.getEndDate())
+//                                    .missionPeriod(room.getMissionPeriod())
+//                                    .status(room.getRoomStatus())
+//                                    .build())
+//                    .toList();
+//        }
+//
+//        return resultList;
     }
 
     @Transactional(readOnly = true)
@@ -214,7 +259,7 @@ public class RoomServiceImpl implements RoomService {
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
         // 수락 인원이 3명 이하인 경우 시작 불가
-        List<RoomUser> acceptedRoomUserList = roomUserRepository.findAllByRoomIdAndStandbyYnFalse(params.getRoomId());
+        List<RoomUser> acceptedRoomUserList = roomUserRepository.findAllByRoomIdAndStandbyYn(params.getRoomId(), false);
         if(acceptedRoomUserList.size() < 3) {
             throw new RoomException(RoomErrorCode.NOT_ENOUGH_USER_TO_START_ROOM);
         }
@@ -226,7 +271,7 @@ public class RoomServiceImpl implements RoomService {
         findRoom.startRoom();
 
         // 대기상태인 방 유저들 삭제
-        List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYnTrue(params.getRoomId());
+        List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYn(params.getRoomId(), true);
         roomUserRepository.deleteAll(findRoomUserNotAcceptedList);
 
         // 미션 리스트 생성

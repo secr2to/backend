@@ -43,6 +43,8 @@ public class Room {
 
     private Integer missionPeriod;
 
+    private String imageUrl;
+
     @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<RoomUser> roomUserList = new ArrayList<>();
