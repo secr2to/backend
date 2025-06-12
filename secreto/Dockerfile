@@ -23,10 +23,4 @@ EXPOSE 8080
 
 USER nobody
 
-ENTRYPOINT [
-   "java",
-   "-jar",
-   "-Djava.security.egd=file:/dev/./urandom",
-   "-Dsun.net.inetaddr.ttl=0",
-   "secreto-0.0.1-SNAPSHOT.jar"
-]
+ENTRYPOINT ["java", "-jar", "-Djava.security.egd=file:/dev/./urandom", "-Dsun.net.inetaddr.ttl=0", "secreto-0.0.1-SNAPSHOT.jar"]
