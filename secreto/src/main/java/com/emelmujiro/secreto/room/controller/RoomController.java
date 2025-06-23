@@ -263,7 +263,17 @@ public class RoomController {
                 .success();
     }
 
+    @PutMapping("/{roomId}/images")
+    public ResponseEntity<ApiResponse<Object>> updateRoomImage(@ModelAttribute UpdateRoomImageRequestDto params) {
 
+        UpdateRoomImageResponseDto result = roomService.updateRoomImage(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방 이미지를 수정하였습니다.")
+                .success();
+    }
 
     /*
     * 방 유저 역할 조회 api

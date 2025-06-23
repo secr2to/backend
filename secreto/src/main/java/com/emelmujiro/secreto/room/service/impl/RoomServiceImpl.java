@@ -455,5 +455,12 @@ public class RoomServiceImpl implements RoomService {
         return GetMyRoomUserRoleResponseDto.from(findRoomUser);
     }
 
+    @Override
+    public UpdateRoomImageResponseDto updateRoomImage(UpdateRoomImageRequestDto params) {
+
+
+        return null;
+    }
+
 
 }
