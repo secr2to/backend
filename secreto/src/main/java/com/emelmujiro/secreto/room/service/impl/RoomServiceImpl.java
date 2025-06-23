@@ -90,37 +90,6 @@ public class RoomServiceImpl implements RoomService {
                 }).toList();
 
         return resultList;
-
-//        List<GetRoomListResponseDto> resultList;
-//
-//        if(params.getStatus() == null) {
-//             resultList = roomRepository.findAllByIds(roomIdList).stream()
-//                    .map(room -> GetRoomListResponseDto.builder()
-//                            .roomId(room.getId())
-//                            .name(room.getName())
-//                            .code(room.getCode())
-//                            .startDate(room.getStartDate())
-//                            .endDate(room.getEndDate())
-//                            .missionPeriod(room.getMissionPeriod())
-//                            .status(room.getRoomStatus())
-//                            .build())
-//                    .toList();
-//        }
-//        else {
-//             resultList = roomRepository.findAllByIdsAndRoomStatus(roomIdList, params.getStatus()).stream()
-//                    .map(room -> GetRoomListResponseDto.builder()
-//                                    .roomId(room.getId())
-//                                    .name(room.getName())
-//                                    .code(room.getCode())
-//                                    .startDate(room.getStartDate())
-//                                    .endDate(room.getEndDate())
-//                                    .missionPeriod(room.getMissionPeriod())
-//                                    .status(room.getRoomStatus())
-//                                    .build())
-//                    .toList();
-//        }
-//
-//        return resultList;
     }
 
     @Transactional(readOnly = true)
@@ -476,6 +445,14 @@ public class RoomServiceImpl implements RoomService {
         }
 
         roomUserRepository.delete(findRoomUser);
+    }
+
+    @Override
+    public GetMyRoomUserRoleResponseDto getMyRoomUserRole(GetMyRoomUserRoleRequestDto params) {
+
+        RoomUser findRoomUser = roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        return GetMyRoomUserRoleResponseDto.from(findRoomUser);
     }
 
 

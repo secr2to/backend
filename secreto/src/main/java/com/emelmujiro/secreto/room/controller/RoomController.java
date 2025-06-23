@@ -263,6 +263,27 @@ public class RoomController {
                 .success();
     }
 
+
+
+    /*
+    * 방 유저 역할 조회 api
+    * */
+    @GetMapping("/{roomId}/my-role")
+    public ResponseEntity<ApiResponse<Object>> getMyRoomUserRole(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        GetMyRoomUserRoleRequestDto params = GetMyRoomUserRoleRequestDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        GetMyRoomUserRoleResponseDto result = roomService.getMyRoomUserRole(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("자신의 방 유저 역할을 조회하였습니다.")
+                .success();
+    }
 }
 
 

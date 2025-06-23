@@ -31,4 +31,6 @@ public interface RoomService {
     UpdateRoomUserStatusAcceptedResponseDto updateRoomUserStatusAccepted(UpdateRoomUserStatusAcceptedRequestDto params);
 
     void deleteRoomUserDenied(DeleteRoomUserDeniedRequestDto params);
+
+    GetMyRoomUserRoleResponseDto getMyRoomUserRole(GetMyRoomUserRoleRequestDto params);
 }
