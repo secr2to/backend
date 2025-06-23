@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Slf4j
-@Configuration
 @RequiredArgsConstructor
+@Configuration
 public class RoomTerminateJobConfig {
 
     private final JobRepository jobRepository;

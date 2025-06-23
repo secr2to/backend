@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.room.batch.scheduler;
+package com.emelmujiro.secreto.mission.batch.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,15 +15,15 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
-public class RoomTerminateScheduler {
+public class MissionGrantScheduler {
 
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
 
-    @Scheduled(cron = "0 0 * * * *", zone = "Asia/Seoul")
-    public void runRoomTerminateJobEveryHour() throws Exception {
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
+    public void runMissionGrantJobEveryDay() throws Exception {
 
-        log.info("RoomTerminateScheduler start");
+        log.info("MissionGrantScheduler start");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
         String date = dateFormat.format(new Date());
@@ -32,6 +32,6 @@ public class RoomTerminateScheduler {
                 .addString("date", date)
                 .toJobParameters();
 
-        jobLauncher.run(jobRegistry.getJob("roomTerminateJob"), jobParameters);
+        jobLauncher.run(jobRegistry.getJob("missionGrantJob"), jobParameters);
     }
 }

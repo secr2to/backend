@@ -23,4 +23,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findAllByIds(@Param("roomIdList") List<Long> roomIdList);
 
     List<Room> findAllByEndDate(LocalDateTime endDate);
+
+    @Query("select r from Room r where r.roomStatus = :roomStatus")
+    List<Room> findAllByRoomStatus(@Param("status") RoomStatus status);
 }
