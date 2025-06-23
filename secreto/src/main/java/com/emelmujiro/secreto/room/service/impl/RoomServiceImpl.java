@@ -478,5 +478,20 @@ public class RoomServiceImpl implements RoomService {
         roomUserRepository.delete(findRoomUser);
     }
 
+    @Override
+    public GetMyRoomUserRoleResponseDto getMyRoomUserRole(GetMyRoomUserRoleRequestDto params) {
+
+        RoomUser findRoomUser = roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        return GetMyRoomUserRoleResponseDto.from(findRoomUser);
+    }
+
+    @Override
+    public UpdateRoomImageResponseDto updateRoomImage(UpdateRoomImageRequestDto params) {
+
+
+        return null;
+    }
+
 
 }
