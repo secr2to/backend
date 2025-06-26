@@ -4,6 +4,8 @@ import com.emelmujiro.secreto.room.entity.Room;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -21,8 +23,15 @@ public class RoomMission {
 
     private Boolean executeYn;
 
+    private LocalDateTime executedDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
+
+    public void executeMission() {
+        this.executeYn = true;
+        this.executedDate = LocalDateTime.now();
+    }
 
 }

@@ -17,6 +17,4 @@ public interface MissionService {
     CreateSystemMissionResponseDto createSystemMission(CreateSystemMissionRequestDto params);
 
     List<GetRoomMissionListResponseDto> getRoomMissionList(GetRoomMissionListRequestDto params);
-
-    List<GetRoomMissionHistoryListResponseDto> getRoomMissionHistoryList(GetRoomMissionHistoryListRequestDto params);
 }

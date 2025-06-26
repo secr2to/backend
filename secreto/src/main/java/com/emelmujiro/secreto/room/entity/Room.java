@@ -2,7 +2,6 @@ package com.emelmujiro.secreto.room.entity;
 
 import com.emelmujiro.secreto.feed.entity.Feed;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
-import com.emelmujiro.secreto.mission.entity.RoomMissionHistory;
 import com.emelmujiro.secreto.notification.entity.Notification;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomRequestDto;
 import com.emelmujiro.secreto.room.dto.request.CreateRoomUserProfileRequestDto;
@@ -48,10 +47,6 @@ public class Room {
     @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<RoomUser> roomUserList = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private List<RoomMissionHistory> roomMissionHistoryList = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)

@@ -2,6 +2,7 @@ package com.emelmujiro.secreto.mission.dto.request;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
+import com.emelmujiro.secreto.room.entity.RoomStatus;
 import lombok.*;
 
 @Setter
@@ -15,4 +16,6 @@ public class GetRoomMissionListRequestDto {
 
     @LoginUser
     private Long userId;
+
+    private Boolean executeYn;
 }

@@ -1,8 +1,6 @@
 package com.emelmujiro.secreto.mission.batch.tasklet;
 
 import com.emelmujiro.secreto.mission.entity.RoomMission;
-import com.emelmujiro.secreto.mission.entity.RoomMissionHistory;
-import com.emelmujiro.secreto.mission.repository.RoomMissionHistoryRepository;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
 import com.emelmujiro.secreto.room.repository.RoomMissionRepository;
@@ -30,7 +28,6 @@ public class MissionGrantTasklet implements Tasklet, StepExecutionListener {
 
     private final RoomRepository roomRepository;
     private final RoomMissionRepository roomMissionRepository;
-    private final RoomMissionHistoryRepository roomMissionHistoryRepository;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -53,14 +50,7 @@ public class MissionGrantTasklet implements Tasklet, StepExecutionListener {
                 }
 
                 RoomMission selectedMission = missionList.get(new Random().nextInt(missionList.size()));
-
-                RoomMissionHistory history = RoomMissionHistory.builder()
-                        .room(room)
-                        .content(selectedMission.getContent())
-                        .createDate(today)
-                        .build();
-
-                roomMissionHistoryRepository.save(history);
+                selectedMission.executeMission();
             }
         }
 
