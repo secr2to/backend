@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 @RequiredArgsConstructor
 @Transactional
@@ -253,6 +254,11 @@ public class RoomServiceImpl implements RoomService {
                 .toList();
 
         roomMissionRepository.saveAll(newRoomMissionList);
+
+        // 방 시작 시 미션 1개 부여 TODO : 알림 적용해야 함
+        List<RoomMission> missionList = roomMissionRepository.findAllByRoomIdAndExecuteYn(findRoom.getId(), false);
+        RoomMission selectedMission = missionList.get(new Random().nextInt(missionList.size()));
+        selectedMission.executeMission();
 
         // 마니또, 마니띠 매칭 관계 설정
         Collections.shuffle(acceptedRoomUserList);
