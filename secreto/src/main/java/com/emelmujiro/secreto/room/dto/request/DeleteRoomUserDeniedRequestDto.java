@@ -1,6 +1,10 @@
 package com.emelmujiro.secreto.room.dto.request;
 
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
+import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import lombok.*;
+
+import java.util.List;
 
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -8,7 +12,12 @@ import lombok.*;
 @Getter
 public class DeleteRoomUserDeniedRequestDto {
 
+    private List<Long> roomUserIds;
+
+    @LoginUser
     private Long userId;
+
+    @InjectPathVariable(name = "roomId")
     private Long roomId;
-    private Long roomUserId;
+
 }

@@ -424,17 +424,18 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public UpdateRoomUserStatusAcceptedResponseDto updateRoomUserStatusAccepted(UpdateRoomUserStatusAcceptedRequestDto params) {
+    public List<UpdateRoomUserStatusAcceptedResponseDto> updateRoomUserStatusAccepted(UpdateRoomUserStatusAcceptedRequestDto params) {
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
-        RoomUser findRoomUser = roomUserRepository.findById(params.getRoomUserId())
-                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER));
+        List<RoomUser> findRoomUserList = roomUserRepository.findAllById(params.getRoomUserIds());
 
-        findRoomUser.acceptedIntoRoom();
+        for(RoomUser roomUser : findRoomUserList) {
+            roomUser.acceptedIntoRoom();
+        }
 
-        return UpdateRoomUserStatusAcceptedResponseDto.from(findRoomUser);
+        return UpdateRoomUserStatusAcceptedResponseDto.from(findRoomUserList);
     }
 
     @Override
@@ -443,14 +444,15 @@ public class RoomServiceImpl implements RoomService {
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
-        RoomUser findRoomUser = roomUserRepository.findById(params.getRoomUserId())
-                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER));
+        List<RoomUser> findRoomUserList = roomUserRepository.findAllById(params.getRoomUserIds());
 
-        if(!findRoomUser.getStandbyYn()) {
-            throw new RoomException(RoomErrorCode.CANNOT_DENY_ROOM_USER);
+        for(RoomUser roomUser : findRoomUserList) {
+            if(!roomUser.getStandbyYn()) {
+                throw new RoomException(RoomErrorCode.CANNOT_DENY_ROOM_USER);
+            }
         }
 
-        roomUserRepository.delete(findRoomUser);
+        roomUserRepository.deleteAll(findRoomUserList);
     }
 
     @Override

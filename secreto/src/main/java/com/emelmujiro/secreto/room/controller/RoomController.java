@@ -224,19 +224,13 @@ public class RoomController {
     /*
     * 방 유저 수락 api
     * */
-    @PutMapping("/{roomId}/accept/{roomUserId}")
-    public ResponseEntity<ApiResponse<Object>> updateRoomUserStatusAccepted(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
+    @PutMapping("/{roomId}/accept")
+    public ResponseEntity<ApiResponse<Object>> updateRoomUserStatusAccepted(@RequestBody UpdateRoomUserStatusAcceptedRequestDto params) {
 
-        UpdateRoomUserStatusAcceptedRequestDto params = UpdateRoomUserStatusAcceptedRequestDto.builder()
-                .roomId(roomId)
-                .roomUserId(roomUserId)
-                .userId(userId)
-                .build();
-
-        UpdateRoomUserStatusAcceptedResponseDto result = roomService.updateRoomUserStatusAccepted(params);
+        List<UpdateRoomUserStatusAcceptedResponseDto> resultList = roomService.updateRoomUserStatusAccepted(params);
 
         return ApiResponse.builder()
-                .data(result)
+                .data(resultList)
                 .status(HttpStatus.OK)
                 .message("유저를 수락하였습니다.")
                 .success();
@@ -245,14 +239,8 @@ public class RoomController {
     /*
     * 방 유저 거절 api
     * */
-    @DeleteMapping("/{roomId}/deny/{roomUserId}")
-    public ResponseEntity<ApiResponse<Object>> deleteRoomUserDenied(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
-
-        DeleteRoomUserDeniedRequestDto params = DeleteRoomUserDeniedRequestDto.builder()
-                .userId(userId)
-                .roomId(roomId)
-                .roomUserId(roomUserId)
-                .build();
+    @DeleteMapping("/{roomId}/deny")
+    public ResponseEntity<ApiResponse<Object>> deleteRoomUserDenied(@RequestBody DeleteRoomUserDeniedRequestDto params) {
 
         roomService.deleteRoomUserDenied(params);
 
