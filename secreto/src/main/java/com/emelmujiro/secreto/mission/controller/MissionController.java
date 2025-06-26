@@ -67,19 +67,5 @@ public class MissionController {
                 .success();
     }
 
-    /*
-     * 방 별 미션 히스토리 리스트 조회 api
-     * */
-    @GetMapping("/rooms/{roomId}/mission-historys")
-    public ResponseEntity<ApiResponse<Object>> getRoomMissionHistoryList(@ModelAttribute GetRoomMissionHistoryListRequestDto params) {
-
-        List<GetRoomMissionHistoryListResponseDto> resultList = missionService.getRoomMissionHistoryList(params);
-
-        return ApiResponse.builder()
-                .data(resultList)
-                .status(HttpStatus.OK)
-                .message("방의 미션 히스토리 리스트를 조회하였습니다.")
-                .success();
-    }
 
 }

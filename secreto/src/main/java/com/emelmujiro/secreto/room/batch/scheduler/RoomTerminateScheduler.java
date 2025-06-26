@@ -20,7 +20,7 @@ public class RoomTerminateScheduler {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
 
-    @Scheduled(cron = "0 0 * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void runRoomTerminateJobEveryHour() throws Exception {
 
         log.info("RoomTerminateScheduler start");
