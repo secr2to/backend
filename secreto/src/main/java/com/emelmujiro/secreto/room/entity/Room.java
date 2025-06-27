@@ -42,7 +42,7 @@ public class Room {
 
     private Integer missionPeriod;
 
-    private String imageUrl;
+    private String imageKey;
 
     @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -115,5 +115,9 @@ public class Room {
 
         this.roomStatus = RoomStatus.TERMINATED;
         this.endDate = LocalDateTime.now();
+    }
+
+    public void changeRoomImageKey(String key) {
+        this.imageKey = key;
     }
 }

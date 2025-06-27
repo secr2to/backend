@@ -76,6 +76,7 @@ public class RoomServiceImpl implements RoomService {
                 .map(room -> {
                     int roomUserCount = roomUserRepository.countByRoomIdAndStandbyYn(room.getId(), false);
                     RoomUser ownerUser = roomUserRepository.findByRoomIdAndManagerYn(room.getId(), true);
+                    String imageUrl = room.getImageKey() == null ? null : s3Service.generatePresignedUrl(room.getImageKey(), accessMinute);
 
                     return GetRoomListResponseDto.builder()
                             .roomId(room.getId())
@@ -85,7 +86,7 @@ public class RoomServiceImpl implements RoomService {
                             .endDate(room.getEndDate())
                             .missionPeriod(room.getMissionPeriod())
                             .status(room.getRoomStatus())
-                            .imageUrl(room.getImageUrl())
+                            .imageUrl(imageUrl)
                             .roomUserCount(roomUserCount)
                             .nickname(ownerUser.getNickname())
                             .build();
@@ -102,7 +103,9 @@ public class RoomServiceImpl implements RoomService {
                 .map(RoomUser::getRoom)
                 .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
 
-        return GetRoomDetailsResponseDto.from(findRoom);
+        String imageUrl = findRoom.getImageKey() == null ? null : s3Service.generatePresignedUrl(findRoom.getImageKey(), accessMinute);
+
+        return GetRoomDetailsResponseDto.from(findRoom, imageUrl);
     }
 
     @Transactional(readOnly = true)
@@ -183,7 +186,7 @@ public class RoomServiceImpl implements RoomService {
         if(params.getUseProfileYn()) {
             String key;
             try {
-                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(params.getManagerId()), S3DirectoryName.ROOMPROFILE.getValue());
+                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(params.getManagerId()), S3DirectoryName.ROOM_USER_PROFILE.getValue());
             }
             catch (Exception e) {
                 throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
@@ -351,7 +354,7 @@ public class RoomServiceImpl implements RoomService {
 
         findRoom.terminateRoom();
 
-        // TODO: 방 히스토리 저장, 필요없는 잔여 데이터 삭제
+        // TODO: 방 히스토리 저장
 
     }
 
@@ -388,7 +391,7 @@ public class RoomServiceImpl implements RoomService {
 
             String key;
             try {
-                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(newRoomUser.getId()), S3DirectoryName.ROOMPROFILE.getValue());
+                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(newRoomUser.getId()), S3DirectoryName.ROOM_USER_PROFILE.getValue());
             }
             catch (Exception e) {
                 throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
@@ -467,8 +470,32 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public UpdateRoomImageResponseDto updateRoomImage(UpdateRoomImageRequestDto params) {
 
+        // 방장인지 권한 확인
+        RoomUser manager = roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
 
-        return null;
+        String key;
+        try {
+            key = s3Service.uploadProfileImage(params.getRoomImage(), String.valueOf(manager.getId()), S3DirectoryName.ROOM_IMAGE.getValue());
+        }
+        catch (Exception e) {
+            throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
+        }
+
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
+        // TODO : 기존 이미지 S3에 존재 시 삭제
+        if(findRoom.getImageKey() != null) {
+            try {
+                s3Service.deleteFile(findRoom.getImageKey());
+            } catch (Exception e) {
+                throw new RuntimeException("기존 이미지 삭제 중 오류 발생");
+            }
+        }
+
+        findRoom.changeRoomImageKey(key);
+
+        return UpdateRoomImageResponseDto.from(findRoom);
     }
 
     @Override
