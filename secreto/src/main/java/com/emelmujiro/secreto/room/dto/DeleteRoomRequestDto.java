@@ -1,21 +1,15 @@
-package com.emelmujiro.secreto.room.dto.request;
+package com.emelmujiro.secreto.room.dto;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
-@Setter
+@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class UpdateRoomImageRequestDto {
+public class DeleteRoomRequestDto {
 
-    private MultipartFile roomImage;
-
-    @InjectPathVariable(name = "roomId")
     private Long roomId;
-
-    @LoginUser
     private Long userId;
 }

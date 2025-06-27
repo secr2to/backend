@@ -19,8 +19,9 @@ public class GetRoomDetailsResponseDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private int missionPeriod;
+    private String imageUrl;
 
-    public static GetRoomDetailsResponseDto from(Room room) {
+    public static GetRoomDetailsResponseDto from(Room room, String imageUrl) {
 
         return GetRoomDetailsResponseDto.builder()
                 .roomId(room.getId())
@@ -30,6 +31,7 @@ public class GetRoomDetailsResponseDto {
                 .startDate(room.getStartDate())
                 .endDate(room.getEndDate())
                 .missionPeriod(room.getMissionPeriod())
+                .imageUrl(imageUrl)
                 .build();
     }
 }

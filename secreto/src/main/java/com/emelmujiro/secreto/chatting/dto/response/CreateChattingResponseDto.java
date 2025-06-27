@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 @Getter
 public class CreateChattingResponseDto {
 
-    private long chattingMessageId;
+    private Long chattingMessageId;
 
-    private long writerId;
+    private Long writerId;
 
     private String content;
 
     private LocalDateTime writeDate;
 
-    private boolean readYn;
+    private Boolean readYn;
 
-    private long chattingRoomId;
+    private Long chattingRoomId;
 }

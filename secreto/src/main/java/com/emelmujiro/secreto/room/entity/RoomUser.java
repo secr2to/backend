@@ -37,19 +37,19 @@ public class RoomUser {
     private String selfIntroduction;
 
     @Builder.Default
-    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ChattingParticipate> chattingParticipateList = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ChattingMessage> chattingMessageList = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Matching> matchingList = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "roomUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reasoning> reasoningList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
