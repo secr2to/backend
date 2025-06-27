@@ -13,6 +13,7 @@ import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.global.service.S3DirectoryName;
 import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
+import com.emelmujiro.secreto.room.dto.DeleteRoomRequestDto;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
 import com.emelmujiro.secreto.room.entity.*;
@@ -499,6 +500,22 @@ public class RoomServiceImpl implements RoomService {
 
 
         return null;
+    }
+
+    @Override
+    public void deleteRoom(DeleteRoomRequestDto params) {
+
+        // 방장인지 권한 확인
+        roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
+
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
+        if(findRoom.getRoomStatus() == RoomStatus.PROGRESS) {
+            throw new RoomException(RoomErrorCode.ROOM_STILL_IN_PROGRESS);
+        }
+
+        roomRepository.delete(findRoom);
     }
 
 }

@@ -21,6 +21,7 @@ public enum RoomErrorCode implements ErrorCode {
     ALREADY_STARTED_OR_TERMINATED(HttpStatus.BAD_REQUEST, "이미 시작한 방이거나 끝난 방입니다."),
     ALREADY_ACCEPTED_ROOM_USER(HttpStatus.NOT_ACCEPTABLE, "이미 수락된 유저입니다."),
     CANNOT_DENY_ROOM_USER(HttpStatus.BAD_REQUEST, "이미 수락된 유저는 거절할 수 없습니다."),
+    ROOM_STILL_IN_PROGRESS(HttpStatus.NOT_ACCEPTABLE, "진행되고 있는 방은 삭제할 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

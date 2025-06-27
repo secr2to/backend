@@ -1,5 +1,6 @@
 package com.emelmujiro.secreto.room.service;
 
+import com.emelmujiro.secreto.room.dto.DeleteRoomRequestDto;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
 
@@ -35,4 +36,6 @@ public interface RoomService {
     GetMyRoomUserRoleResponseDto getMyRoomUserRole(GetMyRoomUserRoleRequestDto params);
 
     UpdateRoomImageResponseDto updateRoomImage(UpdateRoomImageRequestDto params);
+
+    void deleteRoom(DeleteRoomRequestDto params);
 }

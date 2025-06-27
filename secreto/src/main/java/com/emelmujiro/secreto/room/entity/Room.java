@@ -45,7 +45,7 @@ public class Room {
     private String imageUrl;
 
     @Builder.Default
-    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RoomUser> roomUserList = new ArrayList<>();
 
     @Builder.Default

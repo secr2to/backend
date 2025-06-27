@@ -2,6 +2,7 @@ package com.emelmujiro.secreto.room.controller;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.response.ApiResponse;
+import com.emelmujiro.secreto.room.dto.DeleteRoomRequestDto;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
@@ -280,6 +281,26 @@ public class RoomController {
                 .data(result)
                 .status(HttpStatus.OK)
                 .message("자신의 방 유저 역할을 조회하였습니다.")
+                .success();
+    }
+
+    /*
+    * 방 삭제 api
+    * */
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<?> deleteRoom(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        DeleteRoomRequestDto params = DeleteRoomRequestDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        roomService.deleteRoom(params);
+
+        return ApiResponse.builder()
+                .data(null)
+                .status(HttpStatus.OK)
+                .message("방을 삭제하였습니다.")
                 .success();
     }
 }
