@@ -252,6 +252,9 @@ public class RoomController {
                 .success();
     }
 
+    /*
+    * 방 이미지 수정 api
+    * */
     @PutMapping("/{roomId}/images")
     public ResponseEntity<ApiResponse<Object>> updateRoomImage(@ModelAttribute UpdateRoomImageRequestDto params) {
 
