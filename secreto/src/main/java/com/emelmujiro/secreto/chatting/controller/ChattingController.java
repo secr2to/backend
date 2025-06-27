@@ -23,7 +23,6 @@ import java.util.List;
 @RestController
 public class ChattingController {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final ChattingService chattingService;
 
     /*
@@ -33,8 +32,6 @@ public class ChattingController {
     public ResponseEntity<?> createChatting(@RequestBody CreateChattingRequestDto params) {
 
         CreateChattingResponseDto result = chattingService.createChatting(params);
-
-        messagingTemplate.convertAndSend("/sub/" + params.getChattingRoomId(), result);
 
         return ApiResponse.builder()
                 .data(result)

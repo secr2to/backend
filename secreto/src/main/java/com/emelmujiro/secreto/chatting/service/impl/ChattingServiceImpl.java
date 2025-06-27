@@ -23,6 +23,7 @@ import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,8 @@ public class ChattingServiceImpl implements ChattingService {
     private final ChattingParticipateRepository chattingParticipateRepository;
     private final ChattingRoomRepository chattingRoomRepository;
     private final RoomUserRepository roomUserRepository;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public CreateChattingResponseDto createChatting(CreateChattingRequestDto params) {
@@ -58,7 +61,7 @@ public class ChattingServiceImpl implements ChattingService {
 
         chattingMessageRepository.save(newChattingMessage);
 
-        return CreateChattingResponseDto.builder()
+        CreateChattingResponseDto result = CreateChattingResponseDto.builder()
                 .chattingMessageId(newChattingMessage.getId())
                 .writerId(newChattingMessage.getRoomUser().getId())
                 .content(newChattingMessage.getContent())
@@ -66,6 +69,10 @@ public class ChattingServiceImpl implements ChattingService {
                 .readYn(newChattingMessage.getReadYn())
                 .chattingRoomId(newChattingMessage.getId())
                 .build();
+
+        messagingTemplate.convertAndSend("/sub/" + params.getChattingRoomId(), result);
+
+        return result;
     }
 
     @Override
