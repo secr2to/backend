@@ -66,6 +66,7 @@ public class MissionServiceImpl implements MissionService {
                         .roomId(roomMission.getRoom().getId())
                         .content(roomMission.getContent())
                         .executeYn(roomMission.getExecuteYn())
+                        .createDate(roomMission.getExecutedDate())
                         .build()).toList();
     }
 
