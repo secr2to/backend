@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.emelmujiro.secreto.auth.filter.FilterExceptionHandlingFilter;
 import com.emelmujiro.secreto.auth.filter.JwtAuthenticationFilter;
 import com.emelmujiro.secreto.auth.handler.CustomAuthenticationFailureHandler;
 import com.emelmujiro.secreto.auth.handler.CustomAuthenticationSuccessHandler;
@@ -70,6 +71,7 @@ public class SecurityConfig {
 		);
 
 		http.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(new FilterExceptionHandlingFilter(), JwtAuthenticationFilter.class);
 
 		return http.build();
 	}

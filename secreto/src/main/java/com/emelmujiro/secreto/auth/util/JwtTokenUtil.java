@@ -134,21 +134,13 @@ public class JwtTokenUtil {
 	}
 
 	public String validateAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String authorization = null;
-		try {
-			authorization = resolveAuthorization(request);
-		} catch (AuthException e) {
-			FilterResponseWriter.of(response)
-				.errorCode(e.getErrorCode()).send();
-		}
+		String authorization = resolveAuthorization(request);
 
 		if (!verifyToken(authorization)) {
-			FilterResponseWriter.of(response)
-				.data(Map.of("tokenType", "accessToken"))
-				.errorCode(AuthErrorCode.ACCESS_TOKEN_EXPIRED).send();
+			throw new AuthException(AuthErrorCode.ACCESS_TOKEN_EXPIRED);
 		}
 		if (!isAccessToken(authorization)) {
-			FilterResponseWriter.of(response).errorCode(AuthErrorCode.WRONG_TOKEN_TYPE).send();
+			throw new AuthException(AuthErrorCode.WRONG_TOKEN_TYPE);
 		}
 		return authorization;
 	}
