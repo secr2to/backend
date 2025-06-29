@@ -3,13 +3,10 @@ package com.emelmujiro.secreto.auth.filter;
 import static com.emelmujiro.secreto.auth.util.ExceptionHandlingUtil.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.exception.AuthException;
-import com.emelmujiro.secreto.auth.util.ExceptionHandlingUtil;
 import com.emelmujiro.secreto.global.error.CommonErrorCode;
 import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 

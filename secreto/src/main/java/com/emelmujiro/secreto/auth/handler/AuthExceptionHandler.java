@@ -2,13 +2,10 @@ package com.emelmujiro.secreto.auth.handler;
 
 import static com.emelmujiro.secreto.auth.util.ExceptionHandlingUtil.*;
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.exception.AuthException;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 

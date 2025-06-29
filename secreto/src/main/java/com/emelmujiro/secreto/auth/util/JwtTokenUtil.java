@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import com.emelmujiro.secreto.auth.dto.AuthToken;
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.exception.AuthException;
-import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 import com.emelmujiro.secreto.user.entity.User;
 
 import io.jsonwebtoken.Claims;
