@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.emelmujiro.secreto.auth.dto.AuthToken;
 import com.emelmujiro.secreto.auth.service.AuthTokenService;
 import com.emelmujiro.secreto.auth.util.JwtTokenUtil;
 import com.emelmujiro.secreto.global.response.ApiResponse;
@@ -35,9 +36,8 @@ public class AuthController {
 	@GetMapping("/refresh-access-token")
 	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
 		String refreshToken = jwtTokenUtil.resolveAuthorization(request);
-		final String reissuedAccessToken = authTokenService.reissueAccessToken(refreshToken);
 		return ApiResponse.builder()
-			.data(Map.of("accessToken", reissuedAccessToken))
+			.data(authTokenService.reissueAuthToken(refreshToken))
 			.success();
 	}
 }

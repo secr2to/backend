@@ -99,12 +99,13 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 		refreshTokenRedisTemplate.delete(String.valueOf(userId));
 	}
 
-	public String reissueAccessToken(String refreshToken) {
+	public AuthToken reissueAuthToken(String refreshToken) {
 		if (!jwtTokenUtil.isRefreshToken(refreshToken)) {
 			throw new AuthException(AuthErrorCode.WRONG_TOKEN_TYPE);
 		}
 		Long userId = jwtTokenUtil.getUserId(refreshToken);
 		String storedRefreshToken = sanitizeString(refreshTokenRedisTemplate.opsForValue().get(String.valueOf(userId)));
+
 
 		if (!refreshToken.equals(storedRefreshToken)) {
 			throw new AuthException(AuthErrorCode.REFRESH_TOKEN_EXPIRED);
@@ -113,7 +114,13 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 		User user = userRepository.findActiveById(userId)
 			.orElseThrow(() -> new AuthException(AuthErrorCode.TOKEN_USER_MISSING));
 
-		return jwtTokenUtil.generateAccessToken(user);
+		String reissuedAccessToken = jwtTokenUtil.generateAccessToken(user);
+		String reissuedRefreshToken = jwtTokenUtil.generateRefreshToken(user);
+
+		deleteRefreshToken(userId);
+		saveRefreshToken(userId, reissuedRefreshToken);
+
+		return AuthToken.ofBearer(reissuedRefreshToken, reissuedAccessToken);
 	}
 
 	private String sanitizeString(String value) {

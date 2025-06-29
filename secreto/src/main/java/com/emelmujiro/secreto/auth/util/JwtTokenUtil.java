@@ -82,6 +82,15 @@ public class JwtTokenUtil {
 		return buildToken(userId, claims, refreshTokenExpirationSeconds * 1000L);
 	}
 
+	public String generateRefreshToken(User user) {
+		final Map<String, Object> claims = new HashMap<>(Map.of(
+			"username", user.getUsername(),
+			"provider", user.getOAuthProvider(),
+			"role", user.getRole()
+		));
+		return generateRefreshToken(user.getId(), claims);
+	}
+
 	private String generateAccessToken(Long userId, Map<String, Object> claims) {
 		claims.put("tokenType", TOKEN_TYPE_ACCESS);
 		return buildToken(userId, claims, accessTokenExpirationSeconds * 1000L);
