@@ -1,13 +1,7 @@
 package com.emelmujiro.secreto.chatting.service;
 
-import com.emelmujiro.secreto.chatting.dto.request.CreateChattingRequestDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListRequestDto;
-import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusRequestDto;
-import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResponseDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingListRequestDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResponseDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResponseDto;
-import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResponseDto;
+import com.emelmujiro.secreto.chatting.dto.request.*;
+import com.emelmujiro.secreto.chatting.dto.response.*;
 
 import java.util.List;
 
@@ -19,4 +13,8 @@ public interface ChattingService {
     List<GetChattingParticipationListResponseDto> getChattingParticipationList(GetChattingParticipationListRequestDto params);
 
     List<UpdateChattingReadStatusResponseDto> updateChattingReadStatus(UpdateChattingReadStatusRequestDto params);
+
+    GetChattingRoomDetailsResponseDto getChattingParticipationsInfo(GetChattingRoomDetailsRequestDto params);
+
+    List<GetChattingRoomDetailsResponseDto> getChattingRoomInfoList(GetChattingRoomInfoListRequestDto params);
 }

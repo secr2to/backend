@@ -514,5 +514,24 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.delete(findRoom);
     }
 
+    @Override
+    public GetMyRoomUserDetailsResponseDto getMyRoomUserDetails(GetMyRoomUserDetailsRequestDto params) {
+
+        // 방에 소속된 유저인지 확인
+        RoomUser findRoomUser = roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        return GetMyRoomUserDetailsResponseDto.builder()
+                .roomUserId(findRoomUser.getId())
+                .managerYn(findRoomUser.getManagerYn())
+                .standbyYn(findRoomUser.getStandbyYn())
+                .nickname(findRoomUser.getNickname())
+                .useProfileYn(findRoomUser.getUseProfileYn())
+                .selfIntroduction(findRoomUser.getSelfIntroduction())
+                .profileUrl(findRoomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(findRoomUser.getRoomProfile().getImageKey(), accessMinute) : null)
+                .roomCharacterUrl(findRoomUser.getRoomCharacter() != null ? findRoomUser.getRoomCharacter().getUrl() : null)
+                .searchId(findRoomUser.getUser().getSearchId())
+                .build();
+    }
+
 
 }

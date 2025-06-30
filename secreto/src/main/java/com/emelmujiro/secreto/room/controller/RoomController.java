@@ -306,6 +306,23 @@ public class RoomController {
                 .message("방을 삭제하였습니다.")
                 .success();
     }
+
+    @GetMapping("/{roomId}/my-info")
+    public ResponseEntity<?> getMyRoomUserDetails(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        GetMyRoomUserDetailsRequestDto params = GetMyRoomUserDetailsRequestDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        GetMyRoomUserDetailsResponseDto result = roomService.getMyRoomUserDetails(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("자신의 방 유저 세부 정보를 조회하였습니다.")
+                .success();
+    }
 }
 
 
