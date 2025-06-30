@@ -3,6 +3,7 @@ package com.emelmujiro.secreto.chatting.controller;
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.chatting.dto.request.*;
 import com.emelmujiro.secreto.chatting.dto.response.*;
+import com.emelmujiro.secreto.chatting.entity.ChattingParticipateType;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @RestController
@@ -39,10 +41,17 @@ public class ChattingController {
     @GetMapping("/rooms/{roomId}/chattings/{type}/messages")
     public ResponseEntity<?> getChattingList(@PathVariable("roomId") Long roomId, @PathVariable("type") String type, @LoginUser Long userId) {
 
+        ChattingParticipateType chattingParticipateType;
+        try {
+            chattingParticipateType = ChattingParticipateType.valueOf(type);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("잘못된 요청입니다. (MANITO, MANITI, ALL)");
+        }
+
         GetChattingListRequestDto params = GetChattingListRequestDto.builder()
                 .roomId(roomId)
                 .userId(userId)
-                .type(type)
+                .type(chattingParticipateType)
                 .build();
 
         List<GetChattingListResponseDto> resultList = chattingService.getChattingList(params);

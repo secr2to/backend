@@ -1,5 +1,6 @@
 package com.emelmujiro.secreto.chatting.dto.request;
 
+import com.emelmujiro.secreto.chatting.entity.ChattingParticipateType;
 import lombok.*;
 
 @Builder
@@ -12,5 +13,5 @@ public class GetChattingListRequestDto {
 
     private Long userId;
 
-    private String type;
+    private ChattingParticipateType type;
 }
