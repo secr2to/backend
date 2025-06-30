@@ -38,4 +38,6 @@ public interface RoomService {
     UpdateRoomImageResponseDto updateRoomImage(UpdateRoomImageRequestDto params);
 
     void deleteRoom(DeleteRoomRequestDto params);
+
+    GetMyRoomUserDetailsResponseDto getMyRoomUserDetails(GetMyRoomUserDetailsRequestDto params);
 }

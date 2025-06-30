@@ -1,15 +1,10 @@
 package com.emelmujiro.secreto.chatting.service.impl;
 
-import com.emelmujiro.secreto.chatting.dto.request.CreateChattingRequestDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListRequestDto;
-import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusRequestDto;
-import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResponseDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingListRequestDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResponseDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResponseDto;
-import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResponseDto;
+import com.emelmujiro.secreto.chatting.dto.request.*;
+import com.emelmujiro.secreto.chatting.dto.response.*;
 import com.emelmujiro.secreto.chatting.entity.ChattingMessage;
 import com.emelmujiro.secreto.chatting.entity.ChattingParticipate;
+import com.emelmujiro.secreto.chatting.entity.ChattingParticipateType;
 import com.emelmujiro.secreto.chatting.entity.ChattingRoom;
 import com.emelmujiro.secreto.chatting.error.ChattingErrorCode;
 import com.emelmujiro.secreto.chatting.exception.ChattingException;
@@ -24,6 +19,7 @@ import com.emelmujiro.secreto.room.exception.RoomException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -60,6 +56,8 @@ public class ChattingServiceImpl implements ChattingService {
                 .build();
 
         chattingMessageRepository.save(newChattingMessage);
+
+        findChattingRoom.updateLastChattingDate();
 
         CreateChattingResponseDto result = CreateChattingResponseDto.builder()
                 .chattingMessageId(newChattingMessage.getId())
@@ -129,6 +127,135 @@ public class ChattingServiceImpl implements ChattingService {
                     .chattingMessageId(cm.getId())
                     .readYn(cm.getReadYn())
                     .build());
+        }
+
+        return resultList;
+    }
+
+    @Override
+    public GetChattingRoomDetailsResponseDto getChattingParticipationsInfo(GetChattingRoomDetailsRequestDto params) {
+
+        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+
+        List<ChattingParticipate> chattingParticipateList = chattingParticipateRepository.findAllByChattingRoomIdAndRoomUserIdNotWithChattingRoomAndRoomUser(params.getChattingRoomId(), findRoomUser.getId());
+
+        GetChattingRoomDetailsResponseDto result;
+        List<ParticipationInfoDto> participationInfoList = new ArrayList<>();
+        ParticipationInfoDto participationInfo = null;
+        ChattingParticipate chattingParticipate = chattingParticipateList.get(0);
+        ChattingParticipateType chattingParticipateType = null;
+        if(chattingParticipateList.size() == 1) {
+
+            if(chattingParticipate.getChattingUserType() == ChattingParticipateType.MANITO) {
+
+                participationInfo = ParticipationInfoDto.builder()
+                        .roomUserId(chattingParticipate.getRoomUser().getId())
+                        .nickname("마니띠")
+                        .build();
+
+                chattingParticipateType = ChattingParticipateType.MANITI;
+            }
+            else if(chattingParticipate.getChattingUserType() == ChattingParticipateType.MANITI) {
+
+                participationInfo = ParticipationInfoDto.builder()
+                        .roomUserId(chattingParticipate.getRoomUser().getId())
+                        .nickname("마니또")
+                        .build();
+
+                chattingParticipateType = ChattingParticipateType.MANITO;
+            }
+
+            participationInfoList.add(participationInfo);
+        }
+        else {
+
+            for(ChattingParticipate cp : chattingParticipateList) {
+
+                participationInfo = ParticipationInfoDto.builder()
+                        .roomUserId(cp.getRoomUser().getId())
+                        .nickname(cp.getRoomUser().getNickname())
+                        .build();
+
+                participationInfoList.add(participationInfo);
+            }
+
+            chattingParticipateType = ChattingParticipateType.ALL;
+        }
+
+        result = GetChattingRoomDetailsResponseDto.builder()
+                .chattingRoomId(chattingParticipate.getChattingRoom().getId())
+                .chattingRoomType(chattingParticipateType)
+                .lastChattingDate(chattingParticipate.getChattingRoom().getLastChattingDate())
+                .participationInfoList(participationInfoList)
+                .build();
+
+        return result;
+    }
+
+    @Override
+    public List<GetChattingRoomDetailsResponseDto> getChattingRoomInfoList(GetChattingRoomInfoListRequestDto params) {
+
+        RoomUser findRoomUser = roomUserRepository.findByUserIdAndRoomId(params.getUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.USER_ROOM_INVALID));
+
+        List<GetChattingRoomDetailsResponseDto> resultList = new ArrayList<>();
+        List<ChattingParticipate> myChattingParticipateList = chattingParticipateRepository.findAllByRoomUserId(findRoomUser.getId());
+        for(ChattingParticipate myChattingParticipate : myChattingParticipateList) {
+
+            List<ChattingParticipate> chattingParticipateList = chattingParticipateRepository.findAllByChattingRoomIdAndRoomUserIdNotWithChattingRoomAndRoomUser(myChattingParticipate.getChattingRoom().getId(), findRoomUser.getId());
+
+            GetChattingRoomDetailsResponseDto result;
+            List<ParticipationInfoDto> participationInfoList = new ArrayList<>();
+            ParticipationInfoDto participationInfo = null;
+            ChattingParticipate chattingParticipate = chattingParticipateList.get(0);
+            ChattingParticipateType chattingParticipateType = null;
+            if(chattingParticipateList.size() == 1) {
+
+                if(chattingParticipate.getChattingUserType() == ChattingParticipateType.MANITO) {
+
+                    participationInfo = ParticipationInfoDto.builder()
+                            .roomUserId(chattingParticipate.getRoomUser().getId())
+                            .nickname("마니띠")
+                            .build();
+
+                    chattingParticipateType = ChattingParticipateType.MANITI;
+                }
+                else if(chattingParticipate.getChattingUserType() == ChattingParticipateType.MANITI) {
+
+                    participationInfo = ParticipationInfoDto.builder()
+                            .roomUserId(chattingParticipate.getRoomUser().getId())
+                            .nickname("마니또")
+                            .build();
+
+                    chattingParticipateType = ChattingParticipateType.MANITO;
+                }
+
+                participationInfoList.add(participationInfo);
+            }
+            else {
+
+                for(ChattingParticipate cp : chattingParticipateList) {
+
+                    participationInfo = ParticipationInfoDto.builder()
+                            .roomUserId(cp.getRoomUser().getId())
+                            .nickname(cp.getRoomUser().getNickname())
+                            .build();
+
+                    participationInfoList.add(participationInfo);
+                }
+
+                chattingParticipateType = ChattingParticipateType.ALL;
+            }
+
+            result = GetChattingRoomDetailsResponseDto.builder()
+                    .chattingRoomId(chattingParticipate.getChattingRoom().getId())
+                    .chattingRoomType(chattingParticipateType)
+                    .lastChattingDate(chattingParticipate.getChattingRoom().getLastChattingDate())
+                    .participationInfoList(participationInfoList)
+                    .build();
+
+            resultList.add(result);
         }
 
         return resultList;

@@ -1,20 +1,13 @@
 package com.emelmujiro.secreto.chatting.controller;
 
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
-import com.emelmujiro.secreto.chatting.dto.request.CreateChattingRequestDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingParticipationListRequestDto;
-import com.emelmujiro.secreto.chatting.dto.request.UpdateChattingReadStatusRequestDto;
-import com.emelmujiro.secreto.chatting.dto.response.CreateChattingResponseDto;
-import com.emelmujiro.secreto.chatting.dto.request.GetChattingListRequestDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingListResponseDto;
-import com.emelmujiro.secreto.chatting.dto.response.GetChattingParticipationListResponseDto;
-import com.emelmujiro.secreto.chatting.dto.response.UpdateChattingReadStatusResponseDto;
+import com.emelmujiro.secreto.chatting.dto.request.*;
+import com.emelmujiro.secreto.chatting.dto.response.*;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
 import com.emelmujiro.secreto.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -94,6 +87,47 @@ public class ChattingController {
                 .data(resultList)
                 .status(HttpStatus.OK)
                 .message("채팅 메시지를 읽음 처리하였습니다.")
+                .success();
+    }
+
+    /*
+    * 채팅방 단건 정보 조회 api
+    * */
+    @GetMapping("/rooms/{roomId}/chattings/{chattingRoomId}")
+    public ResponseEntity<?> getChattingRoomDetails(@PathVariable("roomId") Long roomId, @PathVariable("chattingRoomId") Long chattingRoomId, @LoginUser Long userId) {
+
+        GetChattingRoomDetailsRequestDto params = GetChattingRoomDetailsRequestDto.builder()
+                .roomId(roomId)
+                .chattingRoomId(chattingRoomId)
+                .userId(userId)
+                .build();
+
+        GetChattingRoomDetailsResponseDto result = chattingService.getChattingParticipationsInfo(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("채팅방의 정보를 조회하였습니다.")
+                .success();
+    }
+
+    /*
+    * 채팅방 리스트 정보 조회 api
+    * */
+    @GetMapping("/rooms/{roomId}/chattings")
+    public ResponseEntity<?> getChattingRoomInfoList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        GetChattingRoomInfoListRequestDto params = GetChattingRoomInfoListRequestDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        List<GetChattingRoomDetailsResponseDto> resultList = chattingService.getChattingRoomInfoList(params);
+
+        return ApiResponse.builder()
+                .data(resultList)
+                .status(HttpStatus.OK)
+                .message("채팅방 리스트의 정보를 조회하였습니다.")
                 .success();
     }
 

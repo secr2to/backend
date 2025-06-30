@@ -268,7 +268,7 @@ public class RoomController {
     }
 
     /*
-    * 방 유저 역할 조회 api
+    * 나의 방 유저 역할 조회 api
     * */
     @GetMapping("/{roomId}/my-role")
     public ResponseEntity<ApiResponse<Object>> getMyRoomUserRole(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
@@ -304,6 +304,23 @@ public class RoomController {
                 .data(null)
                 .status(HttpStatus.OK)
                 .message("방을 삭제하였습니다.")
+                .success();
+    }
+
+    @GetMapping("/{roomId}/my-info")
+    public ResponseEntity<?> getMyRoomUserDetails(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        GetMyRoomUserDetailsRequestDto params = GetMyRoomUserDetailsRequestDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        GetMyRoomUserDetailsResponseDto result = roomService.getMyRoomUserDetails(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("자신의 방 유저 세부 정보를 조회하였습니다.")
                 .success();
     }
 }

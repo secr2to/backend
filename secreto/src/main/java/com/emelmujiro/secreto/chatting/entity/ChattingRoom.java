@@ -30,4 +30,7 @@ public class ChattingRoom {
     @OneToMany(mappedBy = "chattingRoom", fetch = FetchType.LAZY)
     private List<ChattingMessage> chattingMessageList = new ArrayList<>();
 
+    public void updateLastChattingDate() {
+        this.lastChattingDate = LocalDateTime.now();
+    }
 }
