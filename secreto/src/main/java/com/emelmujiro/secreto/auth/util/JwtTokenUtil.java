@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import com.emelmujiro.secreto.auth.dto.AuthToken;
 import com.emelmujiro.secreto.auth.error.AuthErrorCode;
 import com.emelmujiro.secreto.auth.exception.AuthException;
-import com.emelmujiro.secreto.global.response.FilterResponseWriter;
 import com.emelmujiro.secreto.user.entity.User;
 
 import io.jsonwebtoken.Claims;
@@ -82,6 +81,15 @@ public class JwtTokenUtil {
 		return buildToken(userId, claims, refreshTokenExpirationSeconds * 1000L);
 	}
 
+	public String generateRefreshToken(User user) {
+		final Map<String, Object> claims = new HashMap<>(Map.of(
+			"username", user.getUsername(),
+			"provider", user.getOAuthProvider(),
+			"role", user.getRole()
+		));
+		return generateRefreshToken(user.getId(), claims);
+	}
+
 	private String generateAccessToken(Long userId, Map<String, Object> claims) {
 		claims.put("tokenType", TOKEN_TYPE_ACCESS);
 		return buildToken(userId, claims, accessTokenExpirationSeconds * 1000L);
@@ -134,21 +142,13 @@ public class JwtTokenUtil {
 	}
 
 	public String validateAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String authorization = null;
-		try {
-			authorization = resolveAuthorization(request);
-		} catch (AuthException e) {
-			FilterResponseWriter.of(response)
-				.errorCode(e.getErrorCode()).send();
-		}
+		String authorization = resolveAuthorization(request);
 
 		if (!verifyToken(authorization)) {
-			FilterResponseWriter.of(response)
-				.data(Map.of("tokenType", "accessToken"))
-				.errorCode(AuthErrorCode.ACCESS_TOKEN_EXPIRED).send();
+			throw new AuthException(AuthErrorCode.ACCESS_TOKEN_EXPIRED);
 		}
 		if (!isAccessToken(authorization)) {
-			FilterResponseWriter.of(response).errorCode(AuthErrorCode.WRONG_TOKEN_TYPE).send();
+			throw new AuthException(AuthErrorCode.WRONG_TOKEN_TYPE);
 		}
 		return authorization;
 	}

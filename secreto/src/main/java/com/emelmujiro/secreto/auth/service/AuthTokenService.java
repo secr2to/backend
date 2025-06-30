@@ -10,7 +10,7 @@ public interface AuthTokenService {
 
 	void saveRefreshToken(Long userId, String refreshToken);
 
-	String reissueAccessToken(String refreshToken);
+	AuthToken reissueAuthToken(String refreshToken);
 
 	void deleteRefreshToken(Long userId);
 
