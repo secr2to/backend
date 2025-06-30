@@ -55,10 +55,10 @@ public class MissionServiceImpl implements MissionService {
 
         List<RoomMission> resultList;
         if(params.getExecuteYn() == null) {
-            resultList = roomMissionRepository.findAll();
+            resultList = roomMissionRepository.findAllByRoomId(params.getRoomId());
         }
         else {
-            resultList = roomMissionRepository.findAllByExecuteYn(params.getExecuteYn());
+            resultList = roomMissionRepository.findAllByRoomIdAndExecuteYn(params.getRoomId(), params.getExecuteYn());
         }
 
         return resultList.stream()

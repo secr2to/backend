@@ -268,7 +268,7 @@ public class RoomController {
     }
 
     /*
-    * 방 유저 역할 조회 api
+    * 나의 방 유저 역할 조회 api
     * */
     @GetMapping("/{roomId}/my-role")
     public ResponseEntity<ApiResponse<Object>> getMyRoomUserRole(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
