@@ -151,7 +151,7 @@ public class ChattingServiceImpl implements ChattingService {
 
                 participationInfo = ParticipationInfoDto.builder()
                         .roomUserId(chattingParticipate.getRoomUser().getId())
-                        .nickname("마니띠")
+                        .nickname(chattingParticipate.getRoomUser().getNickname())
                         .build();
 
                 chattingParticipateType = ChattingParticipateType.MANITI;
@@ -216,7 +216,7 @@ public class ChattingServiceImpl implements ChattingService {
 
                     participationInfo = ParticipationInfoDto.builder()
                             .roomUserId(chattingParticipate.getRoomUser().getId())
-                            .nickname("마니띠")
+                            .nickname(chattingParticipate.getRoomUser().getNickname())
                             .build();
 
                     chattingParticipateType = ChattingParticipateType.MANITI;
