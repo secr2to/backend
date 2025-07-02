@@ -44,6 +44,12 @@ public class RoomServiceImpl implements RoomService {
     @Value("${s3.access-minute}")
     private int accessMinute;
 
+    @Value("${server.url}")
+    private String serverUrl;
+
+    @Value("${image.route}")
+    private String imageRoute;
+
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
@@ -124,7 +130,7 @@ public class RoomServiceImpl implements RoomService {
                         .useProfileYn(roomUser.getUseProfileYn())
                         .selfIntroduction(roomUser.getSelfIntroduction())
                         .profileUrl(roomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(roomUser.getRoomProfile().getImageKey(), accessMinute) : null)
-                        .roomCharacterUrl(roomUser.getRoomCharacter() != null ? roomUser.getRoomCharacter().getUrl() : null)
+                        .roomCharacterUrl(roomUser.getRoomCharacter() != null ? serverUrl + imageRoute + roomUser.getRoomCharacter().getUrl() : null)
                         .searchId(roomUser.getUser().getSearchId())
                         .build())
                 .toList();
@@ -150,7 +156,7 @@ public class RoomServiceImpl implements RoomService {
                 .useProfileYn(findRoomUser.getUseProfileYn())
                 .selfIntroduction(findRoomUser.getSelfIntroduction())
                 .profileUrl(findRoomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(findRoomUser.getRoomProfile().getImageKey(), accessMinute) : null)
-                .roomCharacterUrl(findRoomUser.getRoomCharacter() != null ? findRoomUser.getRoomCharacter().getUrl() : null)
+                .roomCharacterUrl(findRoomUser.getRoomCharacter() != null ? serverUrl + imageRoute + findRoomUser.getRoomCharacter().getUrl() : null)
                 .searchId(findRoomUser.getUser().getSearchId())
                 .build();
     }
