@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.mission.dto.request;
+package com.emelmujiro.secreto.notification.dto.request;
 
 public enum NotificationSearchPeriod {
     TODAY,

@@ -1,15 +1,13 @@
 package com.emelmujiro.secreto.notification.controller;
 
-import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.response.ApiResponse;
-import com.emelmujiro.secreto.mission.dto.request.NotificationSearchPeriod;
+import com.emelmujiro.secreto.notification.dto.request.NotificationSearchPeriod;
 import com.emelmujiro.secreto.notification.dto.request.GetAllNotificationsRequestDto;
 import com.emelmujiro.secreto.notification.dto.request.GetRoomNotificationsRequestDto;
 import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.GetRoomNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

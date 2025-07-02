@@ -1,6 +1,6 @@
 package com.emelmujiro.secreto.notification.service.impl;
 
-import com.emelmujiro.secreto.mission.dto.request.NotificationSearchPeriod;
+import com.emelmujiro.secreto.notification.dto.request.NotificationSearchPeriod;
 import com.emelmujiro.secreto.notification.dto.request.GetAllNotificationsRequestDto;
 import com.emelmujiro.secreto.notification.dto.request.GetRoomNotificationsRequestDto;
 import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsResponseDto;
