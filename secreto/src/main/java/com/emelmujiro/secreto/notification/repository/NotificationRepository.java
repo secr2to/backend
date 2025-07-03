@@ -12,17 +12,14 @@ import java.time.LocalDateTime;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     @Query("select n from Notification n where n.user.id = :userId")
-    Page<Notification> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
+    Page<Notification> findAllByUserId(@Param("userId") Long userId,
+                                       Pageable pageable);
 
     @Query("select n from Notification n where n.user.id = :userId and n.readYn = :readYn")
     Page<Notification> findAllByUserIdAndReadYn(@Param("userId") Long userId,
                                                 @Param("readYn") Boolean readYn,
                                                 Pageable pageable);
 
-//    @Query("select n from Notification n where " +
-//            "n.user.id = :userId and " +
-//            "n.generatedDate >= :startDate and " +
-//            "n.generatedDate <= :endDate")
     @Query("select n from Notification n where " +
         "n.user.id = :userId and " +
         "n.generatedDate between :startDate and :endDate")
@@ -31,11 +28,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                                                     @Param("endDate") LocalDateTime endDate,
                                                     Pageable pageable);
 
-//    @Query("select n from Notification n where " +
-//            "n.user.id = :userId and " +
-//            "n.generatedDate >= :startDate and " +
-//            "n.generatedDate <= :endDate and " +
-//            "n.readYn = :readYn")
     @Query("select n from Notification n where " +
         "n.user.id = :userId and " +
         "n.generatedDate between :startDate and :endDate and " +
@@ -45,4 +37,37 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                                                              @Param("endDate") LocalDateTime endDate,
                                                              @Param("readYn") Boolean readYn,
                                                              Pageable pageable);
+
+    @Query("select n from Notification n where n.user.id = :userId and n.room.id = :roomId")
+    Page<Notification> findAllByUserIdAndRoomId(@Param("userId") Long userId,
+                                                @Param("roomId") Long roomId,
+                                                Pageable pageable);
+
+    @Query("select n from Notification n where n.user.id = :userId and n.room.id = :roomId and n.readYn = :readYn")
+    Page<Notification> findAllByUserIdAndRoomIdAndReadYn(@Param("userId") Long userId,
+                                                         @Param("roomId") Long roomId,
+                                                         @Param("readYn") Boolean readYn,
+                                                         Pageable pageable);
+
+    @Query("select n from Notification n where " +
+            "n.user.id = :userId and " +
+            "n.room.id = :roomId and " +
+            "n.generatedDate between :startDate and :endDate")
+    Page<Notification> findAllByUserIdAndRoomIdAndStartDateAndEndDate(@Param("userId") Long userId,
+                                                                      @Param("roomId") Long roomId,
+                                                                      @Param("startDate") LocalDateTime startDate,
+                                                                      @Param("endDate") LocalDateTime endDate,
+                                                                      Pageable pageable);
+
+    @Query("select n from Notification n where " +
+            "n.user.id = :userId and " +
+            "n.room.id = :roomId and " +
+            "n.generatedDate between :startDate and :endDate and " +
+            "n.readYn = :readYn")
+    Page<Notification> findAllByUserIdAndRoomIdAndStartDateAndEndDateAndReadYn(@Param("userId") Long userId,
+                                                                               @Param("roomId") Long roomId,
+                                                                               @Param("startDate") LocalDateTime startDate,
+                                                                               @Param("endDate") LocalDateTime endDate,
+                                                                               @Param("readYn") Boolean readYn,
+                                                                               Pageable pageable);
 }
