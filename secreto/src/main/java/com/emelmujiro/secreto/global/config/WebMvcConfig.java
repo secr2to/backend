@@ -19,8 +19,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
 		WebMvcConfigurer.super.addArgumentResolvers(resolvers);
-//		resolvers.add(new LoginUserModelAttributeProcessor(true));
-//		resolvers.add(new LoginUserModelAttributeProcessor(false));
+		resolvers.add(new LoginUserModelAttributeProcessor(true));
+		resolvers.add(new LoginUserModelAttributeProcessor(false));
 		resolvers.add(new LoginUserArgumentResolver());
 	}
 }
