@@ -13,6 +13,10 @@ import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.global.service.S3DirectoryName;
 import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
+import com.emelmujiro.secreto.notification.dto.request.SendAndSaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.dto.request.SendNotificationRequestDto;
+import com.emelmujiro.secreto.notification.entity.NotificationType;
+import com.emelmujiro.secreto.notification.service.NotificationService;
 import com.emelmujiro.secreto.room.dto.DeleteRoomRequestDto;
 import com.emelmujiro.secreto.room.dto.request.*;
 import com.emelmujiro.secreto.room.dto.response.*;
@@ -28,6 +32,8 @@ import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.converter.SimpleMessageConverter;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,12 +62,15 @@ public class RoomServiceImpl implements RoomService {
     private final RoomMissionRepository roomMissionRepository;
     private final SystemCharacterColorRepository systemCharacterColorRepository;
     private final MatchingRepository matchingRepository;
-
-    private final RoomAuthorizationService roomAuthorizationService;
     private final ChattingRoomRepository chattingRoomRepository;
     private final ChattingParticipateRepository chattingParticipateRepository;
 
+    private final RoomAuthorizationService roomAuthorizationService;
+    private final NotificationService notificationService;
+
     private final S3Service s3Service;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
     @Override
@@ -229,6 +238,13 @@ public class RoomServiceImpl implements RoomService {
 
         findRoom.updateRoomInfo(params.getEndDate(), params.getMissionPeriod());
 
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.ROOM_INFORMATION)
+                .content(NotificationType.ROOM_INFORMATION.getMessage())
+                .targetId(findRoom.getId())
+                .author(findRoom.getName())
+                .build());
+
         return UpdateRoomDetailsResponseDto.from(findRoom);
     }
 
@@ -250,6 +266,22 @@ public class RoomServiceImpl implements RoomService {
 
         findRoom.startRoom();
 
+        List<User> receiverList = new ArrayList<>();
+        for(RoomUser roomUser : acceptedRoomUserList) {
+            receiverList.add(roomUser.getUser());
+        }
+
+        // 방 시작 알림 전송 및 저장
+        notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+                .notificationType(NotificationType.ROOM_START)
+                .author(findRoom.getName())
+                .content(NotificationType.ROOM_START.getMessage())
+                .targetId(findRoom.getId())
+                .receiverList(receiverList)
+                .room(findRoom)
+                .referenceId(findRoom.getId())
+                .build());
+
         // 대기상태인 방 유저들 삭제
         List<RoomUser> findRoomUserNotAcceptedList = roomUserRepository.findAllByRoomIdAndStandbyYn(params.getRoomId(), true);
         roomUserRepository.deleteAll(findRoomUserNotAcceptedList);
@@ -269,6 +301,17 @@ public class RoomServiceImpl implements RoomService {
         List<RoomMission> missionList = roomMissionRepository.findAllByRoomIdAndExecuteYn(findRoom.getId(), false);
         RoomMission selectedMission = missionList.get(new Random().nextInt(missionList.size()));
         selectedMission.executeMission();
+
+        // 방 미션 제시 알림 전송 및 저장
+        notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+                .notificationType(NotificationType.MISSION)
+                .author(findRoom.getName())
+                .content(selectedMission.getContent())
+                .targetId(findRoom.getId())
+                .receiverList(receiverList)
+                .room(findRoom)
+                .referenceId(findRoom.getId())
+                .build());
 
         // 마니또, 마니띠 매칭 관계 설정
         Collections.shuffle(acceptedRoomUserList);
@@ -360,6 +403,22 @@ public class RoomServiceImpl implements RoomService {
 
         findRoom.terminateRoom();
 
+        List<RoomUser> roomUserList = roomUserRepository.findAllByRoomIdAndStandbyYn(findRoom.getId(), false);
+
+        List<User> userList = new ArrayList<>();
+        for(RoomUser roomUser : roomUserList) {
+            userList.add(roomUser.getUser());
+        }
+        notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+                .notificationType(NotificationType.ROOM_END)
+                .author(findRoom.getName())
+                .content(NotificationType.ROOM_END.getMessage())
+                .targetId(findRoom.getId())
+                .receiverList(userList)
+                .room(findRoom)
+                .referenceId(findRoom.getId())
+                .build());
+
         // TODO: 방 히스토리 저장
 
     }
@@ -402,7 +461,7 @@ public class RoomServiceImpl implements RoomService {
             catch (Exception e) {
                 throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
             }
-            // TODO: S3 Storage에 파일 업로드 이후 url 반환받아 roomProfile 생성 이후 저장
+
             RoomProfile newRoomProfile = RoomProfile.builder()
                     .imageKey(key)
                     .build();
@@ -419,22 +478,42 @@ public class RoomServiceImpl implements RoomService {
 
         roomUserRepository.save(newRoomUser);
 
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.INGAME_PROFILE_INFO)
+                .content(NotificationType.INGAME_PROFILE_INFO.getMessage())
+                .targetId(findRoom.getId())
+                .author(findRoom.getName())
+                .build());
+
         return CreateRoomUserProfileResponseDto.from(newRoomUser);
     }
 
     @Override
     public UpdateRoomUserSelfIntroductionResponseDto updateRoomUserSelfIntroduction(UpdateRoomUserSelfIntroductionRequestDto params) {
 
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
+
         // 방에 소속된 유저인지 확인
         RoomUser findRoomUser = roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
         findRoomUser.changeSelfIntroduction(params.getSelfIntroduction());
+
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.INGAME_INTRODUCTION)
+                .content(NotificationType.INGAME_INTRODUCTION.getMessage())
+                .targetId(findRoom.getId())
+                .author(findRoom.getName())
+                .build());
 
         return UpdateRoomUserSelfIntroductionResponseDto.from(findRoomUser);
     }
 
     @Override
     public List<UpdateRoomUserStatusAcceptedResponseDto> updateRoomUserStatusAccepted(UpdateRoomUserStatusAcceptedRequestDto params) {
+
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
@@ -445,11 +524,21 @@ public class RoomServiceImpl implements RoomService {
             roomUser.acceptedIntoRoom();
         }
 
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.USER_ACCEPT)
+                .content(NotificationType.USER_ACCEPT.getMessage())
+                .targetId(findRoom.getId())
+                .author(findRoom.getName())
+                .build());
+
         return UpdateRoomUserStatusAcceptedResponseDto.from(findRoomUserList);
     }
 
     @Override
     public void deleteRoomUserDenied(DeleteRoomUserDeniedRequestDto params) {
+
+        Room findRoom = roomRepository.findById(params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
@@ -461,6 +550,13 @@ public class RoomServiceImpl implements RoomService {
                 throw new RoomException(RoomErrorCode.CANNOT_DENY_ROOM_USER);
             }
         }
+
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.USER_REJECT)
+                .content(NotificationType.USER_REJECT.getMessage())
+                .targetId(findRoom.getId())
+                .author(findRoom.getName())
+                .build());
 
         roomUserRepository.deleteAll(findRoomUserList);
     }
@@ -490,7 +586,6 @@ public class RoomServiceImpl implements RoomService {
         Room findRoom = roomRepository.findById(params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.NOT_EXIST_ROOM));
 
-        // TODO : 기존 이미지 S3에 존재 시 삭제
         if(findRoom.getImageKey() != null) {
             try {
                 s3Service.deleteFile(findRoom.getImageKey());
@@ -500,6 +595,13 @@ public class RoomServiceImpl implements RoomService {
         }
 
         findRoom.changeRoomImageKey(key);
+
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.ROOM_IMAGE)
+                .content(NotificationType.ROOM_IMAGE.getMessage())
+                .targetId(findRoom.getId())
+                .author(findRoom.getName())
+                .build());
 
         return UpdateRoomImageResponseDto.from(findRoom);
     }

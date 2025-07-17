@@ -25,6 +25,7 @@ public class GetAllNotificationsResponseDto {
                         .generatedDate(notification.getGeneratedDate())
                         .readYn(notification.getReadYn())
                         .type(notification.getNotificationType())
+                        .referenceId(notification.getReferenceId())
                         .build()
                 )
                 .toList();
