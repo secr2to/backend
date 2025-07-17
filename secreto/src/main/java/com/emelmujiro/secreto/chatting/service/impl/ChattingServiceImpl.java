@@ -12,6 +12,7 @@ import com.emelmujiro.secreto.chatting.repository.ChattingMessageRepository;
 import com.emelmujiro.secreto.chatting.repository.ChattingParticipateRepository;
 import com.emelmujiro.secreto.chatting.repository.ChattingRoomRepository;
 import com.emelmujiro.secreto.chatting.service.ChattingService;
+import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
@@ -68,7 +69,7 @@ public class ChattingServiceImpl implements ChattingService {
                 .chattingRoomId(newChattingMessage.getId())
                 .build();
 
-        messagingTemplate.convertAndSend("/sub/" + params.getChattingRoomId(), result);
+        messagingTemplate.convertAndSend(NotificationType.CHATTING.getSubscribeUrl() + params.getChattingRoomId(), result);
 
         return result;
     }

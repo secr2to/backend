@@ -6,6 +6,7 @@ import com.emelmujiro.secreto.notification.dto.request.GetAllNotificationsReques
 import com.emelmujiro.secreto.notification.dto.request.GetRoomNotificationsRequestDto;
 import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.GetRoomNotificationsResponseDto;
+import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

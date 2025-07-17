@@ -28,6 +28,8 @@ public class Notification {
 
     private Boolean readYn;
 
+    private Long referenceId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "type")
     private NotificationType notificationType;

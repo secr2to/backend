@@ -1,7 +1,13 @@
 package com.emelmujiro.secreto.room.batch.tasklet;
 
+import com.emelmujiro.secreto.notification.dto.request.SendAndSaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.entity.NotificationType;
+import com.emelmujiro.secreto.notification.service.NotificationService;
 import com.emelmujiro.secreto.room.entity.Room;
+import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
+import com.emelmujiro.secreto.room.repository.RoomUserRepository;
+import com.emelmujiro.secreto.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;
@@ -15,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +30,8 @@ import java.util.List;
 public class UpdateRoomStatusTasklet implements Tasklet, StepExecutionListener {
 
     private final RoomRepository roomRepository;
+    private final RoomUserRepository roomUserRepository;
+    private final NotificationService notificationService;
 
     @Override
     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
@@ -37,7 +46,24 @@ public class UpdateRoomStatusTasklet implements Tasklet, StepExecutionListener {
         }
 
         for(Room room : findTerminatedRoomList) {
+
             room.terminateRoom();
+
+            List<RoomUser> roomUserList = roomUserRepository.findAllByRoomIdAndStandbyYn(room.getId(), false);
+
+            List<User> userList = new ArrayList<>();
+            for(RoomUser roomUser : roomUserList) {
+                userList.add(roomUser.getUser());
+            }
+            notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+                    .notificationType(NotificationType.ROOM_END)
+                    .author(room.getName())
+                    .content(NotificationType.ROOM_END.getMessage())
+                    .targetId(room.getId())
+                    .receiverList(userList)
+                    .room(room)
+                    .referenceId(room.getId())
+                    .build());
         }
 
         log.info("총 {}개의 방 종료. 실행 시간 : {}", findTerminatedRoomList.size(), now);

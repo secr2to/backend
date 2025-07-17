@@ -15,4 +15,5 @@ public class NotificationDto {
     private LocalDateTime generatedDate;
     private Boolean readYn;
     private NotificationType type;
+    private Long referenceId;
 }

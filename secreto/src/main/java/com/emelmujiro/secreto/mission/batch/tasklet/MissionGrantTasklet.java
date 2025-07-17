@@ -1,10 +1,16 @@
 package com.emelmujiro.secreto.mission.batch.tasklet;
 
 import com.emelmujiro.secreto.mission.entity.RoomMission;
+import com.emelmujiro.secreto.notification.dto.request.SendAndSaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.entity.NotificationType;
+import com.emelmujiro.secreto.notification.service.NotificationService;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.entity.RoomStatus;
+import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.repository.RoomMissionRepository;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
+import com.emelmujiro.secreto.room.repository.RoomUserRepository;
+import com.emelmujiro.secreto.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;
@@ -18,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -27,7 +34,9 @@ import java.util.Random;
 public class MissionGrantTasklet implements Tasklet, StepExecutionListener {
 
     private final RoomRepository roomRepository;
+    private final RoomUserRepository roomUserRepository;
     private final RoomMissionRepository roomMissionRepository;
+    private final NotificationService notificationService;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -52,6 +61,22 @@ public class MissionGrantTasklet implements Tasklet, StepExecutionListener {
                 RoomMission selectedMission = missionList.get(new Random().nextInt(missionList.size()));
                 selectedMission.executeMission();
             }
+
+            List<RoomUser> roomUserList = roomUserRepository.findAllByRoomIdAndStandbyYn(room.getId(), false);
+
+            List<User> userList = new ArrayList<>();
+            for(RoomUser roomUser : roomUserList) {
+                userList.add(roomUser.getUser());
+            }
+            notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+                    .notificationType(NotificationType.MISSION)
+                    .author(room.getName())
+                    .content(NotificationType.MISSION.getMessage())
+                    .targetId(room.getId())
+                    .receiverList(userList)
+                    .room(room)
+                    .referenceId(room.getId())
+                    .build());
         }
 
         return RepeatStatus.FINISHED;
