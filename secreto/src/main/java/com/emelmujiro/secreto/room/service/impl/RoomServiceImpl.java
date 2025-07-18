@@ -13,7 +13,7 @@ import com.emelmujiro.secreto.game.repository.SystemCharacterColorRepository;
 import com.emelmujiro.secreto.global.service.S3DirectoryName;
 import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.mission.entity.RoomMission;
-import com.emelmujiro.secreto.notification.dto.request.SendAndSaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.dto.request.SaveNotificationRequestDto;
 import com.emelmujiro.secreto.notification.dto.request.SendNotificationRequestDto;
 import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.notification.service.NotificationService;
@@ -32,15 +32,12 @@ import com.emelmujiro.secreto.user.entity.User;
 import com.emelmujiro.secreto.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.converter.SimpleMessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -240,7 +237,7 @@ public class RoomServiceImpl implements RoomService {
 
         notificationService.sendNotification(SendNotificationRequestDto.builder()
                 .notificationType(NotificationType.ROOM_INFORMATION)
-                .content(NotificationType.ROOM_INFORMATION.getMessage())
+                .content(findRoom.getName() + " " + NotificationType.ROOM_INFORMATION.getMessage())
                 .targetId(findRoom.getId())
                 .author(findRoom.getName())
                 .build());
@@ -272,10 +269,17 @@ public class RoomServiceImpl implements RoomService {
         }
 
         // 방 시작 알림 전송 및 저장
-        notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.ROOM_START)
+                .content(findRoom.getName() + " " + NotificationType.ROOM_START.getMessage())
+                .author(findRoom.getName())
+                .targetId(findRoom.getId())
+                .build());
+
+        notificationService.saveNotification(SaveNotificationRequestDto.builder()
                 .notificationType(NotificationType.ROOM_START)
                 .author(findRoom.getName())
-                .content(NotificationType.ROOM_START.getMessage())
+                .content(findRoom.getName() + " " + NotificationType.ROOM_START.getMessage())
                 .targetId(findRoom.getId())
                 .receiverList(receiverList)
                 .room(findRoom)
@@ -303,10 +307,17 @@ public class RoomServiceImpl implements RoomService {
         selectedMission.executeMission();
 
         // 방 미션 제시 알림 전송 및 저장
-        notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.MISSION)
+                .content(findRoom.getName() + " " + NotificationType.MISSION.getMessage())
+                .author(findRoom.getName())
+                .targetId(findRoom.getId())
+                .build());
+
+        notificationService.saveNotification(SaveNotificationRequestDto.builder()
                 .notificationType(NotificationType.MISSION)
                 .author(findRoom.getName())
-                .content(selectedMission.getContent())
+                .content(selectedMission.getContent() + " " + NotificationType.MISSION.getMessage())
                 .targetId(findRoom.getId())
                 .receiverList(receiverList)
                 .room(findRoom)
@@ -409,10 +420,17 @@ public class RoomServiceImpl implements RoomService {
         for(RoomUser roomUser : roomUserList) {
             userList.add(roomUser.getUser());
         }
-        notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+        notificationService.sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(NotificationType.ROOM_END)
+                .content(findRoom.getName() + " " + NotificationType.ROOM_END.getMessage())
+                .author(findRoom.getName())
+                .targetId(findRoom.getId())
+                .build());
+
+        notificationService.saveNotification(SaveNotificationRequestDto.builder()
                 .notificationType(NotificationType.ROOM_END)
                 .author(findRoom.getName())
-                .content(NotificationType.ROOM_END.getMessage())
+                .content(findRoom.getName() + " " + NotificationType.ROOM_END.getMessage())
                 .targetId(findRoom.getId())
                 .receiverList(userList)
                 .room(findRoom)
@@ -517,6 +535,17 @@ public class RoomServiceImpl implements RoomService {
 
         // 방장인지 권한 확인
         roomAuthorizationService.checkIsManager(params.getUserId(), params.getRoomId());
+
+        // 요청한 유저가 모두 방에 속해 있는지 검증
+        Set<Long> roomUserIdSet = findRoom.getRoomUserList().stream()
+                .map(RoomUser::getId)
+                .collect(Collectors.toSet());
+
+        for (Long roomUserId : params.getRoomUserIds()) {
+            if (!roomUserIdSet.contains(roomUserId)) {
+                throw new RoomException(RoomErrorCode.NOT_EXIST_ROOM_USER);
+            }
+        }
 
         List<RoomUser> findRoomUserList = roomUserRepository.findAllById(params.getRoomUserIds());
 

@@ -5,7 +5,6 @@ import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsRespo
 import com.emelmujiro.secreto.notification.dto.response.GetRoomNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.SendNotificationResponseDto;
 import com.emelmujiro.secreto.notification.entity.Notification;
-import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.notification.repository.NotificationRepository;
 import com.emelmujiro.secreto.notification.service.NotificationService;
 import com.emelmujiro.secreto.user.entity.User;
@@ -24,7 +23,6 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final UserRepository userRepository;
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -40,14 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendAndSaveNotification(SendAndSaveNotificationRequestDto params) {
-
-        sendNotification(SendNotificationRequestDto.builder()
-                .notificationType(params.getNotificationType())
-                .content(params.getContent())
-                .author(params.getAuthor())
-                .targetId(params.getTargetId())
-                .build());
+    public void saveNotification(SaveNotificationRequestDto params) {
 
         List<Notification> newNotificationList = new ArrayList<>();
         for(User receiver : params.getReceiverList()) {
