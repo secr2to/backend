@@ -92,6 +92,26 @@ public class RoomController {
     }
 
     /*
+    * 방 유저 프로필 이미지 목록 조회
+    * */
+    @GetMapping("/{roomId}/profile")
+    public ResponseEntity<ApiResponse<Object>> getRoomUserProfileList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
+
+        GetRoomUserProfileListRequestDto params = GetRoomUserProfileListRequestDto.builder()
+                .roomId(roomId)
+                .userId(userId)
+                .build();
+
+        List<GetRoomUserProfileListResponseDto> resultList = roomService.getRoomUserProfileList(params);
+
+        return ApiResponse.builder()
+                .data(resultList)
+                .status(HttpStatus.OK)
+                .message("방 유저 프로필 이미지 목록을 조회하였습니다.")
+                .success();
+    }
+
+    /*
     * 방 유저 조회 api
     * */
     @GetMapping("/{roomId}/users/{roomUserId}")

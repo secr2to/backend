@@ -127,21 +127,40 @@ public class RoomServiceImpl implements RoomService {
         // 방에 소속된 유저인지 확인
         roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
-        List<GetRoomUserListResponseDto> resultList = roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomId()).stream()
+        return roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomId()).stream()
                 .map(roomUser -> GetRoomUserListResponseDto.builder()
                         .roomUserId(roomUser.getId())
                         .managerYn(roomUser.getManagerYn())
                         .standbyYn(roomUser.getStandbyYn())
                         .nickname(roomUser.getNickname())
-                        .useProfileYn(roomUser.getUseProfileYn())
                         .selfIntroduction(roomUser.getSelfIntroduction())
-                        .profileUrl(roomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(roomUser.getRoomProfile().getImageKey(), accessMinute) : null)
-                        .roomCharacterUrl(roomUser.getRoomCharacter() != null ? serverUrl + imageRoute + roomUser.getRoomCharacter().getUrl() : null)
                         .searchId(roomUser.getUser().getSearchId())
                         .build())
                 .toList();
+    }
 
-        return resultList;
+    @Override
+    public List<GetRoomUserProfileListResponseDto> getRoomUserProfileList(GetRoomUserProfileListRequestDto params) {
+
+        // 방에 소속된 유저인지 확인
+        roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        return roomUserRepository.findAllByRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomId()).stream()
+                .map(roomUser -> {
+
+                    String profileUrl;
+                    if (roomUser.getUseProfileYn()) {
+                        profileUrl = s3Service.generatePresignedUrl(roomUser.getRoomProfile().getImageKey(), accessMinute);
+                    } else {
+                        profileUrl = serverUrl + imageRoute + roomUser.getRoomCharacter().getUrl();
+                    }
+
+                    return GetRoomUserProfileListResponseDto.builder()
+                            .roomUserId(roomUser.getId())
+                            .profileUrl(profileUrl)
+                            .build();
+                })
+                .toList();
     }
 
     @Transactional(readOnly = true)
