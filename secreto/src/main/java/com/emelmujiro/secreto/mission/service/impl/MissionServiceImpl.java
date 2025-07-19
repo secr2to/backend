@@ -26,6 +26,7 @@ public class MissionServiceImpl implements MissionService {
     private final RoomAuthorizationService roomAuthorizationService;
     private final RoomMissionRepository roomMissionRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetSystemMissionListResponseDto> getSystemMissionList() {
 
@@ -48,6 +49,7 @@ public class MissionServiceImpl implements MissionService {
         return CreateSystemMissionResponseDto.from(findSystemMission);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetRoomMissionListResponseDto> getRoomMissionList(GetRoomMissionListRequestDto params) {
 

@@ -2,22 +2,24 @@ package com.emelmujiro.secreto.notification.service.impl;
 
 import com.emelmujiro.secreto.notification.dto.request.*;
 import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsResponseDto;
+import com.emelmujiro.secreto.notification.dto.response.GetNotificationDetailsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.GetRoomNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.SendNotificationResponseDto;
 import com.emelmujiro.secreto.notification.entity.Notification;
 import com.emelmujiro.secreto.notification.repository.NotificationRepository;
 import com.emelmujiro.secreto.notification.service.NotificationService;
 import com.emelmujiro.secreto.user.entity.User;
-import com.emelmujiro.secreto.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -26,6 +28,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
+    @Transactional(readOnly = true)
     @Override
     public void sendNotification(SendNotificationRequestDto params) {
 
@@ -59,6 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.saveAll(newNotificationList);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetAllNotificationsResponseDto getAllNotifications(GetAllNotificationsRequestDto params) {
 
@@ -91,6 +95,7 @@ public class NotificationServiceImpl implements NotificationService {
         return GetAllNotificationsResponseDto.from(notificationList);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetRoomNotificationsResponseDto getRoomNotifications(GetRoomNotificationsRequestDto params) {
 
@@ -121,6 +126,17 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         return GetRoomNotificationsResponseDto.from(notificationList);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public GetNotificationDetailsResponseDto getNotificationDetails(GetNotificationDetailsRequestDto params) {
+
+        Notification findNotification = notificationRepository.findByIdAndUserId(params.getNotificationId(), params.getUserId());
+
+        findNotification.readNotification();
+
+        return GetNotificationDetailsResponseDto.from(findNotification);
     }
 
     private static DateInfo getStartDateAndEndDate(NotificationSearchPeriod period) {

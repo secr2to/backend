@@ -20,6 +20,7 @@ public class GetAllNotificationsResponseDto {
 
         List<NotificationDto> notificationList = pagedNotificationList.stream()
                 .map(notification -> NotificationDto.builder()
+                        .notificationId(notification.getId())
                         .author(notification.getAuthor())
                         .content(notification.getContent())
                         .generatedDate(notification.getGeneratedDate())

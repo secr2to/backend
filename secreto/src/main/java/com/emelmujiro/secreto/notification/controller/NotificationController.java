@@ -1,10 +1,13 @@
 package com.emelmujiro.secreto.notification.controller;
 
+import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.response.ApiResponse;
+import com.emelmujiro.secreto.notification.dto.request.GetNotificationDetailsRequestDto;
 import com.emelmujiro.secreto.notification.dto.request.NotificationSearchPeriod;
 import com.emelmujiro.secreto.notification.dto.request.GetAllNotificationsRequestDto;
 import com.emelmujiro.secreto.notification.dto.request.GetRoomNotificationsRequestDto;
 import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsResponseDto;
+import com.emelmujiro.secreto.notification.dto.response.GetNotificationDetailsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.GetRoomNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.notification.service.NotificationService;
@@ -50,6 +53,23 @@ public class NotificationController {
                 .data(result)
                 .status(HttpStatus.OK)
                 .message("방의 알림 리스트를 조회하였습니다.")
+                .success();
+    }
+
+    @PatchMapping("/notifications/{notificationId}")
+    public ResponseEntity<ApiResponse<Object>> getNotificationDetails(@PathVariable("notificationId") Long notificationId, @LoginUser Long userId) {
+
+        GetNotificationDetailsRequestDto params = GetNotificationDetailsRequestDto.builder()
+                .notificationId(notificationId)
+                .userId(userId)
+                .build();
+
+        GetNotificationDetailsResponseDto result = notificationService.getNotificationDetails(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("해당 알림을 조회하였습니다.")
                 .success();
     }
 

@@ -41,4 +41,10 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
+
+    public void readNotification() {
+        if(!this.readYn) {
+            this.readYn = true;
+        }
+    }
 }

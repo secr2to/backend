@@ -139,6 +139,7 @@ public class RoomServiceImpl implements RoomService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetRoomUserProfileListResponseDto> getRoomUserProfileList(GetRoomUserProfileListRequestDto params) {
 
@@ -176,6 +177,7 @@ public class RoomServiceImpl implements RoomService {
         return GetRoomUserDetailsResponseDto.from(findRoomUser);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetRoomUserProfileDetailsResponseDto getRoomUserProfileDetails(GetRoomUserProfileDetailsRequestDto params) {
 
@@ -621,6 +623,7 @@ public class RoomServiceImpl implements RoomService {
         roomUserRepository.deleteAll(findRoomUserList);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetMyRoomUserRoleResponseDto getMyRoomUserRole(GetMyRoomUserRoleRequestDto params) {
 
@@ -682,6 +685,7 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.delete(findRoom);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetMyRoomUserDetailsResponseDto getMyRoomUserDetails(GetMyRoomUserDetailsRequestDto params) {
 
@@ -705,6 +709,4 @@ public class RoomServiceImpl implements RoomService {
                 .searchId(findRoomUser.getUser().getSearchId())
                 .build();
     }
-
-
 }
