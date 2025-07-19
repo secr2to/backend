@@ -1,5 +1,6 @@
 package com.emelmujiro.secreto.notification.service;
 
+import com.emelmujiro.secreto.notification.dto.request.SendNotificationListRequestDto;
 import com.emelmujiro.secreto.notification.dto.request.*;
 import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.GetNotificationDetailsResponseDto;
@@ -8,6 +9,8 @@ import com.emelmujiro.secreto.notification.dto.response.GetRoomNotificationsResp
 public interface NotificationService {
 
     void sendNotification(SendNotificationRequestDto params);
+
+    void sendNotificationList(SendNotificationListRequestDto params);
 
     void saveNotification(SaveNotificationRequestDto params);
 

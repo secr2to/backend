@@ -40,6 +40,20 @@ public class NotificationServiceImpl implements NotificationService {
                         .build());
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public void sendNotificationList(SendNotificationListRequestDto params) {
+
+        for(Long targetId : params.getTargetIdList()) {
+            messagingTemplate.convertAndSend(params.getNotificationType().getSubscribeUrl() + targetId,
+                    SendNotificationResponseDto.builder()
+                            .author(params.getAuthor())
+                            .type(params.getNotificationType())
+                            .content(params.getContent())
+                            .build());
+        }
+    }
+
     @Override
     public void saveNotification(SaveNotificationRequestDto params) {
 

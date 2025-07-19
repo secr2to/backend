@@ -11,12 +11,10 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class SaveNotificationRequestDto {
+public class SendNotificationListRequestDto {
 
     private NotificationType notificationType;
-    private String author;
     private String content;
-    private List<User> receiverList;
-    private Room room;
-    private Long referenceId;
+    private String author;
+    private List<Long> targetIdList;
 }

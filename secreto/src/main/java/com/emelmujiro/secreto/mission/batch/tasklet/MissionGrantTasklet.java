@@ -82,7 +82,6 @@ public class MissionGrantTasklet implements Tasklet, StepExecutionListener {
                     .notificationType(NotificationType.MISSION)
                     .author(room.getName())
                     .content(NotificationType.MISSION.getMessage())
-                    .targetId(room.getId())
                     .receiverList(receiverList)
                     .room(room)
                     .referenceId(room.getId())

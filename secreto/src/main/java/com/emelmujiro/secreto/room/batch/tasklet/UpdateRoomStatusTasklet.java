@@ -67,7 +67,6 @@ public class UpdateRoomStatusTasklet implements Tasklet, StepExecutionListener {
                     .notificationType(NotificationType.ROOM_END)
                     .author(room.getName())
                     .content(NotificationType.ROOM_END.getMessage())
-                    .targetId(room.getId())
                     .receiverList(userList)
                     .room(room)
                     .referenceId(room.getId())
