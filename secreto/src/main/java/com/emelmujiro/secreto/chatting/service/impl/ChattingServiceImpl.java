@@ -17,11 +17,11 @@ import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.room.error.RoomErrorCode;
 import com.emelmujiro.secreto.room.exception.RoomException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -74,6 +74,7 @@ public class ChattingServiceImpl implements ChattingService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetChattingListResponseDto> getChattingList(GetChattingListRequestDto params) {
 
@@ -95,6 +96,7 @@ public class ChattingServiceImpl implements ChattingService {
         return resultList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetChattingParticipationListResponseDto> getChattingParticipationList(GetChattingParticipationListRequestDto params) {
 
@@ -133,6 +135,7 @@ public class ChattingServiceImpl implements ChattingService {
         return resultList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public GetChattingRoomDetailsResponseDto getChattingParticipationsInfo(GetChattingRoomDetailsRequestDto params) {
 
@@ -194,6 +197,7 @@ public class ChattingServiceImpl implements ChattingService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<GetChattingRoomDetailsResponseDto> getChattingRoomInfoList(GetChattingRoomInfoListRequestDto params) {
 

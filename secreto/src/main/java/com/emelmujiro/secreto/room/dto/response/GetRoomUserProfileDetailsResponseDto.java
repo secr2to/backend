@@ -6,12 +6,8 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class GetRoomUserListResponseDto {
+public class GetRoomUserProfileDetailsResponseDto {
 
     private Long roomUserId;
-    private Boolean managerYn;
-    private Boolean standbyYn;
-    private String nickname;
-    private String selfIntroduction;
-    private String searchId;
+    private String profileUrl;
 }
