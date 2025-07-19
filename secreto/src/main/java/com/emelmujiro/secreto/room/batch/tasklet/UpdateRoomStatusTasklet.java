@@ -1,6 +1,7 @@
 package com.emelmujiro.secreto.room.batch.tasklet;
 
-import com.emelmujiro.secreto.notification.dto.request.SendAndSaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.dto.request.SaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.dto.request.SendNotificationRequestDto;
 import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.notification.service.NotificationService;
 import com.emelmujiro.secreto.room.entity.Room;
@@ -20,7 +21,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,11 +55,18 @@ public class UpdateRoomStatusTasklet implements Tasklet, StepExecutionListener {
             for(RoomUser roomUser : roomUserList) {
                 userList.add(roomUser.getUser());
             }
-            notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+
+            notificationService.sendNotification(SendNotificationRequestDto.builder()
+                    .notificationType(NotificationType.ROOM_END)
+                    .content(NotificationType.ROOM_END.getMessage())
+                    .author(room.getName())
+                    .targetId(room.getId())
+                    .build());
+
+            notificationService.saveNotification(SaveNotificationRequestDto.builder()
                     .notificationType(NotificationType.ROOM_END)
                     .author(room.getName())
                     .content(NotificationType.ROOM_END.getMessage())
-                    .targetId(room.getId())
                     .receiverList(userList)
                     .room(room)
                     .referenceId(room.getId())

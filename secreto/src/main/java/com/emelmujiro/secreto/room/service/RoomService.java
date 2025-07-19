@@ -40,4 +40,8 @@ public interface RoomService {
     void deleteRoom(DeleteRoomRequestDto params);
 
     GetMyRoomUserDetailsResponseDto getMyRoomUserDetails(GetMyRoomUserDetailsRequestDto params);
+
+    List<GetRoomUserProfileListResponseDto> getRoomUserProfileList(GetRoomUserProfileListRequestDto params);
+
+    GetRoomUserProfileDetailsResponseDto getRoomUserProfileDetails(GetRoomUserProfileDetailsRequestDto params);
 }

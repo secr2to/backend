@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class NotificationDto {
+    private Long notificationId;
     private String author;
     private String content;
     private LocalDateTime generatedDate;

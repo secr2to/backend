@@ -1,7 +1,8 @@
 package com.emelmujiro.secreto.mission.batch.tasklet;
 
 import com.emelmujiro.secreto.mission.entity.RoomMission;
-import com.emelmujiro.secreto.notification.dto.request.SendAndSaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.dto.request.SaveNotificationRequestDto;
+import com.emelmujiro.secreto.notification.dto.request.SendNotificationRequestDto;
 import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.notification.service.NotificationService;
 import com.emelmujiro.secreto.room.entity.Room;
@@ -64,16 +65,24 @@ public class MissionGrantTasklet implements Tasklet, StepExecutionListener {
 
             List<RoomUser> roomUserList = roomUserRepository.findAllByRoomIdAndStandbyYn(room.getId(), false);
 
-            List<User> userList = new ArrayList<>();
+            List<User> receiverList = new ArrayList<>();
             for(RoomUser roomUser : roomUserList) {
-                userList.add(roomUser.getUser());
+
+                notificationService.sendNotification(SendNotificationRequestDto.builder()
+                        .notificationType(NotificationType.MISSION)
+                        .content(NotificationType.MISSION.getMessage())
+                        .author(room.getName())
+                        .targetId(room.getId())
+                        .build());
+
+                receiverList.add(roomUser.getUser());
             }
-            notificationService.sendAndSaveNotification(SendAndSaveNotificationRequestDto.builder()
+
+            notificationService.saveNotification(SaveNotificationRequestDto.builder()
                     .notificationType(NotificationType.MISSION)
                     .author(room.getName())
                     .content(NotificationType.MISSION.getMessage())
-                    .targetId(room.getId())
-                    .receiverList(userList)
+                    .receiverList(receiverList)
                     .room(room)
                     .referenceId(room.getId())
                     .build());

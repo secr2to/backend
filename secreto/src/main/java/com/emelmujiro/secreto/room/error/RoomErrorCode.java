@@ -12,6 +12,7 @@ public enum RoomErrorCode implements ErrorCode {
     NOT_EXIST_ROOM_USER(HttpStatus.BAD_REQUEST, "해당 방 유저가 존재하지 않습니다."),
     NOT_EXIST_ROOM(HttpStatus.BAD_REQUEST, "해당 방이 존재하지 않습니다."),
     NOT_EXIST_ROOM_CODE(HttpStatus.BAD_REQUEST, "해당 코드를 가진 방이 존재하지 않습니다."),
+    NOT_EXIST_PROFILE_IMAGE(HttpStatus.BAD_REQUEST, "사용자의 프로필 이미지가 존재하지 않습니다."),
     USER_ROOM_INVALID(HttpStatus.BAD_REQUEST, "해당 유저는 해당 방에 속해있지 않습니다."),
     INVALID_ROOM_STATUS(HttpStatus.BAD_REQUEST, "해당 방 상태는 정의되어 있지 않습니다."),
     ROOMUSER_ROOM_INVALID(HttpStatus.BAD_REQUEST, "해당 방에는 해당 식별키를 가진 방 유저가 없습니다."),

@@ -13,9 +13,7 @@ public class GetMyRoomUserDetailsResponseDto {
     private Boolean managerYn;
     private Boolean standbyYn;
     private String nickname;
-    private Boolean useProfileYn;
     private String selfIntroduction;
     private String profileUrl;
-    private String roomCharacterUrl;
     private String searchId;
 }

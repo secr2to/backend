@@ -70,4 +70,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                                                                                @Param("endDate") LocalDateTime endDate,
                                                                                @Param("readYn") Boolean readYn,
                                                                                Pageable pageable);
+
+    @Query("select n from Notification n where " +
+            "n.id = :notificationId and " +
+            "n.user.id = :userId")
+    Notification findByIdAndUserId(@Param("notificationId") Long notificationId, @Param("userId") Long userId);
 }
