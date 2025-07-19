@@ -42,4 +42,6 @@ public interface RoomService {
     GetMyRoomUserDetailsResponseDto getMyRoomUserDetails(GetMyRoomUserDetailsRequestDto params);
 
     List<GetRoomUserProfileListResponseDto> getRoomUserProfileList(GetRoomUserProfileListRequestDto params);
+
+    GetRoomUserProfileDetailsResponseDto getRoomUserProfileDetails(GetRoomUserProfileDetailsRequestDto params);
 }

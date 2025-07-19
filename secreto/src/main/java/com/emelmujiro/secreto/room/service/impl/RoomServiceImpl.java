@@ -173,16 +173,28 @@ public class RoomServiceImpl implements RoomService {
         RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomUserId(), params.getRoomId())
                 .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
 
-        return GetRoomUserDetailsResponseDto.builder()
+        return GetRoomUserDetailsResponseDto.from(findRoomUser);
+    }
+
+    @Override
+    public GetRoomUserProfileDetailsResponseDto getRoomUserProfileDetails(GetRoomUserProfileDetailsRequestDto params) {
+
+        // 방에 소속된 유저인지 확인
+        roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
+
+        RoomUser findRoomUser = roomUserRepository.findByIdAndRoomIdWithRoomCharacterAndRoomProfileAndUser(params.getRoomUserId(), params.getRoomId())
+                .orElseThrow(() -> new RoomException(RoomErrorCode.ROOMUSER_ROOM_INVALID));
+
+        String profileUrl;
+        if (findRoomUser.getUseProfileYn()) {
+            profileUrl = s3Service.generatePresignedUrl(findRoomUser.getRoomProfile().getImageKey(), accessMinute);
+        } else {
+            profileUrl = serverUrl + imageRoute + findRoomUser.getRoomCharacter().getUrl();
+        }
+
+        return GetRoomUserProfileDetailsResponseDto.builder()
                 .roomUserId(findRoomUser.getId())
-                .managerYn(findRoomUser.getManagerYn())
-                .standbyYn(findRoomUser.getStandbyYn())
-                .nickname(findRoomUser.getNickname())
-                .useProfileYn(findRoomUser.getUseProfileYn())
-                .selfIntroduction(findRoomUser.getSelfIntroduction())
-                .profileUrl(findRoomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(findRoomUser.getRoomProfile().getImageKey(), accessMinute) : null)
-                .roomCharacterUrl(findRoomUser.getRoomCharacter() != null ? serverUrl + imageRoute + findRoomUser.getRoomCharacter().getUrl() : null)
-                .searchId(findRoomUser.getUser().getSearchId())
+                .profileUrl(profileUrl)
                 .build();
     }
 

@@ -92,7 +92,7 @@ public class RoomController {
     }
 
     /*
-    * 방 유저 프로필 이미지 목록 조회
+    * 방 유저 프로필 이미지 목록 조회 api
     * */
     @GetMapping("/{roomId}/profile")
     public ResponseEntity<ApiResponse<Object>> getRoomUserProfileList(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
@@ -129,6 +129,27 @@ public class RoomController {
                 .data(result)
                 .status(HttpStatus.OK)
                 .message("방 유저 세부 정보를 조회하였습니다.")
+                .success();
+    }
+
+    /*
+    * 방 유저 프로필 이미지 정보 조회 api
+    * */
+    @GetMapping("/{roomId}/profile/{roomUserId}")
+    public ResponseEntity<ApiResponse<Object>> getRoomUserProfileDetails(@PathVariable("roomId") Long roomId, @PathVariable("roomUserId") Long roomUserId, @LoginUser Long userId) {
+
+        GetRoomUserProfileDetailsRequestDto params = GetRoomUserProfileDetailsRequestDto.builder()
+                .roomId(roomId)
+                .roomUserId(roomUserId)
+                .userId(userId)
+                .build();
+
+        GetRoomUserProfileDetailsResponseDto result = roomService.getRoomUserProfileDetails(params);
+
+        return ApiResponse.builder()
+                .data(result)
+                .status(HttpStatus.OK)
+                .message("방 유저 프로필 이미지 정보를 조회하였습니다.")
                 .success();
     }
 
