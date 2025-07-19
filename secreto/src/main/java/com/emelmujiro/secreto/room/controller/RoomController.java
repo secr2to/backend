@@ -348,6 +348,9 @@ public class RoomController {
                 .success();
     }
 
+    /*
+    * 자신의 방 유저 정보 조회 api
+    * */
     @GetMapping("/{roomId}/my-info")
     public ResponseEntity<?> getMyRoomUserDetails(@PathVariable("roomId") Long roomId, @LoginUser Long userId) {
 

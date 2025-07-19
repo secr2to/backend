@@ -688,15 +688,20 @@ public class RoomServiceImpl implements RoomService {
         // 방에 소속된 유저인지 확인
         RoomUser findRoomUser = roomAuthorizationService.checkIsRoomUser(params.getUserId(), params.getRoomId());
 
+        String profileUrl;
+        if (findRoomUser.getUseProfileYn()) {
+            profileUrl = s3Service.generatePresignedUrl(findRoomUser.getRoomProfile().getImageKey(), accessMinute);
+        } else {
+            profileUrl = serverUrl + imageRoute + findRoomUser.getRoomCharacter().getUrl();
+        }
+
         return GetMyRoomUserDetailsResponseDto.builder()
                 .roomUserId(findRoomUser.getId())
                 .managerYn(findRoomUser.getManagerYn())
                 .standbyYn(findRoomUser.getStandbyYn())
                 .nickname(findRoomUser.getNickname())
-                .useProfileYn(findRoomUser.getUseProfileYn())
                 .selfIntroduction(findRoomUser.getSelfIntroduction())
-                .profileUrl(findRoomUser.getRoomProfile() != null ? s3Service.generatePresignedUrl(findRoomUser.getRoomProfile().getImageKey(), accessMinute) : null)
-                .roomCharacterUrl(findRoomUser.getRoomCharacter() != null ? findRoomUser.getRoomCharacter().getUrl() : null)
+                .profileUrl(profileUrl)
                 .searchId(findRoomUser.getUser().getSearchId())
                 .build();
     }
