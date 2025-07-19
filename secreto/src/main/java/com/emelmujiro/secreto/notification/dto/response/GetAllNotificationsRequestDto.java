@@ -1,4 +1,4 @@
-package com.emelmujiro.secreto.notification.dto;
+package com.emelmujiro.secreto.notification.dto.response;
 
 import com.emelmujiro.secreto.mission.dto.request.NotificationSearchPeriod;
 import lombok.*;

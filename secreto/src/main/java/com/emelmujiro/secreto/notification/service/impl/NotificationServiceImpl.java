@@ -1,24 +1,72 @@
 package com.emelmujiro.secreto.notification.service.impl;
 
-import com.emelmujiro.secreto.notification.dto.request.NotificationSearchPeriod;
-import com.emelmujiro.secreto.notification.dto.request.GetAllNotificationsRequestDto;
-import com.emelmujiro.secreto.notification.dto.request.GetRoomNotificationsRequestDto;
+import com.emelmujiro.secreto.notification.dto.request.*;
 import com.emelmujiro.secreto.notification.dto.response.GetAllNotificationsResponseDto;
 import com.emelmujiro.secreto.notification.dto.response.GetRoomNotificationsResponseDto;
+import com.emelmujiro.secreto.notification.dto.response.SendNotificationResponseDto;
 import com.emelmujiro.secreto.notification.entity.Notification;
+import com.emelmujiro.secreto.notification.entity.NotificationType;
 import com.emelmujiro.secreto.notification.repository.NotificationRepository;
 import com.emelmujiro.secreto.notification.service.NotificationService;
+import com.emelmujiro.secreto.user.entity.User;
+import com.emelmujiro.secreto.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
+
+    private final SimpMessagingTemplate messagingTemplate;
+
+    @Override
+    public void sendNotification(SendNotificationRequestDto params) {
+
+        messagingTemplate.convertAndSend(params.getNotificationType().getSubscribeUrl() + params.getTargetId(),
+                SendNotificationResponseDto.builder()
+                        .author(params.getAuthor())
+                        .type(params.getNotificationType())
+                        .content(params.getContent())
+                        .build());
+    }
+
+    @Override
+    public void sendAndSaveNotification(SendAndSaveNotificationRequestDto params) {
+
+        sendNotification(SendNotificationRequestDto.builder()
+                .notificationType(params.getNotificationType())
+                .content(params.getContent())
+                .author(params.getAuthor())
+                .targetId(params.getTargetId())
+                .build());
+
+        List<Notification> newNotificationList = new ArrayList<>();
+        for(User receiver : params.getReceiverList()) {
+            Notification newNotification = Notification.builder()
+                    .notificationType(params.getNotificationType())
+                    .author(params.getAuthor())
+                    .content(params.getContent())
+                    .generatedDate(LocalDateTime.now())
+                    .readYn(false)
+                    .referenceId(params.getReferenceId())
+                    .user(receiver)
+                    .room(params.getRoom())
+                    .build();
+
+            newNotificationList.add(newNotification);
+        }
+
+        notificationRepository.saveAll(newNotificationList);
+    }
 
     @Override
     public GetAllNotificationsResponseDto getAllNotifications(GetAllNotificationsRequestDto params) {
