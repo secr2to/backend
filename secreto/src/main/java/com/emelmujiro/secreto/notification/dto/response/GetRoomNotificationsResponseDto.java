@@ -15,6 +15,8 @@ public class GetRoomNotificationsResponseDto {
     List<NotificationDto> notificationList;
     private Integer totalPages;
     private Long totalNotifications;
+    private Long offset;
+    private Boolean hasNext;
 
     public static GetRoomNotificationsResponseDto from(Page<Notification> pagedNotificationList) {
 
@@ -34,6 +36,8 @@ public class GetRoomNotificationsResponseDto {
                 .notificationList(notificationList)
                 .totalPages(pagedNotificationList.getTotalPages())
                 .totalNotifications(pagedNotificationList.getTotalElements())
+                .offset(pagedNotificationList.getPageable().getOffset())
+                .hasNext(pagedNotificationList.hasNext())
                 .build();
     }
 }
