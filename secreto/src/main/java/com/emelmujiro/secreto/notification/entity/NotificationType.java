@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum NotificationType {
 
     INGAME_PROFILE_INFO("/sub/room/", "방 유저가 입장하였습니다."),
-    USER_ACCEPT("/sub/room", "방 유저가 수락되었습니다."),
+    USER_ACCEPT("/sub/room/", "방 유저가 수락되었습니다."),
     USER_REJECT("/sub/room/", "방 유저가 거절되었습니다."),
     INGAME_INTRODUCTION("/sub/room/", "방 유저의 자기소개가 수정되었습니다."),
     INGAME_PROFILE_IMAGE("/sub/room/", "방 유저의 프로필 이미지가 수정되었습니다."),
