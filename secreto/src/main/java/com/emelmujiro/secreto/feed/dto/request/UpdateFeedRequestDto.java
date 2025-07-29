@@ -2,6 +2,8 @@ package com.emelmujiro.secreto.feed.dto.request;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 import com.emelmujiro.secreto.global.annotation.InjectPathVariable;
 
@@ -25,6 +27,6 @@ public class UpdateFeedRequestDto {
 
 	private String title;
 	private String content;
-	private List<FeedImageRequestDto> images;
+	private List<MultipartFile> images;
 	private List<FeedTagRequestDto> tags;
 }

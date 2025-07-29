@@ -231,7 +231,7 @@ public class RoomServiceImpl implements RoomService {
         if(params.getUseProfileYn()) {
             String key;
             try {
-                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(params.getManagerId()), S3DirectoryName.ROOM_USER_PROFILE.getValue());
+                key = s3Service.uploadImage(params.getProfileImage(), String.valueOf(params.getManagerId()), S3DirectoryName.ROOM_USER_PROFILE.getValue());
             }
             catch (Exception e) {
                 throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
@@ -504,7 +504,7 @@ public class RoomServiceImpl implements RoomService {
 
             String key;
             try {
-                key = s3Service.uploadProfileImage(params.getProfileImage(), String.valueOf(newRoomUser.getId()), S3DirectoryName.ROOM_USER_PROFILE.getValue());
+                key = s3Service.uploadImage(params.getProfileImage(), String.valueOf(newRoomUser.getId()), S3DirectoryName.ROOM_USER_PROFILE.getValue());
             }
             catch (Exception e) {
                 throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());
@@ -637,7 +637,7 @@ public class RoomServiceImpl implements RoomService {
 
         String key;
         try {
-            key = s3Service.uploadProfileImage(params.getRoomImage(), String.valueOf(manager.getId()), S3DirectoryName.ROOM_IMAGE.getValue());
+            key = s3Service.uploadImage(params.getRoomImage(), String.valueOf(manager.getId()), S3DirectoryName.FEED_IMAGE.getValue());
         }
         catch (Exception e) {
             throw new RuntimeException("이미지 업로드 실패, " + e.getMessage());

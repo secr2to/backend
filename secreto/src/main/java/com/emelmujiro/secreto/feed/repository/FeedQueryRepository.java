@@ -48,7 +48,7 @@ public class FeedQueryRepository {
 				feed.imageCount,
 				feed.heartCount,
 				feed.replyCount,
-				feed.thumbnailImage,
+				feed.thumbnailImageKey,
 				new QUserProfileResponseDto(
 					feed.author.id,
 					feed.author.username,
