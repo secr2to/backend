@@ -2,7 +2,6 @@ package com.emelmujiro.secreto.feed.repository;
 
 import static com.emelmujiro.secreto.feed.entity.QFeedReply.*;
 import static com.emelmujiro.secreto.feed.entity.QFeedReplyHeart.*;
-import static com.emelmujiro.secreto.room.entity.QRoom.*;
 import static com.emelmujiro.secreto.room.entity.QRoomUser.*;
 import static com.emelmujiro.secreto.user.entity.QUser.*;
 
@@ -15,15 +14,8 @@ import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QReplyResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.ReplyResponseDto;
-import com.emelmujiro.secreto.feed.entity.QFeed;
 import com.emelmujiro.secreto.room.dto.response.QRoomUserProfileResponseDto;
-import com.emelmujiro.secreto.room.entity.QRoom;
-import com.emelmujiro.secreto.room.entity.QRoomUser;
-import com.emelmujiro.secreto.user.dto.response.QUserProfileResponseDto;
-import com.emelmujiro.secreto.user.dto.response.UserProfileResponseDto;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
@@ -53,12 +45,11 @@ public class FeedReplyQueryRepository {
 				new QRoomUserProfileResponseDto(
 					user.id,
 					user.searchId,
-					user.profileUrl,
 					roomUser.id,
 					roomUser.nickname
 				)
 			))
-			.from(feedReply)
+			.from(feedReply, roomUser)
 			.leftJoin(feedReply.replier, user)
 			.leftJoin(feedReply.feedReplyHeartList, feedReplyHeart)
 			.on(feedReplyHeart.user.id.eq(dto.getUserId()))

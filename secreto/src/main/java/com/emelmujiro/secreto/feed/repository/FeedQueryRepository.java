@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.GetIngameFeedsResponseDto;
@@ -16,9 +15,6 @@ import com.emelmujiro.secreto.feed.dto.response.IngameFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QIngameFeedResponseDto;
 import com.emelmujiro.secreto.feed.entity.FeedType;
 import com.emelmujiro.secreto.room.dto.response.QRoomUserProfileResponseDto;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
@@ -44,7 +40,6 @@ public class FeedQueryRepository {
 				new QRoomUserProfileResponseDto(
 					user.id,
 					user.searchId,
-					user.profileUrl,
 					roomUser.id,
 					roomUser.nickname
 				),
@@ -74,15 +69,5 @@ public class FeedQueryRepository {
 			.offset(hasNext ? dto.getOffset() + pageSize : -1)
 			.hasNext(hasNext)
 			.build();
-	}
-
-	private BooleanExpression stringContains(StringExpression expression, String pattern) {
-		if (!StringUtils.hasText(pattern)) {
-			return Expressions.TRUE;
-		}
-		if (expression == null) {
-			return Expressions.FALSE;
-		}
-		return expression.lower().contains(pattern.toLowerCase());
 	}
 }

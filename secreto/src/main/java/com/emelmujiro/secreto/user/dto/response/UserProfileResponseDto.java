@@ -15,20 +15,17 @@ public class UserProfileResponseDto {
 
 	private Long userId;
 	private String searchId;
-	private String profileUrl;
 
 	@QueryProjection
-	public UserProfileResponseDto(Long userId, String searchId, String profileUrl) {
+	public UserProfileResponseDto(Long userId, String searchId) {
 		this.userId = userId;
 		this.searchId = searchId;
-		this.profileUrl = profileUrl;
 	}
 
 	public static UserProfileResponseDto from(User user) {
 		return UserProfileResponseDto.builder()
 			.userId(user.getId())
 			.searchId(user.getSearchId())
-			.profileUrl(user.getProfileUrl())
 			.build();
 	}
 }
