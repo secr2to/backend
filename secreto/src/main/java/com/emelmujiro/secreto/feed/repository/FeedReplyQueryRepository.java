@@ -15,6 +15,7 @@ import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QReplyResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.ReplyResponseDto;
 import com.emelmujiro.secreto.room.dto.response.QRoomUserProfileResponseDto;
+import com.emelmujiro.secreto.user.entity.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -49,13 +50,12 @@ public class FeedReplyQueryRepository {
 					roomUser.nickname
 				)
 			))
-			.from(feedReply, roomUser)
+			.from(feedReply)
 			.leftJoin(feedReply.replier, user)
 			.leftJoin(feedReply.feedReplyHeartList, feedReplyHeart)
 			.on(feedReplyHeart.user.id.eq(dto.getUserId()))
-			.leftJoin(roomUser.user, user)
-			.on(roomUser.room.id.eq(dto.getRoomId()),
-				roomUser.user.id.eq(user.id))
+			.leftJoin(roomUser)
+			.on(roomUser.user.id.eq(user.id), roomUser.room.id.eq(dto.getRoomId()))
 			.where(
 				feedReply.feed.id.eq(dto.getFeedId()),
 				feedReply.deletedYn.eq(false),
