@@ -44,7 +44,7 @@ public class Feed extends TimestampedEntity {
     private String content;
 
     private int imageCount;
-    private String thumbnailImage;
+    private String thumbnailImageKey;
     private int heartCount;
     private int replyCount;
 
@@ -101,7 +101,7 @@ public class Feed extends TimestampedEntity {
 
     public void addFeedImage(FeedImage image) {
         if (imageCount == 0) {
-            this.thumbnailImage = image.getImageUrl();
+            this.thumbnailImageKey = image.getImageKey();
         }
         ++imageCount;
         this.images.add(image);
@@ -109,7 +109,7 @@ public class Feed extends TimestampedEntity {
     }
 
     public void removeAllFeedImages() {
-        thumbnailImage = null;
+        thumbnailImageKey = null;
         imageCount = 0;
         this.images.forEach(image -> image.setFeed(null));
         this.images.clear();

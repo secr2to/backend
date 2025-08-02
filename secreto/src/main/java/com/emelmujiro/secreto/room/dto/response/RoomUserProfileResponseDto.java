@@ -17,9 +17,8 @@ public class RoomUserProfileResponseDto extends UserProfileResponseDto {
 	private String roomNickname;
 
 	@QueryProjection
-	public RoomUserProfileResponseDto(Long userId, String searchId, String profileUrl, Long roomUserId,
-		String roomNickname) {
-		super(userId, searchId, profileUrl);
+	public RoomUserProfileResponseDto(Long userId, String searchId, Long roomUserId, String roomNickname) {
+		super(userId, searchId);
 		this.roomUserId = roomUserId;
 		this.roomNickname = roomNickname;
 	}

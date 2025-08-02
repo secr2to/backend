@@ -4,20 +4,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.FeedTagRequestDto;
-import com.emelmujiro.secreto.feed.dto.request.GetCommunityFeedRequestDto;
-import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
-import com.emelmujiro.secreto.feed.dto.response.GetCommunityFeedResponseDto;
-import com.emelmujiro.secreto.feed.dto.response.GetCommunityResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetIngameFeedsResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.IngameFeedResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
@@ -32,6 +29,7 @@ import com.emelmujiro.secreto.feed.repository.FeedRepository;
 import com.emelmujiro.secreto.feed.service.FeedService;
 import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
 import com.emelmujiro.secreto.global.dto.response.SuccessResponseDto;
+import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.room.entity.Room;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
@@ -55,22 +53,10 @@ public class FeedServiceImpl implements FeedService {
 	private final FeedQueryRepository feedQueryRepository;
 	private final FeedHeartRepository feedHeartRepository;
 	private final FeedImageRepository feedImageRepository;
+	private final S3Service s3Service;
 
-	@Override
-	public GetCommunityResponseDto getCommunity(GetCommunityRequestDto dto) {
-		return feedQueryRepository.findCommunityFeeds(dto);
-	}
-
-	@Override
-	public GetCommunityFeedResponseDto getCommunityFeed(GetCommunityFeedRequestDto dto) {
-		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
-			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
-		List<User> heartUsers = feedHeartRepository.findByFeedIdWithUser(dto.getFeedId())
-			.stream()
-			.map(FeedHeart::getUser)
-			.toList();
-		return GetCommunityFeedResponseDto.from(feed, heartUsers, dto.getUserId());
-	}
+	@Value("${s3.access-minute}")
+	private int accessMinute;
 
 	@Override
 	public GetIngameFeedsResponseDto getIngameFeeds(GetIngameFeedsRequestDto dto) {
@@ -91,6 +77,12 @@ public class FeedServiceImpl implements FeedService {
 			));
 		Map<Long, List<FeedImage>> imagesMap = feedImageRepository.findAllByFeedIdIn(feedIds)
 			.stream()
+			.peek(image -> {
+				if (image.getImageKey() != null) {
+					String presignedUrl = s3Service.generatePresignedUrl(image.getImageKey(), accessMinute);
+					image.setImageUrl(presignedUrl);
+				}
+			})
 			.collect(Collectors.groupingBy(
 				image -> image.getFeed().getId()
 			));
@@ -116,7 +108,7 @@ public class FeedServiceImpl implements FeedService {
 		List<User> tagUsers = getTagUsers(dto.getTags());
 
 		Feed feed = feedFactory.createFeed(room, author, dto);
-		feedFactory.syncImages(feed, dto.getImages());
+		feedFactory.syncImages(feed, authorId, dto.getImages());
 		feedFactory.syncTags(feed, tagUsers);
 		Feed savedFeed = feedRepository.save(feed);
 		return CreateFeedResponseDto.from(savedFeed);
@@ -128,8 +120,9 @@ public class FeedServiceImpl implements FeedService {
 		Feed feed = getFeed(dto.getFeedId(), dto.getAuthorId());
 		List<User> tagUsers = getTagUsers(dto.getTags());
 
+		Long authorId = dto.getAuthorId();
 		feed.update(dto.getTitle(), dto.getContent());
-		feedFactory.syncImages(feed, dto.getImages());
+		feedFactory.syncImages(feed, authorId, dto.getImages());
 		feedFactory.syncTags(feed, tagUsers);
 		return SuccessResponseDto.ofSuccess();
 	}

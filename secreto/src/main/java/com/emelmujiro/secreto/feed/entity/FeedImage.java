@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,10 @@ public class FeedImage {
 	@Column(name = "feed_image_id")
 	private Long id;
 
+	private String imageKey;
+
+	@Transient
+	@Setter
 	private String imageUrl;
 
 	@Setter(value = AccessLevel.PROTECTED)
@@ -35,8 +40,8 @@ public class FeedImage {
 	@Column(name = "order_number")
 	private int order;
 
-	public FeedImage(String imageUrl, int order) {
-		this.imageUrl = imageUrl;
+	public FeedImage(String imageKey, int order) {
+		this.imageKey = imageKey;
 		this.order = order;
 	}
 }

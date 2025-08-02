@@ -2,6 +2,7 @@ package com.emelmujiro.secreto.feed.repository;
 
 import static com.emelmujiro.secreto.feed.entity.QFeedReply.*;
 import static com.emelmujiro.secreto.feed.entity.QFeedReplyHeart.*;
+import static com.emelmujiro.secreto.room.entity.QRoomUser.*;
 import static com.emelmujiro.secreto.user.entity.QUser.*;
 
 import java.util.List;
@@ -14,11 +15,8 @@ import com.emelmujiro.secreto.feed.dto.response.GetRepliesResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.QReplyResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.ReplyResponseDto;
 import com.emelmujiro.secreto.room.dto.response.QRoomUserProfileResponseDto;
-import com.emelmujiro.secreto.user.dto.response.QUserProfileResponseDto;
-import com.emelmujiro.secreto.user.dto.response.UserProfileResponseDto;
-import com.querydsl.core.types.Expression;
+import com.emelmujiro.secreto.user.entity.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
@@ -36,7 +34,6 @@ public class FeedReplyQueryRepository {
 	}
 
 	public GetRepliesResponseDto getReplies(GetRepliesRequestDto dto) {
-		boolean isInCommunityFeed = dto.getRoomId() == null;
 		List<ReplyResponseDto> content = query
 			.select(new QReplyResponseDto(
 				feedReply.id,
@@ -46,12 +43,19 @@ public class FeedReplyQueryRepository {
 				feedReply.nestedReplyCount,
 				feedReply.heartCount,
 				feedReplyHeart.user.isNotNull(),
-				getUserProfile(isInCommunityFeed)
+				new QRoomUserProfileResponseDto(
+					user.id,
+					user.searchId,
+					roomUser.id,
+					roomUser.nickname
+				)
 			))
 			.from(feedReply)
 			.leftJoin(feedReply.replier, user)
 			.leftJoin(feedReply.feedReplyHeartList, feedReplyHeart)
 			.on(feedReplyHeart.user.id.eq(dto.getUserId()))
+			.leftJoin(roomUser)
+			.on(roomUser.user.id.eq(user.id), roomUser.room.id.eq(dto.getRoomId()))
 			.where(
 				feedReply.feed.id.eq(dto.getFeedId()),
 				feedReply.deletedYn.eq(false),
@@ -72,16 +76,6 @@ public class FeedReplyQueryRepository {
 			.offset(hasNext ? dto.getOffset() + pageSize : -1)
 			.hasNext(hasNext)
 			.build();
-	}
-
-	private Expression<? extends UserProfileResponseDto> getUserProfile(boolean isInCommunityFeed) {
-		return isInCommunityFeed
-			? new QUserProfileResponseDto(
-				user.id, user.searchId, user.profileUrl)
-			: new QRoomUserProfileResponseDto(
-				user.id, user.searchId, user.profileUrl,
-				Expressions.nullExpression(), Expressions.nullExpression()
-		);
 	}
 
 	private BooleanExpression replyCondition(GetRepliesRequestDto dto) {

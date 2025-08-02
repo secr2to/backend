@@ -39,25 +39,6 @@ public class FeedController {
 	private final FeedService feedService;
 	private final FeedReplyService feedReplyService;
 
-	@GetMapping("/community")
-	public ResponseEntity<?> getCommunity(@ModelAttribute GetCommunityRequestDto getFeedRequest) {
-		return ApiResponse.builder()
-			.data(feedService.getCommunity(getFeedRequest))
-			.message(format(FeedMessage.GET_COMMUNITY_SUCCESS.getMessage(),
-				getFeedRequest.getOffset(),
-				getFeedRequest.getKeyword())
-			)
-			.success();
-	}
-
-	@GetMapping("/community/{feedId}")
-	public ResponseEntity<?> getCommunityFeed(@ModelAttribute GetCommunityFeedRequestDto getCommunityFeedRequest) {
-		return ApiResponse.builder()
-			.data(feedService.getCommunityFeed(getCommunityFeedRequest))
-			.message(format(FeedMessage.GET_COMMUNITY_FEED_SUCCESS.getMessage(), getCommunityFeedRequest.getFeedId()))
-			.success();
-	}
-
 	@GetMapping("/rooms/{roomId}/feeds")
 	public ResponseEntity<?> getIngameFeeds(@ModelAttribute GetIngameFeedsRequestDto getIngameFeedsRequest) {
 		return ApiResponse.builder()
@@ -66,8 +47,8 @@ public class FeedController {
 			.success();
 	}
 
-	@PostMapping({"/community", "/rooms/{roomId}/feeds"})
-	public ResponseEntity<?> createFeed(@RequestBody CreateFeedRequestDto createFeedRequest) {
+	@PostMapping("/rooms/{roomId}/feeds")
+	public ResponseEntity<?> createFeed(@ModelAttribute CreateFeedRequestDto createFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.create(createFeedRequest))
 			.message(FeedMessage.CREATE_FEED_SUCCESS.getMessage())

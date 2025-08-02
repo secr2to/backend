@@ -27,7 +27,7 @@ public class S3Service {
     private String bucketName;
 
     // S3에 업로드하고 key 반환
-    public String uploadProfileImage(MultipartFile file, String userId, String dirName) throws IOException {
+    public String uploadImage(MultipartFile file, String userId, String dirName) throws IOException {
         String fileName = userId + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
         String key = dirName + fileName;
 
