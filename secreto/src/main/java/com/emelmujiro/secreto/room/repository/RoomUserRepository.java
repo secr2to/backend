@@ -34,4 +34,7 @@ public interface RoomUserRepository extends JpaRepository<RoomUser, Long> {
 
     @Query("select ru from RoomUser ru where ru.room.id = :roomId and ru.managerYn = :managerYn")
     RoomUser findByRoomIdAndManagerYn(@Param("roomId") Long roomId, @Param("managerYn") Boolean managerYn);
+
+    @Query("select ru from RoomUser ru where ru.room.id = :roomId and ru.user.id in :userIds")
+    List<RoomUser> findAllByRoomIdAndUserIds(@Param("roomId") Long roomId, @Param("userIds") Iterable<Long> userIds);
 }

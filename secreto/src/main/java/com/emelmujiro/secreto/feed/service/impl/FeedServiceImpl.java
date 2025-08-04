@@ -1,7 +1,10 @@
 package com.emelmujiro.secreto.feed.service.impl;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +34,7 @@ import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
 import com.emelmujiro.secreto.global.dto.response.SuccessResponseDto;
 import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.room.entity.Room;
+import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.user.entity.User;
@@ -75,6 +79,16 @@ public class FeedServiceImpl implements FeedService {
 				heart -> heart.getFeed().getId(),
 				Collectors.mapping(FeedHeart::getUser, Collectors.toList())
 			));
+		Set<Long> distinctUserIds = heartUsersMap.values().stream()
+			.flatMap(List::stream)
+			.map(User::getId)
+			.collect(Collectors.toSet());
+		Map<Long, RoomUser> userRoomUserMap = roomUserRepository.findAllByRoomIdAndUserIds(dto.getRoomId(), distinctUserIds)
+			.stream()
+			.collect(Collectors.toMap(
+				roomUser -> roomUser.getUser().getId(),
+				roomUser -> roomUser
+			));
 		Map<Long, List<FeedImage>> imagesMap = feedImageRepository.findAllByFeedIdIn(feedIds)
 			.stream()
 			.peek(image -> {
@@ -89,7 +103,10 @@ public class FeedServiceImpl implements FeedService {
 
 		content.forEach(feedDto -> {
 			feedDto.applyImages(imagesMap.getOrDefault(feedDto.getFeedId(), List.of()));
-			feedDto.applyHearts(heartUsersMap.getOrDefault(feedDto.getFeedId(), List.of()), dto.getUserId());
+			feedDto.applyHearts(
+				dto.getUserId(),
+				heartUsersMap.getOrDefault(feedDto.getFeedId(), List.of()),
+				userRoomUserMap);
 		});
 		return response;
 	}
