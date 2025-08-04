@@ -39,7 +39,10 @@ public class FeedReplyServiceImpl implements FeedReplyService {
 	private final FeedReplyHeartRepository feedReplyHeartRepository;
 
 	public GetRepliesResponseDto getReplies(GetRepliesRequestDto dto) {
-		return feedReplyQueryRepository.getReplies(dto);
+		Feed feed = feedService.getFeed(dto.getFeedId());
+		GetRepliesResponseDto replies = feedReplyQueryRepository.getReplies(dto);
+		replies.setFeed(feed);
+		return replies;
 	}
 
 	@Transactional
