@@ -139,7 +139,7 @@ public class FeedServiceImpl implements FeedService {
 
 		Long authorId = dto.getAuthorId();
 		feed.update(dto.getTitle(), dto.getContent());
-		feedFactory.syncImages(feed, authorId, dto.getImages());
+		feedFactory.updateImages(feed, authorId, dto.getImages());
 		feedFactory.syncTags(feed, tagUsers);
 		return SuccessResponseDto.ofSuccess();
 	}

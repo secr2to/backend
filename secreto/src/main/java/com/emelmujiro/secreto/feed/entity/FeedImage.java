@@ -37,6 +37,7 @@ public class FeedImage {
 	@JoinColumn(name = "feed_id")
 	private Feed feed;
 
+	@Setter
 	@Column(name = "order_number")
 	private int order;
 

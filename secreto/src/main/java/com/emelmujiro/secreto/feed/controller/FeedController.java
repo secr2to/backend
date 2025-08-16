@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteReplyRequestDto;
-import com.emelmujiro.secreto.feed.dto.request.GetCommunityFeedRequestDto;
-import com.emelmujiro.secreto.feed.dto.request.GetCommunityRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetRepliesRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
@@ -56,7 +54,7 @@ public class FeedController {
 	}
 
 	@PutMapping("/feeds/{feedId}")
-	public ResponseEntity<?> updateFeed(@RequestBody UpdateFeedRequestDto updateFeedRequest) {
+	public ResponseEntity<?> updateFeed(@ModelAttribute UpdateFeedRequestDto updateFeedRequest) {
 		return ApiResponse.builder()
 			.data(feedService.update(updateFeedRequest))
 			.message(FeedMessage.UPDATE_FEED_SUCCESS.getMessage())

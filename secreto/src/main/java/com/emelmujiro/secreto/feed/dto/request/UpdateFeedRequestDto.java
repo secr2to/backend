@@ -1,5 +1,6 @@
 package com.emelmujiro.secreto.feed.dto.request;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -12,21 +13,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 public class UpdateFeedRequestDto {
 
 	@LoginUser
 	private Long authorId;
 
-	@InjectPathVariable
 	private Long feedId;
 
 	private String title;
 	private String content;
-	private List<MultipartFile> images;
+	private List<FeedImageRequestDto> images;
 	private List<FeedTagRequestDto> tags;
 }

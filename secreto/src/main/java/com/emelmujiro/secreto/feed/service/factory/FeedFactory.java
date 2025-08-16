@@ -1,6 +1,7 @@
 package com.emelmujiro.secreto.feed.service.factory;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import com.emelmujiro.secreto.feed.entity.FeedImage;
 import com.emelmujiro.secreto.feed.entity.FeedTagUser;
 import com.emelmujiro.secreto.feed.error.FeedErrorCode;
 import com.emelmujiro.secreto.feed.exception.FeedException;
+import com.emelmujiro.secreto.feed.repository.FeedImageRepository;
 import com.emelmujiro.secreto.global.service.S3DirectoryName;
 import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.room.entity.Room;
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class FeedFactory {
 
 	private final S3Service s3Service;
+	private final FeedImageRepository feedImageRepository;
 
 	public Feed createFeed(Room room, User author, CreateFeedRequestDto createFeedRequest) {
 		return Feed.builder()
@@ -45,6 +48,34 @@ public class FeedFactory {
 			String key;
 			try {
 				key = s3Service.uploadImage(file, String.valueOf(userId), S3DirectoryName.FEED_IMAGE.name());
+			} catch (IOException e) {
+				throw new FeedException(FeedErrorCode.FEED_IMAGE_ERROR);
+			}
+			feed.addFeedImage(new FeedImage(key, order++));
+		}
+	}
+
+	public void updateImages(Feed feed, Long userId, List<FeedImageRequestDto> feedImageRequests) {
+		if (feedImageRequests == null || feedImageRequests.isEmpty()) {
+			throw new FeedException(FeedErrorCode.IMAGE_REQUIRED);
+		}
+		feed.removeAllFeedImages();
+
+		feedImageRequests.sort(Comparator.comparingInt(FeedImageRequestDto::getOrder));
+
+		int order = 0;
+		for (FeedImageRequestDto dto : feedImageRequests) {
+			if (dto.getImageId() != null) {
+				FeedImage feedImage = feedImageRepository.findById(dto.getImageId())
+					.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_IMAGE_ERROR));
+				feedImage.setOrder(order++);
+				feed.addFeedImage(feedImage);
+				continue;
+			}
+
+			String key;
+			try {
+				key = s3Service.uploadImage(dto.getImage(), String.valueOf(userId), S3DirectoryName.FEED_IMAGE.name());
 			} catch (IOException e) {
 				throw new FeedException(FeedErrorCode.FEED_IMAGE_ERROR);
 			}
