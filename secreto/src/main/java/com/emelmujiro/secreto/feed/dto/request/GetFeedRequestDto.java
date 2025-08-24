@@ -1,5 +1,9 @@
 package com.emelmujiro.secreto.feed.dto.request;
 
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.emelmujiro.secreto.auth.annotation.LoginUser;
 
 import lombok.AccessLevel;
@@ -12,11 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class GetCommunityRequestDto {
+public class GetFeedRequestDto {
 
-	private int offset;
-	private String keyword;
-
-	@LoginUser
-	private Long userId;
+	private Long feedId;
 }

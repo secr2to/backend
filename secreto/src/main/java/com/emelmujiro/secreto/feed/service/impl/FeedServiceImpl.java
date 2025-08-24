@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.FeedTagRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.GetFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetIngameFeedsResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.IngameFeedResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
@@ -109,6 +112,21 @@ public class FeedServiceImpl implements FeedService {
 				userRoomUserMap);
 		});
 		return response;
+	}
+
+	@Override
+	public GetFeedResponseDto find(GetFeedRequestDto dto) {
+		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
+		feed.getImages()
+			.stream()
+			.forEach(image -> {
+				if (image.getImageKey() != null) {
+					String presignedUrl = s3Service.generatePresignedUrl(image.getImageKey(), accessMinute);
+					image.setImageUrl(presignedUrl);
+				}
+			});
+		return GetFeedResponseDto.from(feed);
 	}
 
 	@Override
