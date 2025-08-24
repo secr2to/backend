@@ -10,6 +10,7 @@ public enum FeedMessage {
 	GET_COMMUNITY_SUCCESS("커뮤니티 게시글 목록을 조회하였습니다. offset=%d, keyword='%s'"),
 	GET_COMMUNITY_FEED_SUCCESS("커뮤니티 게시글을 조회하였습니다. id=%s"),
 	GET_INGAME_FEEDS_SUCCESS("인게임 게시글을 조회하였습니다. roomId=%s"),
+	GET_FEED_SUCCESS("게시글을 조회하였습니다."),
 	CREATE_FEED_SUCCESS("게시글을 생성하였습니다."),
 	UPDATE_FEED_SUCCESS("게시글을 수정하였습니다."),
 	DELETE_FEED_SUCCESS("게시글을 삭제하였습니다."),

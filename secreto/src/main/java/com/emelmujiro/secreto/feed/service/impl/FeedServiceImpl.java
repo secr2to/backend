@@ -1,7 +1,11 @@
 package com.emelmujiro.secreto.feed.service.impl;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -11,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.emelmujiro.secreto.feed.dto.request.CreateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.DeleteFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.FeedTagRequestDto;
+import com.emelmujiro.secreto.feed.dto.request.GetFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.GetIngameFeedsRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.HeartRequestDto;
 import com.emelmujiro.secreto.feed.dto.request.UpdateFeedRequestDto;
 import com.emelmujiro.secreto.feed.dto.response.CreateFeedResponseDto;
+import com.emelmujiro.secreto.feed.dto.response.GetFeedResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.GetIngameFeedsResponseDto;
 import com.emelmujiro.secreto.feed.dto.response.IngameFeedResponseDto;
 import com.emelmujiro.secreto.feed.entity.Feed;
@@ -31,6 +37,7 @@ import com.emelmujiro.secreto.feed.service.factory.FeedFactory;
 import com.emelmujiro.secreto.global.dto.response.SuccessResponseDto;
 import com.emelmujiro.secreto.global.service.S3Service;
 import com.emelmujiro.secreto.room.entity.Room;
+import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.room.repository.RoomRepository;
 import com.emelmujiro.secreto.room.repository.RoomUserRepository;
 import com.emelmujiro.secreto.user.entity.User;
@@ -75,6 +82,16 @@ public class FeedServiceImpl implements FeedService {
 				heart -> heart.getFeed().getId(),
 				Collectors.mapping(FeedHeart::getUser, Collectors.toList())
 			));
+		Set<Long> distinctUserIds = heartUsersMap.values().stream()
+			.flatMap(List::stream)
+			.map(User::getId)
+			.collect(Collectors.toSet());
+		Map<Long, RoomUser> userRoomUserMap = roomUserRepository.findAllByRoomIdAndUserIds(dto.getRoomId(), distinctUserIds)
+			.stream()
+			.collect(Collectors.toMap(
+				roomUser -> roomUser.getUser().getId(),
+				roomUser -> roomUser
+			));
 		Map<Long, List<FeedImage>> imagesMap = feedImageRepository.findAllByFeedIdIn(feedIds)
 			.stream()
 			.peek(image -> {
@@ -89,9 +106,27 @@ public class FeedServiceImpl implements FeedService {
 
 		content.forEach(feedDto -> {
 			feedDto.applyImages(imagesMap.getOrDefault(feedDto.getFeedId(), List.of()));
-			feedDto.applyHearts(heartUsersMap.getOrDefault(feedDto.getFeedId(), List.of()), dto.getUserId());
+			feedDto.applyHearts(
+				dto.getUserId(),
+				heartUsersMap.getOrDefault(feedDto.getFeedId(), List.of()),
+				userRoomUserMap);
 		});
 		return response;
+	}
+
+	@Override
+	public GetFeedResponseDto find(GetFeedRequestDto dto) {
+		Feed feed = feedRepository.findByIdWithAuthorAndImages(dto.getFeedId())
+			.orElseThrow(() -> new FeedException(FeedErrorCode.FEED_NOT_FOUND));
+		feed.getImages()
+			.stream()
+			.forEach(image -> {
+				if (image.getImageKey() != null) {
+					String presignedUrl = s3Service.generatePresignedUrl(image.getImageKey(), accessMinute);
+					image.setImageUrl(presignedUrl);
+				}
+			});
+		return GetFeedResponseDto.from(feed);
 	}
 
 	@Override
@@ -122,7 +157,7 @@ public class FeedServiceImpl implements FeedService {
 
 		Long authorId = dto.getAuthorId();
 		feed.update(dto.getTitle(), dto.getContent());
-		feedFactory.syncImages(feed, authorId, dto.getImages());
+		feedFactory.updateImages(feed, authorId, dto.getImages());
 		feedFactory.syncTags(feed, tagUsers);
 		return SuccessResponseDto.ofSuccess();
 	}

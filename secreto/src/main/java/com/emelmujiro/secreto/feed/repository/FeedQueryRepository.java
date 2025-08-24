@@ -49,6 +49,7 @@ public class FeedQueryRepository {
 			.from(feed)
 			.leftJoin(feed.author, user)
 			.leftJoin(user.roomUserList, roomUser)
+			.on(roomUser.room.id.eq(dto.getRoomId()))
 			.where(
 				feed.deletedYn.eq(false),
 				feed.feedType.eq(FeedType.INGAME),

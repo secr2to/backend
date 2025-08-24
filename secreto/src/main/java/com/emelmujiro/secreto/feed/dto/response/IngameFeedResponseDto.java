@@ -3,10 +3,12 @@ package com.emelmujiro.secreto.feed.dto.response;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.emelmujiro.secreto.feed.entity.FeedImage;
 import com.emelmujiro.secreto.feed.message.FeedMessage;
 import com.emelmujiro.secreto.room.dto.response.RoomUserProfileResponseDto;
+import com.emelmujiro.secreto.room.entity.RoomUser;
 import com.emelmujiro.secreto.user.entity.User;
 import com.querydsl.core.annotations.QueryProjection;
 
@@ -46,7 +48,7 @@ public class IngameFeedResponseDto {
 			.toList();
 	}
 
-	public void applyHearts(List<User> heartUsers, Long userId) {
+	public void applyHearts(Long userId, List<User> heartUsers, Map<Long, RoomUser> userRoomUserMap) {
 		this.heartCount = heartUsers.size();
 		this.heart = heartUsers
 			.stream()
@@ -54,10 +56,12 @@ public class IngameFeedResponseDto {
 		if (heartCount == 0) {
 			this.heartMessage = "";
 		} else if (heartCount == 1) {
-			this.heartMessage = String.format(FeedMessage.HEART_MESSAGE_ONE.getMessage(), heartUsers.get(0).getSearchId());
+			this.heartMessage = String.format(FeedMessage.HEART_MESSAGE_ONE.getMessage(),
+				userRoomUserMap.get(heartUsers.get(0).getId()).getNickname()
+			);
 		} else {
 			this.heartMessage = String.format(FeedMessage.HEART_MESSAGE.getMessage(),
-				heartUsers.get(0).getSearchId(),
+				userRoomUserMap.get(heartUsers.get(0).getId()).getNickname(),
 				heartUsers.size() - 1);
 		}
 	}
